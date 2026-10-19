@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pivot — Nouvelle demande</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-page">
+
+<nav class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+
+    <a href="#" class="logo" aria-label="Pivot — accueil">
+      <span class="logo__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="17" height="17">
+          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+      </span>
+      <span class="logo__word">Pivot</span>
+    </a>
+
+    <ul class="app-nav__links" id="appNavLinks">
+      <li><a href="dashboard.html" class="app-nav__link">Demandes</a></li>
+      <li><a href="demande.html" class="app-nav__link is-active">Nouvelle demande</a></li>
+      <li><a href="#" class="app-nav__link">Équipe</a></li>
+      <li><a href="#" class="app-nav__link">Rapports</a></li>
+      <li><a href="#" class="app-nav__link">Paramètres</a></li>
+    </ul>
+
+    <div class="app-nav__user">
+      <div class="avatar" aria-hidden="true">A</div>
+      <span class="app-nav__user-name">Amadou D.</span>
+    </div>
+
+    <button class="app-nav__toggle" id="appNavToggle"
+            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+<main class="dashboard">
+
+  <a href="dashboard.html" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 6l-6 6 6 6"/>
+    </svg>
+    Retour aux demandes
+  </a>
+
+  <header class="dashboard__head">
+    <p class="eyebrow">Département Informatique</p>
+    <h1>Nouvelle demande</h1>
+    <p class="dashboard__count">Renseignez l'échéance, chaque poste requis, puis validez.</p>
+  </header>
+
+  <form class="req-form" id="requestForm" novalidate>
+
+    <div class="req-form__top">
+      <p class="req-form__count" id="count" aria-live="polite">01 poste · 01 personne</p>
+      <button type="button" class="btn-add" id="addRow">
+        <span class="btn-add__icon" aria-hidden="true">+</span>
+        <span>Ajouter un poste</span>
+      </button>
+    </div>
+
+    <!-- Date limite de la demande -->
+    <div class="req-form__meta">
+      <div class="req-form__deadline" id="deadlineBlock">
+        <label for="deadline" class="req-form__deadline-label">Date limite</label>
+        <div class="req-form__deadline-control">
+          <input type="date" id="deadline" name="deadline"
+                 aria-describedby="err-deadline" required>
+        </div>
+        <span class="req-form__deadline-error" id="err-deadline" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="req-form__cols" aria-hidden="true">
+      <span></span>
+      <span>Département</span>
+      <span>Poste</span>
+      <span>Nombre</span>
+      <span>Motif</span>
+      <span></span>
+    </div>
+
+    <div class="req-form__rows" id="rows"></div>
+
+    <div class="req-form__foot">
+      <p class="req-form__hint">
+        Chaque poste est compté séparément. Votre demande sera transmise pour validation.
+      </p>
+      <button type="submit" class="submit" id="submitBtn">
+        <span class="submit__label">Créer ma demande</span>
+        <span class="submit__icon">
+          <svg class="submit__arrow" width="18" height="18" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.6"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12h15M13 6l6 6-6 6"/>
+          </svg>
+          <span class="spinner" aria-hidden="true"></span>
+        </span>
+      </button>
+    </div>
+
+    <p class="form__success" id="formSuccess" role="status" aria-live="polite" style="margin-top:24px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.4"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+      <span></span>
+    </p>
+
+  </form>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     CONFIG
+     ============================================================ */
+  const DEPARTEMENTS = [
+    'Informatique',
+    'Ressources Humaines',
+    'Finance & Comptabilité',
+    'Commercial & Ventes',
+    'Marketing & Communication',
+    'Production & Opérations',
+    'Logistique',
+    'Juridique',
+    'Recherche & Développement',
+    'Service Client',
+    'Qualité & HSE',
+    'Direction Générale'
+  ];
+
+  const POSTES = [
+    'Développeur Front-end',
+    'Développeur Back-end',
+    'Développeur Full-stack',
+    'Designer UX / UI',
+    'Chef de projet',
+    'Data analyst',
+    'DevOps / SRE',
+    'QA / Testeur',
+    'Product Owner',
+    'Scrum Master'
+  ];
+
+  /* ============================================================
+     Éléments
+     ============================================================ */
+  const form           = document.getElementById('requestForm');
+  const rowsEl         = document.getElementById('rows');
+  const addBtn         = document.getElementById('addRow');
+  const countEl        = document.getElementById('count');
+  const submitBtn      = document.getElementById('submitBtn');
+  const success        = document.getElementById('formSuccess');
+  const successTx      = success.querySelector('span');
+  const deadline       = document.getElementById('deadline');
+  const deadlineBlock  = document.getElementById('deadlineBlock');
+  const deadlineError  = document.getElementById('err-deadline');
+
+  let nextId = 1;
+
+  /* ============================================================
+     Date limite — init
+     ============================================================ */
+  const today = new Date();
+  const todayISO = today.toISOString().split('T')[0];
+  deadline.min = todayISO;
+
+  deadline.addEventListener('input', () => {
+    deadline.classList.remove('is-invalid');
+    deadlineBlock.classList.remove('has-error');
+    deadlineError.textContent = '';
+    success.classList.remove('is-visible');
+  });
+
+  /* ============================================================
+     Formatage date
+     ============================================================ */
+  function formatDateFR(isoStr) {
+    if (!isoStr) return '';
+    const [y, m, d] = isoStr.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  /* ============================================================
+     Construction d'une ligne
+     ============================================================ */
+  function createRow() {
+    const n = nextId++;
+    const row = document.createElement('div');
+    row.className = 'req-row';
+    row.dataset.id = n;
+    row.innerHTML = `
+      <span class="req-row__index" aria-hidden="true"></span>
+
+      <div class="req-row__field req-row__field--dept">
+        <label for="dept-${n}" class="req-row__label-mobile">Département</label>
+        <select id="dept-${n}" name="departement[]" class="departement" required>
+          ${DEPARTEMENTS.map((d, i) =>
+            `<option value="${d}"${i === 0 ? ' selected' : ''}>${d}</option>`
+          ).join('')}
+        </select>
+      </div>
+
+      <div class="req-row__field req-row__field--poste">
+        <label for="poste-${n}" class="req-row__label-mobile">Poste</label>
+        <select id="poste-${n}" name="poste[]" class="poste" required>
+          <option value="">Sélectionner un poste…</option>
+          ${POSTES.map(p => `<option>${p}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="req-row__field req-row__field--num">
+        <label for="nombre-${n}" class="req-row__label-mobile">Nombre</label>
+        <input type="number" id="nombre-${n}" name="nombre[]" class="nombre"
+               min="1" step="1" value="1" required inputmode="numeric">
+      </div>
+
+      <div class="req-row__field req-row__field--motif">
+        <label for="motif-${n}" class="req-row__label-mobile">Motif</label>
+        <input type="text" id="motif-${n}" name="motif[]" class="motif"
+               placeholder="Ex : renfort sur le projet Atlas"
+               autocomplete="off" required>
+      </div>
+
+      <button type="button" class="req-row__remove"
+              aria-label="Supprimer ce poste">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" aria-hidden="true">
+          <path d="M5 12h14"/>
+        </svg>
+      </button>
+    `;
+    return row;
+  }
+
+  /* ============================================================
+     Mise à jour de l'état
+     ============================================================ */
+  function updateState() {
+    const rows = Array.from(rowsEl.querySelectorAll('.req-row'));
+
+    rows.forEach((row, i) => {
+      row.querySelector('.req-row__index').textContent =
+        String(i + 1).padStart(2, '0');
+    });
+
+    rows.forEach(row => {
+      row.querySelector('.req-row__remove').disabled = rows.length === 1;
+    });
+
+    let totalPersonnes = 0;
+    rows.forEach(row => {
+      const v = parseInt(row.querySelector('.nombre').value, 10);
+      if (!isNaN(v) && v > 0) totalPersonnes += v;
+    });
+
+    const nPostes = rows.length;
+    countEl.textContent =
+      String(nPostes).padStart(2, '0') +
+      (nPostes > 1 ? ' postes' : ' poste') +
+      ' · ' +
+      String(totalPersonnes).padStart(2, '0') +
+      (totalPersonnes > 1 ? ' personnes' : ' personne');
+  }
+
+  /* ============================================================
+     Ajout / suppression
+     ============================================================ */
+  function addRow(focus = true) {
+    const lastRow = rowsEl.querySelector('.req-row:last-child');
+    const row = createRow();
+
+    if (lastRow) {
+      const lastDept = lastRow.querySelector('.departement').value;
+      if (lastDept) row.querySelector('.departement').value = lastDept;
+    }
+
+    rowsEl.appendChild(row);
+    updateState();
+
+    if (focus) {
+      const select = row.querySelector('.poste');
+      select.focus();
+      select.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function removeRow(row) {
+    const rows = rowsEl.querySelectorAll('.req-row');
+    if (rows.length <= 1) return;
+
+    const prev = row.previousElementSibling;
+    const next = row.nextElementSibling;
+
+    row.classList.add('is-removing');
+    setTimeout(() => {
+      row.remove();
+      updateState();
+
+      const target = (prev && prev.classList.contains('req-row'))
+        ? prev
+        : (next && next.classList.contains('req-row') ? next : null);
+      if (target) {
+        target.querySelector('.req-row__remove').focus();
+      }
+    }, 280);
+  }
+
+  /* ============================================================
+     Écouteurs
+     ============================================================ */
+  addBtn.addEventListener('click', () => addRow());
+
+  rowsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.req-row__remove');
+    if (btn && !btn.disabled) {
+      removeRow(btn.closest('.req-row'));
+    }
+  });
+
+  rowsEl.addEventListener('input', (e) => {
+    const field = e.target;
+    if (field.matches('input, select')) {
+      field.classList.remove('is-invalid');
+    }
+    if (field.matches('.nombre')) {
+      if (field.value && parseInt(field.value, 10) < 0) field.value = 1;
+      updateState();
+    }
+  });
+
+  rowsEl.addEventListener('change', (e) => {
+    if (e.target.matches('select, input')) {
+      e.target.classList.remove('is-invalid');
+    }
+  });
+
+  /* ============================================================
+     Soumission
+     ============================================================ */
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    success.classList.remove('is-visible');
+
+    /* --- Validation date limite --- */
+    let ok = true;
+    const deadlineVal = deadline.value;
+
+    deadline.classList.remove('is-invalid');
+    deadlineBlock.classList.remove('has-error');
+    deadlineError.textContent = '';
+
+    if (!deadlineVal) {
+      deadline.classList.add('is-invalid');
+      deadlineBlock.classList.add('has-error');
+      deadlineError.textContent = 'Champ requis';
+      ok = false;
+    } else if (deadlineVal < todayISO) {
+      deadline.classList.add('is-invalid');
+      deadlineBlock.classList.add('has-error');
+      deadlineError.textContent = 'Date passée';
+      ok = false;
+    }
+
+    /* --- Validation des lignes --- */
+    const rows = rowsEl.querySelectorAll('.req-row');
+    let totalPostes = 0;
+    let totalPersonnes = 0;
+    const depts = new Set();
+
+    rows.forEach(row => {
+      const dept  = row.querySelector('.departement');
+      const sel   = row.querySelector('.poste');
+      const num   = row.querySelector('.nombre');
+      const motif = row.querySelector('.motif');
+
+      [dept, sel, num, motif].forEach(f => f.classList.remove('is-invalid'));
+
+      const n = parseInt(num.value, 10);
+
+      if (!dept.value) {
+        dept.classList.add('is-invalid');
+        ok = false;
+      }
+      if (!sel.value) {
+        sel.classList.add('is-invalid');
+        ok = false;
+      }
+      if (!n || n < 1) {
+        num.classList.add('is-invalid');
+        ok = false;
+      }
+      if (!motif.value.trim()) {
+        motif.classList.add('is-invalid');
+        ok = false;
+      }
+
+      if (dept.value && sel.value && n >= 1) {
+        totalPostes++;
+        totalPersonnes += n;
+        depts.add(dept.value);
+      }
+    });
+
+    /* --- Focus intelligent sur la première erreur --- */
+    if (!ok) {
+      if (deadline.classList.contains('is-invalid')) {
+        deadline.focus();
+        deadlineBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        const firstInvalid = rowsEl.querySelector('.is-invalid');
+        if (firstInvalid) firstInvalid.focus();
+      }
+      return;
+    }
+
+    /* --- Simulation d'enregistrement --- */
+    // → remplacer ce setTimeout par un fetch POST vers votre API.
+    submitBtn.classList.add('is-loading');
+    submitBtn.disabled = true;
+
+    setTimeout(() => {
+      submitBtn.classList.remove('is-loading');
+      submitBtn.disabled = false;
+
+      const deptLabel = depts.size > 1
+        ? `${depts.size} départements`
+        : `département ${[...depts][0]}`;
+
+      const deadlineFR = formatDateFR(deadline.value);
+
+      successTx.textContent =
+        `Demande créée · échéance ${deadlineFR} · ` +
+        `${totalPostes} poste${totalPostes > 1 ? 's' : ''} · ` +
+        `${totalPersonnes} personne${totalPersonnes > 1 ? 's' : ''} · ` +
+        `${deptLabel}. En attente de validation.`;
+
+      success.classList.add('is-visible');
+      success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 1400);
+  });
+
+  /* ============================================================
+     Navbar mobile
+     ============================================================ */
+  const nav    = document.getElementById('appNav');
+  const toggle = document.getElementById('appNavToggle');
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open);
+    toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  });
+  document.querySelectorAll('.app-nav__link').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  /* ============================================================
+     Ligne initiale
+     ============================================================ */
+  addRow(false);
+
+})();
+</script>
+
+</body>
+</html>

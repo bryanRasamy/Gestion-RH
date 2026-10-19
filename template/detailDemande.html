@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pivot — Détail de la demande</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-page">
+
+<nav class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+
+    <a href="#" class="logo" aria-label="Pivot — accueil">
+      <span class="logo__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="17" height="17">
+          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+      </span>
+      <span class="logo__word">Pivot</span>
+    </a>
+
+    <ul class="app-nav__links" id="appNavLinks">
+      <li><a href="dashboard.html" class="app-nav__link is-active">Demandes</a></li>
+      <li><a href="demande.html" class="app-nav__link">Nouvelle demande</a></li>
+      <li><a href="#" class="app-nav__link">Équipe</a></li>
+      <li><a href="#" class="app-nav__link">Rapports</a></li>
+      <li><a href="#" class="app-nav__link">Paramètres</a></li>
+    </ul>
+
+    <div class="app-nav__user">
+      <div class="avatar" aria-hidden="true">A</div>
+      <span class="app-nav__user-name">Amadou D.</span>
+    </div>
+
+    <button class="app-nav__toggle" id="appNavToggle"
+            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+<main class="dashboard">
+
+  <a href="dashboard.html" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 6l-6 6 6 6"/>
+    </svg>
+    Retour aux demandes
+  </a>
+
+  <header class="dashboard__head">
+    <p class="eyebrow" id="reqEyebrow">Demande de personnel</p>
+    <h1 class="req-detail__title" id="reqTitle">REQ-0000-000</h1>
+    <p class="dashboard__count" id="reqSubtitle">—</p>
+  </header>
+
+  <!-- Grille de méta (5 cellules) -->
+  <dl class="req-meta" id="reqMeta"></dl>
+
+  <!-- Tableau des postes -->
+  <table class="req-table">
+    <thead>
+      <tr>
+        <th>Poste</th>
+        <th class="req-table__num">Nombre</th>
+        <th>Motif</th>
+      </tr>
+    </thead>
+    <tbody id="reqTableBody"></tbody>
+  </table>
+
+  <!-- Bloc d'état -->
+  <section class="req-status" id="reqStatus"></section>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     DONNÉES DE DÉMONSTRATION
+     → remplacer par un fetch GET /api/demandes/:ref
+     ============================================================ */
+  const DEMANDS = {
+    'REQ-2026-014': {
+      ref: 'REQ-2026-014',
+      etat: 'pending',
+      departementDemandeur: 'Informatique',
+      demandeur: { nom: 'Amadou Diallo', matricule: 'MGR-0420' },
+      dateCreation: '2026-06-12',
+      dateLimite:   '2026-06-30',
+      departementConcerne: 'Informatique',
+      lignes: [
+        { poste: 'Développeur Full-stack', nombre: 2, motif: 'Renfort sur le projet Atlas' },
+        { poste: 'DevOps / SRE',           nombre: 1, motif: 'Mise en place de la chaîne CI/CD' }
+      ]
+    },
+    'REQ-2026-013': {
+      ref: 'REQ-2026-013',
+      etat: 'review',
+      departementDemandeur: 'Informatique',
+      demandeur: { nom: 'Amadou Diallo', matricule: 'MGR-0420' },
+      dateCreation: '2026-06-10',
+      dateLimite:   '2026-07-15',
+      departementConcerne: 'Informatique',
+      lignes: [
+        { poste: 'Designer UX / UI',     nombre: 1, motif: 'Refonte du portail client' },
+        { poste: 'Développeur Front-end', nombre: 1, motif: 'Accompagnement de la refonte' },
+        { poste: 'Chef de projet',        nombre: 1, motif: 'Pilotage du chantier' }
+      ]
+    },
+    'REQ-2026-012': {
+      ref: 'REQ-2026-012',
+      etat: 'pending',
+      departementDemandeur: 'Informatique',
+      demandeur: { nom: 'Amadou Diallo', matricule: 'MGR-0420' },
+      dateCreation: '2026-06-08',
+      dateLimite:   '2026-06-25',
+      departementConcerne: 'Marketing & Communication',
+      lignes: [
+        { poste: 'Data analyst', nombre: 1, motif: 'Analyse des campagnes marketing' }
+      ]
+    },
+    'REQ-2026-011': {
+      ref: 'REQ-2026-011',
+      etat: 'accepted',
+      departementDemandeur: 'Informatique',
+      demandeur: { nom: 'Amadou Diallo', matricule: 'MGR-0420' },
+      dateCreation: '2026-06-05',
+      dateLimite:   '2026-06-20',
+      departementConcerne: 'Informatique',
+      lignes: [
+        { poste: 'QA / Testeur',    nombre: 1, motif: "Renforcement de l'équipe QA" },
+        { poste: 'Product Owner',   nombre: 1, motif: 'Nouveau module de facturation' }
+      ]
+    },
+    'REQ-2026-010': {
+      ref: 'REQ-2026-010',
+      etat: 'refused',
+      departementDemandeur: 'Informatique',
+      demandeur: { nom: 'Amadou Diallo', matricule: 'MGR-0420' },
+      dateCreation: '2026-06-02',
+      dateLimite:   '2026-06-15',
+      departementConcerne: 'Logistique',
+      lignes: [
+        { poste: 'Développeur Back-end', nombre: 2, motif: 'Digitalisation des bons de livraison' }
+      ],
+      motifRefus: "Budget 2026 déjà alloué sur le pôle logistique. Représenter la demande au T3, ou intégrer le besoin dans le projet ERP transverse."
+    }
+  };
+
+  const DEFAULT_REF = 'REQ-2026-013';
+
+  /* ============================================================
+     Helpers
+     ============================================================ */
+  const stateLabels = {
+    accepted: 'Acceptée',
+    pending:  'En attente',
+    refused:  'Refusée',
+    review:   'À revoir'
+  };
+
+  const MONTHS = ['janvier','février','mars','avril','mai','juin',
+                  'juillet','août','septembre','octobre','novembre','décembre'];
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-');
+    return `${parseInt(d, 10)} ${MONTHS[parseInt(m, 10) - 1]} ${y}`;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  /* ============================================================
+     Rendu
+     ============================================================ */
+  function renderMeta(d) {
+    return `
+      <div class="req-meta__item">
+        <dt class="req-meta__label">Département demandeur</dt>
+        <dd class="req-meta__value">${escapeHtml(d.departementDemandeur)}</dd>
+      </div>
+      <div class="req-meta__item">
+        <dt class="req-meta__label">Demandeur</dt>
+        <dd class="req-meta__value">
+          ${escapeHtml(d.demandeur.nom)}
+          <span class="req-meta__mat">${escapeHtml(d.demandeur.matricule)}</span>
+        </dd>
+      </div>
+      <div class="req-meta__item">
+        <dt class="req-meta__label">Date de création</dt>
+        <dd class="req-meta__value">${formatDate(d.dateCreation)}</dd>
+      </div>
+      <div class="req-meta__item">
+        <dt class="req-meta__label">Date limite</dt>
+        <dd class="req-meta__value">${formatDate(d.dateLimite)}</dd>
+      </div>
+      <div class="req-meta__item">
+        <dt class="req-meta__label">Département concerné</dt>
+        <dd class="req-meta__value">${escapeHtml(d.departementConcerne)}</dd>
+      </div>
+    `;
+  }
+
+  function renderStatus(d) {
+    let extra = '';
+
+    if (d.etat === 'refused' && d.motifRefus) {
+      extra = `
+        <div class="req-status__body">
+          <div class="req-status__remark">
+            <span class="req-status__remark-label">Motif du refus</span>
+            <p>${escapeHtml(d.motifRefus)}</p>
+          </div>
+        </div>
+      `;
+    } else if (d.etat === 'review') {
+      extra = `
+        <div class="req-status__body">
+          <p class="req-status__text">
+            Le service RH a demandé des corrections sur cette demande.
+            Consultez les points à revoir, ajustez-les, puis soumettez à nouveau.
+          </p>
+          <a href="revoirDemande.html?ref=${encodeURIComponent(d.ref)}" class="btn-review">
+            Voir les corrections
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </a>
+        </div>
+      `;
+    } else if (d.etat === 'pending') {
+      extra = `
+        <div class="req-status__body">
+          <p class="req-status__text">
+            Votre demande est en cours d'examen par le service RH.
+            Vous recevrez une notification dès qu'une décision sera prise.
+          </p>
+        </div>
+      `;
+    } else if (d.etat === 'accepted') {
+      extra = `
+        <div class="req-status__body">
+          <p class="req-status__text">
+            Votre demande a été validée. Le service RH prendra contact
+            avec votre équipe pour lancer le processus de recrutement.
+          </p>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="req-status__head">
+        <span class="req-status__label">État de la demande</span>
+        <span class="badge badge--${d.etat}">${stateLabels[d.etat]}</span>
+      </div>
+      ${extra}
+    `;
+  }
+
+  function render(d) {
+    const totalPersonnes = d.lignes.reduce((s, l) => s + l.nombre, 0);
+
+    document.getElementById('reqEyebrow').textContent =
+      `Demande · Département ${d.departementDemandeur}`;
+
+    document.getElementById('reqTitle').textContent = d.ref;
+
+    document.getElementById('reqSubtitle').textContent =
+      `Créée le ${formatDate(d.dateCreation)} · ` +
+      `${d.lignes.length} poste${d.lignes.length > 1 ? 's' : ''} · ` +
+      `${totalPersonnes} personne${totalPersonnes > 1 ? 's' : ''}`;
+
+    document.getElementById('reqMeta').innerHTML = renderMeta(d);
+
+    document.getElementById('reqTableBody').innerHTML = d.lignes.map(l => `
+      <tr>
+        <td>${escapeHtml(l.poste)}</td>
+        <td class="req-table__num">${l.nombre}</td>
+        <td>${escapeHtml(l.motif)}</td>
+      </tr>
+    `).join('');
+
+    const status = document.getElementById('reqStatus');
+    status.className = `req-status req-status--${d.etat}`;
+    status.innerHTML = renderStatus(d);
+
+    document.title = `Pivot — ${d.ref}`;
+  }
+
+  /* ============================================================
+     Init : lecture du paramètre ?ref=
+     ============================================================ */
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  const demand = (ref && DEMANDS[ref]) ? DEMANDS[ref] : DEMANDS[DEFAULT_REF];
+
+  render(demand);
+
+  /* ============================================================
+     Navbar mobile
+     ============================================================ */
+  const nav    = document.getElementById('appNav');
+  const toggle = document.getElementById('appNavToggle');
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open);
+    toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  });
+  document.querySelectorAll('.app-nav__link').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>
