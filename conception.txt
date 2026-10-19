@@ -1,0 +1,87 @@
+Nom de page = nom controller
+
+Login:
+	Table:
+		- departement(id, libelle);
+		- poste (id, id_departement, libelle, salaire);
+		- utilisateur(id,id_employer?,email,mdp);
+		- employer(id, matricule, nom, prenom, telephone, compte, id_poste, salaire);
+	
+	
+	Fonction (LoginController):
+		- seConnecter(Utilisateur utilisateur):
+			- chercher l'id de l'utilisateur en fonction de l'email et mdp
+			- si id vide ou null:
+				- erreur: mdp ou email invalide
+				- redirection vers login
+			-sinon:
+				- Mettre utilisateur dans une session
+				- si id_employer est null:
+					redirection vers la page d'accueil pour user normale
+				- sinon:
+					- recherche de l'employer a partir de l'id employer
+						
+					- si utilisateur est direction generale (super admin)
+						- redirection vers accueil direction generale
+						
+					- si utilisateur est finance
+						- redirection vers accueil finance
+						
+					- si utilisateur est manager
+						- redirection vers accueil pour manager
+						
+					- si utlisateur est rh
+						- redirection vers accueil pour rh
+						
+Inscritpion:
+	Table:
+		- utilisateur(id,id_employer?,email,mdp);
+		
+	
+	Fonction (LoginController):
+		- inscrire(Utillisateur utilisateur)
+			- chercher utilisateur a partir de l'email
+			- si utilisateur existe:
+				- erreur: email deja utiliser sur un compte
+				- redirection vers inscription
+			- sinon:
+				- creer utilisateur dans la base;
+				- mettre a jour utilisateur
+				- mettre user dans une session
+				- redirection vers accueil pour user normal
+				
+Manager (departement):
+	Table:
+		- demande (id, matricule, id_employer, date_limite);
+		- status (id, libelle);
+		- historique_demande_status (id, id_demande, id_status, date);
+		- v_historique_demande_status (id, id_demande, id_status, matricule, id_employer, libelle, date);
+		
+	Fonction (DemandeController):
+		- getListeDemande():
+			- Retourner toute la liste dans	v_historique_demande_status vers accueil.		
+			
+			
+NouvelleDemande:
+	Table:
+		- poste (id, id_departement, libelle, salaire);
+		- departement (id, libelle);
+		- demande (id, matricule, id_employer, date_limite);
+		- detail_demande (id, id_demande, id_poste, id_departement, nbr_personnel, motif);
+		- historique_demande_status (id, id_demande, id_status, date);
+			
+	Fonction (DemandeController):
+		- nouvelleDemande():
+			- getAllDepartement()
+			- getAllPoste()
+			- tout return dans la vue
+			
+			
+		- creerDemande(Demande demande, Liste<DetailDemande> listeDetail):
+			- saveDemande(demande)
+			- recuperer id_demande
+			- pour chaque detail dans listeDetail:
+				- detail.setIdDemande(id_demande)
+				- saveDetailDemande(detail)
+			- return vers la vue accueil + success
+			- si erreur, redirection vers nouvelleDemande + afficher erreur
