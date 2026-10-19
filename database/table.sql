@@ -1,3 +1,7 @@
+CREATE DATABASE gestion_entreprise;
+
+\c gestion_entreprise
+
 CREATE TABLE departement(
     id SERIAL PRIMARY KEY,
     libelle VARCHAR(100) NOT NULL
