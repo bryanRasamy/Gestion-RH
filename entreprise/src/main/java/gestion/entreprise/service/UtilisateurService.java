@@ -29,6 +29,7 @@ public class UtilisateurService {
 
         utilisateur.setId(user.getId());
         utilisateur.setEmployer(user.getEmployer());
+        utilisateur.setIdRole(user.getIdRole());
     }
 
     public void saveUtilisateur(Utilisateur utilisateur) throws Exception{

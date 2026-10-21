@@ -55,6 +55,10 @@ public class LoginController {
 
             session.setAttribute("idUtilisateur", utilisateur.getId());
 
+            if (utilisateur.getIdRole() > 0) {
+                return "redirect:/workflow/" + utilisateur.getIdRole();
+            }
+
             Employer employer = utilisateur.getEmployer();
 
             if (employer==null) {

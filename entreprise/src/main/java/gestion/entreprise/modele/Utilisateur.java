@@ -20,6 +20,9 @@ public class Utilisateur {
     @JoinColumn(name = "id_employer")
     private Employer employer;
 
+    @Column(name = "id_role")
+    private int idRole;
+
     /*Constructeur*/
     public Utilisateur(){
 
@@ -42,6 +45,8 @@ public class Utilisateur {
         this.employer = employer; 
     }
 
+    public void setIdRole(int idRole) { this.idRole = idRole; }
+
     /*Getters*/
     public int getId() { 
         return id; 
@@ -58,5 +63,7 @@ public class Utilisateur {
     public Employer getEmployer() { 
         return employer;
     }
+
+    public int getIdRole() { return idRole; }
     
 }

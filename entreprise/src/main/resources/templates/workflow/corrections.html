@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Corrections a traiter</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<main class="workflow">
+    <h1>Corrections a traiter</h1>
+    <p th:if="${message}" th:text="${message}">Correction traitee.</p>
+    <p th:if="${erreur}" th:text="${erreur}">Erreur.</p>
+    <section class="cards">
+        <article class="card" th:each="correction : ${corrections}">
+            <h2 th:text="'Detail #' + ${correction.idDemandeDetails}">Detail #1</h2>
+            <p th:text="${correction.commentaire}">Commentaire</p>
+            <p th:if="${correction.nbrPersonnelPropose != null}"
+               th:text="'Personnel propose : ' + ${correction.nbrPersonnelPropose}">Personnel propose</p>
+            <form method="post" th:action="@{'/workflow/manager/corrections/' + ${correction.id} + '/decision'}">
+                <input type="hidden" name="accepter" value="true">
+                <button type="submit">Accepter la correction</button>
+            </form>
+            <form method="post" th:action="@{'/workflow/manager/corrections/' + ${correction.id} + '/decision'}">
+                <input type="hidden" name="accepter" value="false">
+                <button type="submit">Abandonner</button>
+            </form>
+        </article>
+        <p th:if="${#lists.isEmpty(corrections)}">Aucune correction en attente.</p>
+    </section>
+</main>
+</body>
+</html>

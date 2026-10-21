@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Demandes - role ' + ${idRole}">Demandes</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<main class="workflow">
+    <header>
+        <h1 th:text="'Demandes - role ' + ${idRole}">Demandes</h1>
+    </header>
+    <form method="get" th:action="@{'/workflow/' + ${idRole}}" class="filters">
+        <label>Date min <input type="date" name="dateMin" th:value="${dateMin}"></label>
+        <label>Date max <input type="date" name="dateMax" th:value="${dateMax}"></label>
+        <label>Statut <input type="text" name="statut" th:value="${statut}"></label>
+        <button type="submit">Filtrer</button>
+        <a th:href="@{'/workflow/' + ${idRole}}">Reinitialiser</a>
+    </form>
+    <section class="cards">
+        <article class="card" th:each="demande : ${demandes}">
+            <h2 th:text="${demande.matricule}">REQ-2026-001</h2>
+            <p>Echeance : <strong th:text="${demande.dateLimite}">2026-12-31</strong></p>
+            <a th:href="@{'/demandes/' + ${demande.id}}">Voir les details</a>
+        </article>
+        <p th:if="${#lists.isEmpty(demandes)}">Aucune demande pour ces criteres.</p>
+    </section>
+</main>
+</body>
+</html>

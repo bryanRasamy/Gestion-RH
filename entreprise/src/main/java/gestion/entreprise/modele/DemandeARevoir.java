@@ -1,0 +1,45 @@
+package gestion.entreprise.modele;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "demande_a_revoir")
+public class DemandeARevoir {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "id_demandeur", nullable = false)
+    private int idDemandeur;
+
+    @Column(name = "id_demande_details", nullable = false)
+    private int idDemandeDetails;
+
+    @Column(nullable = false)
+    private LocalDate date;
+
+    @Column(columnDefinition = "TEXT")
+    private String commentaire;
+
+    @Column(name = "nbr_personnel_propose")
+    private Integer nbrPersonnelPropose;
+
+    @Column(nullable = false)
+    private boolean traite;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public int getIdDemandeur() { return idDemandeur; }
+    public void setIdDemandeur(int idDemandeur) { this.idDemandeur = idDemandeur; }
+    public int getIdDemandeDetails() { return idDemandeDetails; }
+    public void setIdDemandeDetails(int idDemandeDetails) { this.idDemandeDetails = idDemandeDetails; }
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
+    public String getCommentaire() { return commentaire; }
+    public void setCommentaire(String commentaire) { this.commentaire = commentaire; }
+    public Integer getNbrPersonnelPropose() { return nbrPersonnelPropose; }
+    public void setNbrPersonnelPropose(Integer nbrPersonnelPropose) { this.nbrPersonnelPropose = nbrPersonnelPropose; }
+    public boolean isTraite() { return traite; }
+    public void setTraite(boolean traite) { this.traite = traite; }
+}
