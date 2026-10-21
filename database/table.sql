@@ -2,16 +2,20 @@ CREATE DATABASE gestion_entreprise;
 
 \c gestion_entreprise
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE departement(
     id SERIAL PRIMARY KEY,
-    libelle VARCHAR(100) NOT NULL
+    libelle VARCHAR(100) NOT NULL,
+    sigle VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE poste(
     id SERIAL PRIMARY KEY,
     id_departement INT NOT NULL,
     libelle VARCHAR(100) NOT NULL,
-    salaire INT,
+    sigle VARCHAR(20) NOT NULL,
+    salaire DECIMAL(10,2),
     FOREIGN KEY (id_departement) REFERENCES departement(id)
 );
 
@@ -19,11 +23,11 @@ CREATE TABLE employer(
     id SERIAL PRIMARY KEY,
     matricule VARCHAR(50) NOT NULL UNIQUE,
     nom VARCHAR(100) NOT NULL,
-    prenom VARCHAR(100),
+    prenom VARCHAR(100) NOT NULL,
     telephone VARCHAR(20),
     compte VARCHAR(100),
     id_poste INT NOT NULL,
-    salaire INT,
+    salaire DECIMAL(10,2),
     FOREIGN KEY (id_poste) REFERENCES poste(id)
 );
 
@@ -77,7 +81,7 @@ SELECT
     d.matricule,
     d.id_employer,
     s.libelle,
-    h.date_status
+    h.date
 FROM historique_demande_status h
 JOIN demande d ON d.id = h.id_demande
 JOIN status s ON s.id = h.id_status;
