@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Body de la page "Détail de l'offre" : inclus dans header.html -->
+<th:block th:fragment="contenu">
+
+  <a th:href="@{/offres}" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 6l-6 6 6 6"/>
+    </svg>
+    Retour aux offres
+  </a>
+
+  <header class="dashboard__head">
+    <p class="eyebrow" th:text="|Département ${offre.departement.libelle}|">Département Informatique</p>
+    <h1 class="req-detail__title" th:text="${offre.poste.libelle}">Développeur Full-stack</h1>
+    <p class="dashboard__count"
+       th:text="|Date limite : ${#temporals.format(offre.demande.dateLimite, 'dd MMMM yyyy')} · ${offre.nbrPersonnel} poste(s) à pourvoir|">
+      Date limite : 30 juin 2026
+    </p>
+  </header>
+
+  <!-- BLOC DE DESCRIPTION (texte brut de la base : les sauts de ligne sont gérés par le CSS) -->
+  <div class="job-description">
+    <h2>À propos du poste</h2>
+    <div class="job-description__content" th:text="${offre.motif}">Description de l'offre</div>
+  </div>
+
+  <!-- BOUTON POSTULER -->
+  <div class="job-apply-box">
+    <p th:if="${dejaPostule}">Vous avez déjà postulé à cette offre.</p>
+
+    <form th:unless="${dejaPostule}" th:action="@{/cv}" method="get">
+      <p>Prêt à rejoindre l'équipe ?</p>
+      <input type="hidden" name="idDetail" th:value="${offre.id}">
+      <button type="submit" class="submit">
+        <span class="submit__label">Postuler à cette offre</span>
+        <span class="submit__icon">
+          <svg class="submit__arrow" width="18" height="18" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.6"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12h15M13 6l6 6-6 6"/>
+          </svg>
+        </span>
+      </button>
+    </form>
+  </div>
+
+</th:block>
+
+</body>
+</html>

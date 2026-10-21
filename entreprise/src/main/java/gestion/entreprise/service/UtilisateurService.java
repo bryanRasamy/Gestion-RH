@@ -38,4 +38,20 @@ public class UtilisateurService {
     public Utilisateur getById(int id) throws Exception{
         return utilisateurRepository.findById(id).orElse(null);
     }
+
+
+    // Retourne l'utilisateur seulement si c'est un candidat (pas encore employer)
+    public Utilisateur getCandidatById(int id) throws Exception{
+        Utilisateur utilisateur = utilisateurRepository.findById(id).orElse(null);
+
+        if (utilisateur==null) {
+            throw new Exception("Utilisateur introuvable");
+        }
+
+        if (utilisateur.getEmployer()!=null) {
+            throw new Exception("Cet espace est réservé aux candidats");
+        }
+
+        return utilisateur;
+    }
 }
