@@ -71,7 +71,7 @@
       <p class="muted">Entrez avec votre adresse e-mail pour accéder à votre espace.</p>
     </header>
 
-    <form class="form" id="loginForm" th:action="@{/login}" th:object="${utilisateur}" method="post" novalidate>
+    <form class="form" id="loginForm" th:action="@{/login}" method="post" novalidate>
 
       <p class="form__success is-visible is-error" role="alert" th:if="${erreur}">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
@@ -80,29 +80,30 @@
         </svg>
         <span th:text="${erreur}"></span>
       </p>
+      <p class="form__success is-visible" role="status" th:if="${succes}" th:text="${succes}"></p>
 
-      <div class="field" th:classappend="${#fields.hasErrors('email')} ? 'has-error'">
+      <div class="field">
         <div class="field__top">
           <span class="field__index" aria-hidden="true">01</span>
           <label for="email">Adresse e-mail</label>
-          <span class="field__error" id="err-email" aria-live="polite" th:text="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : ''"></span>
+          <span class="field__error" id="err-email" aria-live="polite"></span>
         </div>
         <div class="field__control">
-          <input type="email" id="email" th:field="*{email}"
+          <input type="email" id="email" name="email"
                  placeholder="prenom.nom@exemple.com"
                  autocomplete="email" inputmode="email" spellcheck="false"
                  aria-describedby="err-email">
         </div>
       </div>
 
-      <div class="field" th:classappend="${#fields.hasErrors('mdp')} ? 'has-error'">
+      <div class="field">
         <div class="field__top">
           <span class="field__index" aria-hidden="true">02</span>
           <label for="mdp">Mot de passe</label>
-          <span class="field__error" id="err-mdp" aria-live="polite" th:text="${#fields.hasErrors('mdp')} ? ${#fields.errors('mdp')[0]} : ''"></span>
+          <span class="field__error" id="err-mdp" aria-live="polite"></span>
         </div>
         <div class="field__control">
-          <input type="password" id="mdp" th:field="*{mdp}"
+          <input type="password" id="mdp" name="mdp"
                  placeholder="••••••••" autocomplete="current-mdp"
                  aria-describedby="err-mdp">
           <button type="button" class="toggle" id="togglePwd"

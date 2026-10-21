@@ -1,37 +1,41 @@
 package gestion.entreprise.service;
 
+import gestion.entreprise.modele.Utilisateur;
+import gestion.entreprise.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import gestion.entreprise.modele.*;
-import gestion.entreprise.repository.*;
-
 @Service
 public class UtilisateurService {
 
-    @Autowired 
+    @Autowired
     private UtilisateurRepository utilisateurRepository;
 
-    @Autowired 
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void findUtilisateur(Utilisateur utilisateur) throws Exception{
-        Utilisateur user = utilisateurRepository.findByEmail(utilisateur.getEmail());
-
-        if (user==null) {
-            throw new Exception("L'email est invalide");
+    public Utilisateur authentifier(String email, String mdp) {
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(email);
+        if (utilisateur == null || !passwordEncoder.matches(mdp, utilisateur.getMdp())) {
+            throw new RuntimeException("Email ou mot de passe invalide");
         }
-
-        if(!passwordEncoder.matches(utilisateur.getMdp(), user.getMdp())){
-            throw new Exception("Le mot de passe est invalide");
-        }
-
-        utilisateur.setId(user.getId());
-        utilisateur.setEmployer(user.getEmployer());
+        return utilisateur;
     }
 
-    public void saveUtilisateur(Utilisateur utilisateur) throws Exception{
-        utilisateurRepository.save(utilisateur);
+    public Utilisateur inscrire(String email, String mdp) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new RuntimeException("L'email est obligatoire");
+        }
+        if (mdp == null || mdp.length() < 8) {
+            throw new RuntimeException("Le mot de passe doit contenir au moins 8 caractères");
+        }
+        if (utilisateurRepository.findByEmail(email) != null) {
+            throw new RuntimeException("Cette adresse email est déjà utilisée");
+        }
+        Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setEmail(email.trim());
+        utilisateur.setMdp(passwordEncoder.encode(mdp));
+        return utilisateurRepository.save(utilisateur);
     }
 }

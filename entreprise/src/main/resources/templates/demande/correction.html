@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Corrections demandées — Pivot</title>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+<main class="wrap">
+    <header class="page-header">
+        <div>
+            <a class="back-link" href="/departements/accueil">Retour aux demandes</a>
+            <p class="eyebrow">Espace manager</p>
+            <h1>Corrections à traiter</h1>
+        </div>
+        <form action="/logout" method="post">
+            <button class="logout-button" type="submit">Déconnexion</button>
+        </form>
+    </header>
+    <p class="form__success is-visible" role="status" th:if="${succes}" th:text="${succes}"></p>
+    <p class="form__success is-visible is-error" role="alert" th:if="${erreur}" th:text="${erreur}"></p>
+    <section class="dashboard__grid">
+        <a class="req-card req-card--review"
+           th:each="revision : ${corrections}"
+           th:href="@{'/correction/demande/' + ${revision.detailDemande.demande.id}}">
+            <div class="req-card__head">
+                <div>
+                    <h2 class="req-card__ref" th:text="${revision.detailDemande.demande.matricule}"></h2>
+                    <p class="req-card__meta">
+                        Poste : <span th:text="${revision.detailDemande.poste.libelle}"></span>
+                    </p>
+                </div>
+                <span class="status-pill" th:text="${revision.etapeDemandeuse}"></span>
+            </div>
+            <p class="card__meta">
+                Auteur : <span th:text="${revision.mpangataka.nom + ' ' + revision.mpangataka.prenom}"></span>
+            </p>
+            <p class="card__meta" th:text="${revision.commentaire}"></p>
+            <p class="card__meta">
+                Effectif proposé :
+                <span th:text="${revision.nbrPersonnelPropose == 0 ? 'Non précisé' : revision.nbrPersonnelPropose}"></span>
+            </p>
+            <div class="req-card__foot">
+                <span class="req-card__link">
+                    Examiner la correction
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                        <path d="M4 12h15M13 6l6 6-6 6"></path>
+                    </svg>
+                </span>
+            </div>
+        </a>
+    </section>
+    <p class="card" th:if="${#lists.isEmpty(corrections)}">Aucune correction à traiter.</p>
+</main>
+</body>
+</html>

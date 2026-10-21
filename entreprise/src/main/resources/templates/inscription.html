@@ -67,7 +67,7 @@
       <p class="muted">Deux champs suffisent. Le reste de votre profil se remplit à l'étape suivante.</p>
     </header>
 
-    <form class="form" id="signupForm" th:action="@{/inscription}" th:object="${utilisateur}" method="post" novalidate>
+    <form class="form" id="signupForm" th:action="@{/inscription}" method="post" novalidate>
 
       <div class="steps" role="group" aria-label="Étape 1 sur 2 — Accès">
         <span class="steps__label is-current">Accès</span>
@@ -83,28 +83,28 @@
         <span th:text="${erreur}"></span>
       </p>
 
-      <div class="field" th:classappend="${#fields.hasErrors('email')} ? 'has-error'">
+      <div class="field">
         <div class="field__top">
           <span class="field__index" aria-hidden="true">01</span>
           <label for="email">Adresse e-mail</label>
-          <span class="field__error" id="err-email" aria-live="polite" th:text="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : ''"></span>
+          <span class="field__error" id="err-email" aria-live="polite"></span>
         </div>
         <div class="field__control">
-          <input type="email" id="email" th:field="*{email}"
+          <input type="email" id="email" name="email"
                  placeholder="prenom.nom@exemple.com"
                  autocomplete="email" inputmode="email" spellcheck="false"
                  aria-describedby="err-email">
         </div>
       </div>
 
-      <div class="field" th:classappend="${#fields.hasErrors('mdp')} ? 'has-error'">
+      <div class="field">
         <div class="field__top">
           <span class="field__index" aria-hidden="true">02</span>
           <label for="mdp">Mot de passe</label>
-          <span class="field__error" id="err-mdp" aria-live="polite" th:text="${#fields.hasErrors('mdp')} ? ${#fields.errors('mdp')[0]} : ''"></span>
+          <span class="field__error" id="err-mdp" aria-live="polite"></span>
         </div>
         <div class="field__control">
-          <input type="password" id="mdp" th:field="*{mdp}"
+          <input type="password" id="mdp" name="mdp"
                  placeholder="8 caractères minimum" autocomplete="new-mdp"
                  aria-describedby="err-mdp">
           <button type="button" class="toggle" id="togglePwd"

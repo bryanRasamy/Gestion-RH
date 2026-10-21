@@ -2,7 +2,8 @@ INSERT INTO departement(libelle, sigle) VALUES
 ('Direction General','DG'),
 ('Ressources humaine','RH'),
 ('Informatique','IT'),
-('Commercial','CM');
+('Commercial','CM'),
+('Finance','FIN');
 
 INSERT INTO poste(id_departement, libelle, sigle, salaire) VALUES
 (1,'Directeur Generale','DG',10000000),
@@ -12,7 +13,8 @@ INSERT INTO poste(id_departement, libelle, sigle, salaire) VALUES
 (3,'Dev Senior', 'DVS', 3000000),
 (3,'Dev Junior', 'DJS', 1000000),
 (4,'Manager Commerciale','MC',4000000),
-(4,'Responsable de vente','RV', 3000000);
+(4,'Responsable de vente','RV', 3000000),
+(5,'Responsable Finance','RF',4500000);
 
 INSERT INTO employer (matricule,nom,prenom,telephone,compte,id_poste,salaire) VALUES
 ('EMP001','Maminirina','Michael','0345618902','CP001',1,10000000),
@@ -22,12 +24,14 @@ INSERT INTO employer (matricule,nom,prenom,telephone,compte,id_poste,salaire) VA
 ('EMP005','Raminiarisoa','Noblette','03812368','CP005',5,3000000),
 ('EMP006','Rasoamiaramanana','Herinjatovo','0321543698','CP006',6,1000000),
 ('EMP007','Raveloson','Andry','03476581','CP007',7,4000000),
-('EMP008','Rafidison','Tendry','0381945643','CP008',8,3000000);
+('EMP008','Rafidison','Tendry','0381945643','CP008',8,3000000),
+('EMP009','Rajaonah','Miora','0340000009','CP009',9,4500000);
 
 INSERT INTO utilisateur(id_employer, email, mdp) VALUES
 (1,'dg@gmail.com',crypt('dg', gen_salt('bf', 10))),
 (2,'rh@gmail.com',crypt('rh', gen_salt('bf', 10))),
-(3,'manager@gmail.com',crypt('manager', gen_salt('bf', 10)));
+(3,'manager@gmail.com',crypt('manager', gen_salt('bf', 10))),
+(9,'finance@gmail.com',crypt('finance', gen_salt('bf', 10)));
 
 INSERT INTO utilisateur(email, mdp) VALUES
 ('candidat@gmail.com',crypt('candidat', gen_salt('bf', 10)));

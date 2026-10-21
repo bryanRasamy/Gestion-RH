@@ -10,7 +10,7 @@ public class Employer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "matricule", nullable = false, unique = true)
+    @Column(name = "matricule", nullable = false, unique = true, length = 50)
     private String matricule;
 
     @Column(name = "nom", nullable = false)

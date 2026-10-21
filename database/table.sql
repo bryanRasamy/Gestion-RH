@@ -44,6 +44,10 @@ CREATE TABLE status(
     libelle VARCHAR(100) NOT NULL
 );
 
+INSERT INTO status(libelle) VALUES
+('créé'), ('validé RH'), ('validé Finance'), ('validé DG'),
+('à revoir'), ('refusé'), ('abandonné'), ('expiré');
+
 CREATE TABLE demande(
     id SERIAL PRIMARY KEY,
     matricule VARCHAR(50) NOT NULL UNIQUE,
@@ -58,7 +62,7 @@ CREATE TABLE detail_demande(
     id_poste INT NOT NULL,
     id_departement INT NOT NULL,
     nbr_personnel INT NOT NULL,
-    motif TEXT,
+    description TEXT,
     FOREIGN KEY (id_demande) REFERENCES demande(id),
     FOREIGN KEY (id_poste) REFERENCES poste(id),
     FOREIGN KEY (id_departement) REFERENCES departement(id)
@@ -68,10 +72,52 @@ CREATE TABLE historique_demande_status(
     id SERIAL PRIMARY KEY,
     id_demande INT NOT NULL,
     id_status INT NOT NULL,
+    id_employer INT,
+    motif TEXT,
     date DATE NOT NULL DEFAULT CURRENT_DATE,
     FOREIGN KEY (id_demande) REFERENCES demande(id),
-    FOREIGN KEY (id_status) REFERENCES status(id)
+    FOREIGN KEY (id_status) REFERENCES status(id),
+    FOREIGN KEY (id_employer) REFERENCES employer(id)
 );
+
+CREATE TABLE demande_a_revoir(
+    id SERIAL PRIMARY KEY,
+    id_mpangataka INT NOT NULL,
+    id_detail_demande INT NOT NULL,
+    etape_demandeuse VARCHAR(20) NOT NULL,
+    date DATE NOT NULL DEFAULT CURRENT_DATE,
+    commentaire TEXT NOT NULL,
+    nbr_personnel_propose INT NOT NULL DEFAULT 0,
+    traite BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (id_mpangataka) REFERENCES employer(id),
+    FOREIGN KEY (id_detail_demande) REFERENCES detail_demande(id)
+);
+
+CREATE TABLE offre(
+    id SERIAL PRIMARY KEY,
+    id_detail_demande INT NOT NULL UNIQUE,
+    date_limite DATE,
+    FOREIGN KEY (id_detail_demande) REFERENCES detail_demande(id)
+);
+
+CREATE TABLE grille_budget(
+    id SERIAL PRIMARY KEY,
+    id_poste INT NOT NULL,
+    budget_min DOUBLE PRECISION NOT NULL,
+    budget_max DOUBLE PRECISION NOT NULL,
+    date_effective DATE NOT NULL,
+    CHECK (budget_min <= budget_max),
+    FOREIGN KEY (id_poste) REFERENCES poste(id)
+);
+
+CREATE TABLE parametre(
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(50) NOT NULL,
+    valeur DOUBLE PRECISION NOT NULL,
+    date_effective DATE NOT NULL
+);
+
+INSERT INTO parametre(code, valeur, date_effective) VALUES ('BUDGET', 0, CURRENT_DATE);
 
 CREATE VIEW v_historique_demande_status AS
 SELECT
@@ -85,3 +131,14 @@ SELECT
 FROM historique_demande_status h
 JOIN demande d ON d.id = h.id_demande
 JOIN status s ON s.id = h.id_status;
+
+CREATE VIEW v_demande_statut_courant AS
+SELECT DISTINCT ON (h.id_demande)
+    h.id_demande,
+    h.id_status,
+    s.libelle AS statut,
+    h.id,
+    h.date
+FROM historique_demande_status h
+JOIN status s ON s.id = h.id_status
+ORDER BY h.id_demande, h.id DESC;

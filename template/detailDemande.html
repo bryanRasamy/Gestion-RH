@@ -99,8 +99,8 @@
       dateLimite:   '2026-06-30',
       departementConcerne: 'Informatique',
       lignes: [
-        { poste: 'Développeur Full-stack', nombre: 2, motif: 'Renfort sur le projet Atlas' },
-        { poste: 'DevOps / SRE',           nombre: 1, motif: 'Mise en place de la chaîne CI/CD' }
+        { poste: 'Développeur Full-stack', nombre: 2, description: 'Renfort sur le projet Atlas' },
+        { poste: 'DevOps / SRE',           nombre: 1, description: 'Mise en place de la chaîne CI/CD' }
       ]
     },
     'REQ-2026-013': {
@@ -112,9 +112,9 @@
       dateLimite:   '2026-07-15',
       departementConcerne: 'Informatique',
       lignes: [
-        { poste: 'Designer UX / UI',     nombre: 1, motif: 'Refonte du portail client' },
-        { poste: 'Développeur Front-end', nombre: 1, motif: 'Accompagnement de la refonte' },
-        { poste: 'Chef de projet',        nombre: 1, motif: 'Pilotage du chantier' }
+        { poste: 'Designer UX / UI',     nombre: 1, description: 'Refonte du portail client' },
+        { poste: 'Développeur Front-end', nombre: 1, description: 'Accompagnement de la refonte' },
+        { poste: 'Chef de projet',        nombre: 1, description: 'Pilotage du chantier' }
       ]
     },
     'REQ-2026-012': {
@@ -126,7 +126,7 @@
       dateLimite:   '2026-06-25',
       departementConcerne: 'Marketing & Communication',
       lignes: [
-        { poste: 'Data analyst', nombre: 1, motif: 'Analyse des campagnes marketing' }
+        { poste: 'Data analyst', nombre: 1, description: 'Analyse des campagnes marketing' }
       ]
     },
     'REQ-2026-011': {
@@ -138,8 +138,8 @@
       dateLimite:   '2026-06-20',
       departementConcerne: 'Informatique',
       lignes: [
-        { poste: 'QA / Testeur',    nombre: 1, motif: "Renforcement de l'équipe QA" },
-        { poste: 'Product Owner',   nombre: 1, motif: 'Nouveau module de facturation' }
+        { poste: 'QA / Testeur',    nombre: 1, description: "Renforcement de l'équipe QA" },
+        { poste: 'Product Owner',   nombre: 1, description: 'Nouveau module de facturation' }
       ]
     },
     'REQ-2026-010': {
@@ -151,7 +151,7 @@
       dateLimite:   '2026-06-15',
       departementConcerne: 'Logistique',
       lignes: [
-        { poste: 'Développeur Back-end', nombre: 2, motif: 'Digitalisation des bons de livraison' }
+        { poste: 'Développeur Back-end', nombre: 2, description: 'Digitalisation des bons de livraison' }
       ],
       motifRefus: "Budget 2026 déjà alloué sur le pôle logistique. Représenter la demande au T3, ou intégrer le besoin dans le projet ERP transverse."
     }
@@ -292,7 +292,7 @@
       <tr>
         <td>${escapeHtml(l.poste)}</td>
         <td class="req-table__num">${l.nombre}</td>
-        <td>${escapeHtml(l.motif)}</td>
+        <td>${escapeHtml(l.description)}</td>
       </tr>
     `).join('');
 

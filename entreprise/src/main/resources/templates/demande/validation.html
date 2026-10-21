@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Validation des demandes — Pivot</title>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+<main class="wrap">
+    <header class="page-header">
+        <div>
+            <a class="back-link" href="/login">Accueil</a>
+            <p class="eyebrow" th:text="${role}"></p>
+            <h1 th:text="${'Demandes ' + statut}"></h1>
+        </div>
+        <form action="/logout" method="post">
+            <button class="logout-button" type="submit">Déconnexion</button>
+        </form>
+    </header>
+    <p class="budget-note" th:if="${role == 'FINANCE' and budgetConfigure}">
+        Budget global : <strong th:text="${budgetGlobal}"></strong>
+    </p>
+    <p class="form__success is-visible is-error" role="alert"
+       th:if="${role == 'FINANCE' and !budgetConfigure}">
+        Le budget global doit être configuré dans la table parametre.
+    </p>
+    <p class="form__success is-visible" role="status" th:if="${succes}" th:text="${succes}"></p>
+    <p class="form__success is-visible is-error" role="alert" th:if="${erreur}" th:text="${erreur}"></p>
+    <section class="dashboard__grid">
+        <a class="req-card req-card--pending"
+           th:each="demande, iter : ${demandes}"
+           th:href="@{'/' + ${role.toLowerCase()} + '/demande/' + ${demande.id}}">
+            <div class="req-card__head">
+                <div>
+                    <h2 class="req-card__ref" th:text="${demande.matricule}"></h2>
+                    <p class="req-card__meta">
+                        Demandeur : <span th:text="${demande.employer.nom + ' ' + demande.employer.prenom}"></span>
+                    </p>
+                </div>
+                <span class="status-pill" th:text="${statut}"></span>
+            </div>
+            <p class="card__meta">
+                Échéance : <span th:text="${demande.dateLimite}"></span>
+            </p>
+            <p class="card__meta" th:if="${!#lists.isEmpty(details[iter.index])}">
+                Poste : <strong th:text="${details[iter.index][0].poste.libelle}"></strong>
+                <span th:if="${#lists.size(details[iter.index]) > 1}"
+                      th:text="${' et ' + (#lists.size(details[iter.index]) - 1) + ' autre(s)'}"></span>
+            </p>
+            <p class="card__meta" th:if="${role == 'FINANCE' and iter.index < evaluations.size()}">
+                Budget estimé : <span th:text="${evaluations[iter.index]}"></span>
+            </p>
+            <div class="req-card__foot">
+                <span class="req-card__link">
+                    Examiner la demande
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                        <path d="M4 12h15M13 6l6 6-6 6"></path>
+                    </svg>
+                </span>
+            </div>
+        </a>
+    </section>
+    <p class="card" th:if="${#lists.isEmpty(demandes)}">Aucune demande à traiter.</p>
+</main>
+</body>
+</html>

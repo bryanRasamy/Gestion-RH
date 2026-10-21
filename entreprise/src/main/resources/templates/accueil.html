@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Accueil — Pivot</title>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+<main class="wrap">
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">Espace personnel</p>
+            <h1>Accueil</h1>
+            <p class="muted" th:text="${message}"></p>
+        </div>
+        <form action="/logout" method="post">
+            <button class="logout-button" type="submit">Déconnexion</button>
+        </form>
+    </header>
+</main>
+</body>
+</html>

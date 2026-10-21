@@ -1,133 +1,94 @@
 package gestion.entreprise.controller;
 
+import gestion.entreprise.modele.Utilisateur;
+import gestion.entreprise.service.RoleService;
+import gestion.entreprise.service.UtilisateurService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.ui.Model;
-
-import gestion.entreprise.modele.*;
-import gestion.entreprise.service.*;
-// import gestion.entreprise.repository.*;
-// import gestion.entreprise.vue.*;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
+@SessionAttributes("idUtilisateur")
 public class LoginController {
+
     @Autowired
     private UtilisateurService utilisateurService;
-    
+
     @Autowired
-    private PasswordEncoder passwordEncoder;
-    
+    private RoleService roleService;
+
     @GetMapping("/")
     public String index() {
         return "redirect:/login";
     }
 
     @GetMapping("/login")
-    public String afficherLogin(Model model) {
-        model.addAttribute("utilisateur", new Utilisateur());
+    public String afficherLogin() {
         return "login";
     }
 
+    @PostMapping("/logout")
+    public String seDeconnecter(SessionStatus sessionStatus) {
+        sessionStatus.setComplete();
+        return "redirect:/login";
+    }
+
     @PostMapping("/login")
-    public String seConnecter(@ModelAttribute Utilisateur utilisateur, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String seConnecter(@RequestParam(name = "email", required = false) String email,
+                              @RequestParam(name = "mdp", required = false) String mdp,
+                              Model model, RedirectAttributes redirectAttributes) {
         try {
-            if (utilisateur.getEmail()==null || utilisateur.getEmail().isEmpty()) {
+            if (email == null || email.trim().isEmpty()) {
                 throw new RuntimeException("L'email est obligatoire");
             }
-
-            if (utilisateur.getMdp()==null || utilisateur.getMdp().isEmpty()) {
+            if (mdp == null || mdp.isEmpty()) {
                 throw new RuntimeException("Le mot de passe est obligatoire");
             }
+            Utilisateur utilisateur = utilisateurService.authentifier(email, mdp);
+            model.addAttribute("idUtilisateur", String.valueOf(utilisateur.getId()));
 
-            utilisateurService.findUtilisateur(utilisateur);
-
-            if (utilisateur.getId()==0) {
-                throw new RuntimeException("L'utilisateur est introuvable");
+            String role = roleService.roleUtilisateur(utilisateur.getId());
+            if ("RH".equals(role)) {
+                return "redirect:/rh/accueil";
             }
-
-            utilisateur.setMdp(null);
-
-            session.setAttribute("idUtilisateur", utilisateur.getId());
-
-            Employer employer = utilisateur.getEmployer();
-
-            if (employer==null) {
-                return "redirect:/accueil";
+            if ("DG".equals(role)) {
+                return "redirect:/dg/accueil";
             }
-
-            Poste poste = employer.getPoste();
-            Departement departement = poste.getDepartement();
-
-            String url = new String();
-
-            if (departement.getSigle().equalsIgnoreCase("rh")) {
-                url = "/rh/accueil";
-            } else if (departement.getSigle().equalsIgnoreCase("dg")) {
-                url = "/dg/accueil";
-            } else {
-                url = "/departements/accueil";
+            if ("FINANCE".equals(role)) {
+                return "redirect:/finance/accueil";
             }
-
-            return "redirect:"+url;
-
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("erreur", e.getMessage());
+            if ("MANAGER".equals(role)) {
+                return "redirect:/departements/accueil";
+            }
+            return "redirect:/accueil";
+        } catch (RuntimeException erreur) {
+            redirectAttributes.addFlashAttribute("erreur", erreur.getMessage());
             return "redirect:/login";
         }
     }
 
     @GetMapping("/inscription")
-    public String afficherInscription(Model model) {
-        model.addAttribute("utilisateur", new Utilisateur());
+    public String afficherInscription() {
         return "inscription";
     }
 
     @PostMapping("/inscription")
-    public String inscrire(@ModelAttribute Utilisateur utilisateur, RedirectAttributes redirectAttributes ,HttpSession session) {
+    public String inscrire(@RequestParam(name = "email", required = false) String email,
+                            @RequestParam(name = "mdp", required = false) String mdp,
+                            Model model, RedirectAttributes redirectAttributes) {
         try {
-            if (utilisateur.getEmail()==null || utilisateur.getEmail().isEmpty()) {
-                throw new RuntimeException("L'email est obligatoire");
-            }
-
-            if (utilisateur.getMdp()==null || utilisateur.getMdp().isEmpty()) {
-                throw new RuntimeException("Le mot de passe est obligatoire");
-            }
-
-            if (utilisateur.getMdp().length()<8) {
-                throw new RuntimeException("Le mot de passe trop court (8 caractères minimum)");
-            }
-
-            try {
-                utilisateurService.findUtilisateur(utilisateur);
-            } catch (Exception e) {
-               if (utilisateur.getId()>0) {
-                    throw new RuntimeException("L'utilisateur est existe deja");
-                }
-
-                utilisateur.setId(0);
-                utilisateur.setEmployer(null);
-                utilisateur.setMdp(passwordEncoder.encode(utilisateur.getMdp()));
-            }
-            
-        
-            utilisateurService.saveUtilisateur(utilisateur);
-
+            Utilisateur utilisateur = utilisateurService.inscrire(email, mdp);
+            model.addAttribute("idUtilisateur", String.valueOf(utilisateur.getId()));
             return "redirect:/accueil";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("erreur", e.getMessage());
+        } catch (RuntimeException erreur) {
+            redirectAttributes.addFlashAttribute("erreur", erreur.getMessage());
             return "redirect:/inscription";
         }
     }
-
-    // @GetMapping("/logout")
-    // public String seDeconnecter(HttpSession session) {
-    //     session.invalidate();
-    //     return "redirect:/login";
-    // }
 }

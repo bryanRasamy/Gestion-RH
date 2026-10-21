@@ -16,7 +16,7 @@ public class Utilisateur {
     @Column(name = "mdp", nullable = false)
     private String mdp;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_employer")
     private Employer employer;
 

@@ -67,7 +67,7 @@ NouvelleDemande:
 		- poste (id, id_departement, libelle, salaire);
 		- departement (id, libelle);
 		- demande (id, matricule, id_employer, date_limite);
-		- detail_demande (id, id_demande, id_poste, id_departement, nbr_personnel, motif);
+		- detail_demande (id, id_demande, id_poste, id_departement, nbr_personnel, description);
 		- historique_demande_status (id, id_demande, id_status, date);
 			
 	Fonction (DemandeController):

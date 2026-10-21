@@ -1383,7 +1383,7 @@ img, svg{ display: block; max-width: 100%; }
       "dept  dept"
       "poste poste"
       "num   num"
-      "motif motif";
+      "description description";
     gap: 14px;
     padding: 20px 0;
   }
@@ -1392,7 +1392,7 @@ img, svg{ display: block; max-width: 100%; }
   .req-row__field--dept { grid-area: dept; }
   .req-row__field--poste{ grid-area: poste; }
   .req-row__field--num  { grid-area: num; max-width: 110px; }
-  .req-row__field--motif{ grid-area: motif; }
+  .req-row__field--description{ grid-area: description; }
   .req-row__label-mobile{
     display: block;
     margin-bottom: 4px;

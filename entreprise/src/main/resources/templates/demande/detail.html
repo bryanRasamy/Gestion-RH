@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Détail de la demande — Pivot</title>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+<main class="dashboard">
+    <div class="detail-toolbar">
+        <a class="back-link" th:href="${retour}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M19 12H5M11 6l-6 6 6 6"></path>
+            </svg>
+            Retour à la liste
+        </a>
+        <form action="/logout" method="post">
+            <button class="logout-button" type="submit">Déconnexion</button>
+        </form>
+    </div>
+
+    <header class="dashboard__head">
+        <p class="eyebrow" th:text="${role == 'MANAGER' ? 'Détail de ma demande' : 'Examen de la demande'}"></p>
+        <h1 class="req-detail__title" th:text="${demande.matricule}"></h1>
+        <p class="dashboard__count" th:text="${'Statut actuel : ' + statut}"></p>
+    </header>
+
+    <p class="form__success is-visible is-error" role="alert"
+       th:if="${erreur}" th:text="${erreur}"></p>
+    <p class="form__success is-visible" role="status"
+       th:if="${succes}" th:text="${succes}"></p>
+
+    <dl class="req-meta">
+        <div class="req-meta__item">
+            <dt class="req-meta__label">Demandeur</dt>
+            <dd class="req-meta__value"
+                th:text="${demande.employer.nom + ' ' + demande.employer.prenom}"></dd>
+        </div>
+        <div class="req-meta__item">
+            <dt class="req-meta__label">Matricule</dt>
+            <dd class="req-meta__value" th:text="${demande.employer.matricule}"></dd>
+        </div>
+        <div class="req-meta__item">
+            <dt class="req-meta__label">Date limite</dt>
+            <dd class="req-meta__value" th:text="${demande.dateLimite}"></dd>
+        </div>
+        <div class="req-meta__item" th:if="${role == 'FINANCE' and budgetConfigure}">
+            <dt class="req-meta__label">Budget global</dt>
+            <dd class="req-meta__value" th:text="${budgetGlobal}"></dd>
+        </div>
+    </dl>
+
+    <p class="form__success is-visible is-error" role="alert"
+       th:if="${role == 'FINANCE' and !budgetConfigure}">
+        Le budget global doit être configuré dans la table parametre.
+    </p>
+    <section class="budget-summary" th:if="${role == 'FINANCE'}">
+        <div>
+            <span class="req-meta__label">Montant estimé</span>
+            <strong th:if="${montantMinimum != null}"
+                    th:text="${montantMinimum + ' à ' + montantMaximum}"></strong>
+            <strong th:if="${montantMinimum == null}" th:text="${evaluation}"></strong>
+        </div>
+        <span class="status-pill" th:if="${evaluation != null}" th:text="${evaluation}"></span>
+    </section>
+
+    <section class="req-detail-section">
+        <h2 class="section-title">Postes demandés</h2>
+        <article class="detail-line" th:each="detail : ${details}">
+            <header class="detail-line__head">
+                <div>
+                    <h3 th:text="${detail.poste.libelle}"></h3>
+                    <p th:text="${detail.departement.libelle}"></p>
+                </div>
+                <span class="detail-line__number">
+                    <strong th:text="${detail.nbrPersonnel}"></strong> personne(s)
+                </span>
+            </header>
+            <p class="detail-line__description" th:text="${detail.description}"></p>
+
+            <form class="review-form" th:if="${role != 'MANAGER'}"
+                  th:action="@{'/' + ${role.toLowerCase()} + '/demande/' + ${demande.id} + '/revision'}"
+                  method="post">
+                <input type="hidden" name="detailIds" th:value="${detail.id}">
+                <label>
+                    Commentaire de révision
+                    <textarea name="commentaires" required></textarea>
+                </label>
+                <label>
+                    Nombre proposé (0 = aucun changement)
+                    <input type="number" name="nombres" min="0" value="0">
+                </label>
+                <button class="button-link button-link--quiet" type="submit">Demander une révision</button>
+            </form>
+        </article>
+    </section>
+
+    <section class="req-status req-status--review" th:if="${modeCorrection}">
+        <div class="req-status__head">
+            <span class="req-status__label">Corrections demandées</span>
+        </div>
+        <div class="correction-item" th:each="correction : ${corrections}">
+            <p class="req-status__text">
+                <strong th:text="${correction.detailDemande.poste.libelle}"></strong>
+                — <span th:text="${correction.etapeDemandeuse}"></span>
+            </p>
+            <p class="req-status__text" th:text="${correction.commentaire}"></p>
+            <p class="req-status__text">
+                Effectif proposé :
+                <span th:text="${correction.nbrPersonnelPropose == 0 ? 'Non précisé' : correction.nbrPersonnelPropose}"></span>
+            </p>
+        </div>
+        <div class="detail-actions">
+            <form th:action="@{'/correction/demande/' + ${demande.id} + '/accepter'}" method="post">
+                <button class="action-button" type="submit"
+                        onclick="return confirm('Appliquer les corrections ?')">
+                    Accepter les corrections
+                </button>
+            </form>
+            <form th:action="@{'/correction/demande/' + ${demande.id} + '/abandonner'}" method="post">
+                <button class="action-button action-button--danger" type="submit"
+                        onclick="return confirm('Abandonner la demande ?')">
+                    Abandonner la demande
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <div class="detail-actions" th:if="${role != 'MANAGER'}">
+        <form th:action="@{'/' + ${role.toLowerCase()} + '/demande/' + ${demande.id} + '/valider'}" method="post">
+            <button class="action-button" type="submit"
+                    onclick="return confirm('Confirmer la validation ?')">
+                Valider la demande
+            </button>
+        </form>
+        <form th:action="@{'/' + ${role.toLowerCase()} + '/demande/' + ${demande.id} + '/refuser'}" method="post">
+            <label class="refusal-label">
+                Motif du refus
+                <input name="motif" required>
+            </label>
+            <button class="action-button action-button--danger" type="submit"
+                    onclick="return confirm('Confirmer le refus ?')">
+                Refuser
+            </button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

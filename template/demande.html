@@ -232,9 +232,9 @@
                min="1" step="1" value="1" required inputmode="numeric">
       </div>
 
-      <div class="req-row__field req-row__field--motif">
-        <label for="motif-${n}" class="req-row__label-mobile">Motif</label>
-        <input type="text" id="motif-${n}" name="motif[]" class="motif"
+      <div class="req-row__field req-row__field--description">
+        <label for="description-${n}" class="req-row__label-mobile">Description</label>
+        <input type="text" id="description-${n}" name="descriptions[]" class="description"
                placeholder="Ex : renfort sur le projet Atlas"
                autocomplete="off" required>
       </div>
@@ -390,9 +390,9 @@
       const dept  = row.querySelector('.departement');
       const sel   = row.querySelector('.poste');
       const num   = row.querySelector('.nombre');
-      const motif = row.querySelector('.motif');
+      const description = row.querySelector('.description');
 
-      [dept, sel, num, motif].forEach(f => f.classList.remove('is-invalid'));
+      [dept, sel, num, description].forEach(f => f.classList.remove('is-invalid'));
 
       const n = parseInt(num.value, 10);
 
@@ -408,8 +408,8 @@
         num.classList.add('is-invalid');
         ok = false;
       }
-      if (!motif.value.trim()) {
-        motif.classList.add('is-invalid');
+      if (!description.value.trim()) {
+        description.classList.add('is-invalid');
         ok = false;
       }
 
