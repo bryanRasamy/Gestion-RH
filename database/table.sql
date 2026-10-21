@@ -45,9 +45,9 @@ CREATE TABLE status(
     sigle VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE demande(
+CREATE TABLE demARCHAR(50)ande(
     id SERIAL PRIMARY KEY,
-    matricule VARCHAR(50) NOT NULL UNIQUE,
+    matricule V NOT NULL UNIQUE,
     id_employer INT NOT NULL,
     date_limite DATE,
     FOREIGN KEY (id_employer) REFERENCES employer(id)
@@ -74,6 +74,20 @@ CREATE TABLE historique_demande_status(
     FOREIGN KEY (id_demande) REFERENCES demande(id),
     FOREIGN KEY (id_status) REFERENCES status(id),
     FOREIGN KEY (id_employer) REFERENCES employer(id)
+);
+
+CREATE TABLE candidat(
+    id SERIAL PRIMARY KEY,
+    id_user INT NOT NULL,
+    id_detail_demande INT NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    telephone VARCHAR(20),
+    cv VARCHAR(100),
+    lm VARCHAR(100),
+    status VARCHAR(50) NOT NULL DEFAULT 'En attente',
+    FOREIGN KEY (id_user) REFERENCES utilisateur(id)
+    FOREIGN KEY (id_detail_demande) REFERENCES detail_demande(id)
 );
 
 CREATE VIEW v_historique_demande_status AS
