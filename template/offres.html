@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pivot — Offres d'emploi</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-page">
+
+<nav class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+
+    <a href="#" class="logo" aria-label="Pivot — accueil">
+      <span class="logo__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="17" height="17">
+          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+      </span>
+      <span class="logo__word">Pivot</span>
+    </a>
+
+    <ul class="app-nav__links" id="appNavLinks">
+      <li><a href="offres.html" class="app-nav__link is-active">Offres d'emploi</a></li>
+      <li><a href="#" class="app-nav__link">Mes candidatures</a></li>
+      <li><a href="#" class="app-nav__link">Mon profil</a></li>
+    </ul>
+
+    <div class="app-nav__user">
+      <div class="avatar" aria-hidden="true">J</div>
+      <span class="app-nav__user-name">Jean C.</span>
+    </div>
+
+    <button class="app-nav__toggle" id="appNavToggle"
+            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+<main class="dashboard">
+
+  <header class="dashboard__head">
+    <p class="eyebrow">Espace candidat</p>
+    <h1>Offres d'emploi</h1>
+    <p class="dashboard__count">Découvrez les opportunités qui correspondent à votre profil.</p>
+  </header>
+
+  <div class="dashboard__grid">
+
+    <!-- Carte 1 -->
+    <article class="job-card">
+      <div class="job-card__head">
+        <span class="badge badge--dept">Informatique</span>
+      </div>
+      <h3 class="job-card__title">Développeur Full-stack</h3>
+      <p class="job-card__meta">
+        Date limite : 30 juin 2026
+      </p>
+      <div class="job-card__foot">
+        <div class="job-card__counter">
+          <span class="job-card__counter-current">01</span>
+          <span class="job-card__counter-sep">/</span>
+          <span class="job-card__counter-total">05</span>
+          <span class="job-card__counter-label">pourvus</span>
+        </div>
+        <a href="detailOffre.html" class="req-card__link">
+          Voir l'offre
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- Carte 2 -->
+    <article class="job-card">
+      <div class="job-card__head">
+        <span class="badge badge--dept">Marketing</span>
+      </div>
+      <h3 class="job-card__title">Designer UX / UI</h3>
+      <p class="job-card__meta">
+        Date limite : 15 juillet 2026
+      </p>
+      <div class="job-card__foot">
+        <div class="job-card__counter">
+          <span class="job-card__counter-current">00</span>
+          <span class="job-card__counter-sep">/</span>
+          <span class="job-card__counter-total">02</span>
+          <span class="job-card__counter-label">pourvus</span>
+        </div>
+        <a href="detailOffre.html" class="req-card__link">
+          Voir l'offre
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- Carte 3 -->
+    <article class="job-card">
+      <div class="job-card__head">
+        <span class="badge badge--dept">Marketing</span>
+      </div>
+      <h3 class="job-card__title">Data Analyst</h3>
+      <p class="job-card__meta">
+        Date limite : 10 juin 2026
+      </p>
+      <div class="job-card__foot">
+        <div class="job-card__counter">
+          <span class="job-card__counter-current">02</span>
+          <span class="job-card__counter-sep">/</span>
+          <span class="job-card__counter-total">02</span>
+          <span class="job-card__counter-label">pourvus</span>
+        </div>
+        <a href="#" class="req-card__link" style="opacity: 0.5; pointer-events: none;">
+          Clôturée
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+    <!-- Carte 4 -->
+    <article class="job-card">
+      <div class="job-card__head">
+        <span class="badge badge--dept">Informatique</span>
+      </div>
+      <h3 class="job-card__title">Développeur Front-end</h3>
+      <p class="job-card__meta">
+        Date limite : 20 août 2026
+      </p>
+      <div class="job-card__foot">
+        <div class="job-card__counter">
+          <span class="job-card__counter-current">00</span>
+          <span class="job-card__counter-sep">/</span>
+          <span class="job-card__counter-total">01</span>
+          <span class="job-card__counter-label">pourvu</span>
+        </div>
+        <a href="detailOffre.html" class="req-card__link">
+          Voir l'offre
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+  </div>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+  const nav    = document.getElementById('appNav');
+  const toggle = document.getElementById('appNavToggle');
+  
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open);
+    toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  });
+  
+  document.querySelectorAll('.app-nav__link').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

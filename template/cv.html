@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pivot — Mon CV en ligne</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-page">
+
+<nav class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+
+    <a href="#" class="logo" aria-label="Pivot — accueil">
+      <span class="logo__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="17" height="17">
+          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+      </span>
+      <span class="logo__word">Pivot</span>
+    </a>
+
+    <ul class="app-nav__links" id="appNavLinks">
+      <li><a href="offres.html" class="app-nav__link">Offres d'emploi</a></li>
+      <li><a href="#" class="app-nav__link">Mes candidatures</a></li>
+      <li><a href="cv.html" class="app-nav__link is-active">Mon profil</a></li>
+    </ul>
+
+    <div class="app-nav__user">
+      <div class="avatar" aria-hidden="true">J</div>
+      <span class="app-nav__user-name">Jean C.</span>
+    </div>
+
+    <button class="app-nav__toggle" id="appNavToggle"
+            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+<main class="dashboard">
+
+  <header class="dashboard__head">
+    <p class="eyebrow">Espace candidat</p>
+    <h1>Mon CV en ligne</h1>
+    <p class="dashboard__count">Complétez votre profil pour postuler en un clic aux offres.</p>
+  </header>
+
+  <form class="cv-form" id="cvForm" novalidate>
+
+    <!-- 01. IDENTITÉ -->
+    <section class="cv-section">
+      <h2 class="cv-section__title"><span>01</span> Identité</h2>
+      <div class="form-grid">
+        <div class="field">
+          <div class="field__top"><label for="prenom">Prénom</label></div>
+          <div class="field__control"><input type="text" id="prenom" name="prenom" placeholder="Jean" required></div>
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="nom">Nom</label></div>
+          <div class="field__control"><input type="text" id="nom" name="nom" placeholder="Dupont" required></div>
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="email">E-mail</label></div>
+          <div class="field__control"><input type="email" id="email" name="email" placeholder="jean.dupont@exemple.com" required></div>
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="telephone">Téléphone</label></div>
+          <div class="field__control"><input type="tel" id="telephone" name="telephone" placeholder="06 12 34 56 78"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02. PROFIL -->
+    <section class="cv-section">
+      <h2 class="cv-section__title"><span>02</span> Profil</h2>
+      <div class="form-grid form-grid--full">
+            <div class="field">
+          <div class="field__top"><label for="titre">Titre / Poste visé</label></div>
+          <div class="field__control">
+            <select id="titre" name="titre" required>
+              <option value="" disabled selected>Sélectionnez un poste...</option>
+              <option value="Développeur Full-stack">Développeur Full-stack</option>
+              <option value="Développeur Front-end">Développeur Front-end</option>
+              <option value="Designer UX / UI">Designer UX / UI</option>
+              <option value="Data Analyst">Data Analyst</option>
+              <option value="Chef de projet">Chef de projet</option>
+              <option value="DevOps / SRE">DevOps / SRE</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-top: 12px;">
+          <div class="field__top"><label for="resume">Résumé de parcours</label></div>
+          <textarea id="resume" name="resume" class="field__textarea" placeholder="Décrivez votre parcours en quelques lignes..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. EXPÉRIENCE -->
+    <section class="cv-section">
+      <h2 class="cv-section__title"><span>03</span> Expérience professionnelle</h2>
+      <div class="form-grid">
+        <div class="field">
+          <div class="field__top"><label for="poste">Dernier poste occupé</label></div>
+          <div class="field__control"><input type="text" id="poste" name="poste" placeholder="Développeur Full-stack"></div>
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="entreprise">Entreprise</label></div>
+          <div class="field__control"><input type="text" id="entreprise" name="entreprise" placeholder="Tech Solutions SARL"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04. FORMATION -->
+    <section class="cv-section">
+      <h2 class="cv-section__title"><span>04</span> Formation</h2>
+      <div class="form-grid">
+        <div class="field">
+          <div class="field__top"><label for="diplome">Diplôme</label></div>
+          <div class="field__control"><input type="text" id="diplome" name="diplome" placeholder="Master en Informatique"></div>
+        </div>
+        <div class="field">
+          <div class="field__top"><label for="ecole">Établissement</label></div>
+          <div class="field__control"><input type="text" id="ecole" name="ecole" placeholder="Université de Paris"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05. DOCUMENTS -->
+    <section class="cv-section">
+      <h2 class="cv-section__title"><span>05</span> Documents</h2>
+      <div class="upload-grid">
+        
+        <!-- Upload CV -->
+        <div class="upload-zone" id="zoneCV">
+          <input type="file" id="fileCV" name="cv" accept=".pdf,.doc,.docx" required>
+          <svg class="upload-zone__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span class="upload-zone__label">Uploader votre CV</span>
+          <span class="upload-zone__hint">PDF, DOC, DOCX (Max 5 Mo)</span>
+          <span class="upload-zone__filename" id="nameCV"></span>
+        </div>
+
+        <!-- Upload Lettre -->
+        <div class="upload-zone" id="zoneLM">
+          <input type="file" id="fileLM" name="lettre" accept=".pdf,.doc,.docx">
+          <svg class="upload-zone__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span class="upload-zone__label">Lettre de motivation</span>
+          <span class="upload-zone__hint">Optionnel — PDF, DOC, DOCX</span>
+          <span class="upload-zone__filename" id="nameLM"></span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BOUTON FINAL -->
+    <button type="submit" class="submit" id="submitBtn">
+      <span class="submit__label">Enregistrer mon profil</span>
+      <span class="submit__icon">
+        <svg class="submit__arrow" width="18" height="18" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 12h15M13 6l6 6-6 6"/>
+        </svg>
+        <span class="spinner" aria-hidden="true"></span>
+      </span>
+    </button>
+
+  </form>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Navbar mobile ---------- */
+  const nav    = document.getElementById('appNav');
+  const toggle = document.getElementById('appNavToggle');
+  
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open);
+    toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  });
+  
+  document.querySelectorAll('.app-nav__link').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  /* ---------- Gestion de l'affichage des fichiers uploadés ---------- */
+  function setupUpload(inputId, zoneId, nameId) {
+    const input = document.getElementById(inputId);
+    const zone = document.getElementById(zoneId);
+    const nameEl = document.getElementById(nameId);
+
+    input.addEventListener('change', () => {
+      if (input.files && input.files.length > 0) {
+        const fileName = input.files[0].name;
+        nameEl.textContent = fileName;
+        zone.classList.add('has-file');
+      } else {
+        nameEl.textContent = '';
+        zone.classList.remove('has-file');
+      }
+    });
+  }
+
+  setupUpload('fileCV', 'zoneCV', 'nameCV');
+  setupUpload('fileLM', 'zoneLM', 'nameLM');
+
+  /* ---------- Soumission du formulaire ---------- */
+  const form = document.getElementById('cvForm');
+  const submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Simulation d'enregistrement
+    submitBtn.classList.add('is-loading');
+    submitBtn.disabled = true;
+
+    setTimeout(() => {
+      submitBtn.classList.remove('is-loading');
+      submitBtn.disabled = false;
+      alert('Votre CV a bien été enregistré dans votre espace candidat.');
+    }, 1500);
+  });
+
+})();
+</script>
+
+</body>
+</html>
