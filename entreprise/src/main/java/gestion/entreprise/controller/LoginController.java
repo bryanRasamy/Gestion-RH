@@ -20,7 +20,7 @@ public class LoginController {
     @Autowired
     private UtilisateurService utilisateurService;
     
-    @Autowired 
+    @Autowired
     private PasswordEncoder passwordEncoder;
     
     @GetMapping("/")
@@ -64,7 +64,15 @@ public class LoginController {
             Poste poste = employer.getPoste();
             Departement departement = poste.getDepartement();
 
-            String url = "/"+departement.getSigle()+"/"+poste.getSigle()+"/accueil";
+            String url = new String();
+
+            if (departement.getSigle().equalsIgnoreCase("rh")) {
+                url = "/rh/accueil";
+            } else if (departement.getSigle().equalsIgnoreCase("dg")) {
+                url = "/dg/accueil";
+            } else {
+                url = "/departements/accueil";
+            }
 
             return "redirect:"+url;
 
