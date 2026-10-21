@@ -25,6 +25,9 @@ public class Demande {
     @OneToMany(mappedBy = "demande")
     private List<HistoriqueDemandeStatus> historiques;
 
+    @OneToMany(mappedBy = "demande")
+    private List<DetailDemande> details;
+
     /*Constructeur*/
     public Demande() {
 
@@ -51,6 +54,10 @@ public class Demande {
         this.historiques = historiques;
     }
 
+    public void setDetails(List<DetailDemande> details) {
+        this.details = details;
+    }
+
     /*Getters*/
     public int getId() {
         return id;
@@ -70,5 +77,9 @@ public class Demande {
     
     public List<HistoriqueDemandeStatus> getHistoriques() {
         return historiques;
+    }
+
+    public List<DetailDemande> getDetails() {
+        return details;
     }
 }

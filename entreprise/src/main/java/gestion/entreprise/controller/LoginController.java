@@ -117,6 +117,8 @@ public class LoginController {
         
             utilisateurService.saveUtilisateur(utilisateur);
 
+            session.setAttribute("idUtilisateur", utilisateur.getId());
+
             return "redirect:/accueil";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
