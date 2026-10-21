@@ -14,10 +14,10 @@ public class Poste {
     @JoinColumn(name = "id_departement", nullable = false)
     private Departement departement;
 
-    @Column(name = "libelle", nullable = false)
+    @Column(name = "libelle", nullable = false, length = 100)
     private String libelle;
 
-    @Column(name = "sigle", nullable = false)
+    @Column(name = "sigle", nullable = false, length = 20)
     private String sigle;
 
     @Column(name = "salaire", nullable = false)

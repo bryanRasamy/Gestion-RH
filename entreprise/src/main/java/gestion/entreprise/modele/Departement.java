@@ -10,10 +10,10 @@ public class Departement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "libelle", nullable = false, unique = true)
+    @Column(name = "libelle", nullable = false, unique = true, length = 100)
     private String libelle;
 
-    @Column(name = "sigle", nullable = false, unique = true)
+    @Column(name = "sigle", nullable = false, unique = true, length = 20)
     private String sigle;
 
     @OneToMany(mappedBy = "departement")

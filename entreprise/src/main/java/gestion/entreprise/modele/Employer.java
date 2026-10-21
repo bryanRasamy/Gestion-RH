@@ -1,5 +1,7 @@
 package gestion.entreprise.modele;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -10,19 +12,19 @@ public class Employer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "matricule", nullable = false, unique = true)
+    @Column(name = "matricule", nullable = false, unique = true, length = 100)
     private String matricule;
 
-    @Column(name = "nom", nullable = false)
+    @Column(name = "nom", nullable = false, length = 100)
     private String nom;
 
-    @Column(name = "prenom", nullable = false)
+    @Column(name = "prenom", nullable = false, length = 100)
     private String prenom;
 
-    @Column(name = "telephone")
+    @Column(name = "telephone", length = 20)
     private String telephone;
 
-    @Column(name = "compte")
+    @Column(name = "compte", length = 100)
     private String compte;
 
     @ManyToOne
@@ -31,6 +33,12 @@ public class Employer {
 
     @Column(name = "salaire")
     private Double salaire;
+
+    @OneToMany(mappedBy = "employer")
+    private List<Demande> demandes;
+
+    @OneToMany(mappedBy = "employer")
+    private List<HistoriqueDemandeStatus> historiqueDemandeStatus;
 
     /*Constructeur*/
     public Employer(){
@@ -70,6 +78,14 @@ public class Employer {
         this.salaire = salaire;
     }
 
+    public void setDemandes(List<Demande> demandes) {
+        this.demandes = demandes;
+    }
+
+    public void setHistoriqueDemandeStatus(List<HistoriqueDemandeStatus> historiqueDemandeStatus) {
+        this.historiqueDemandeStatus = historiqueDemandeStatus;
+    }
+
     /*Getters*/
     public int getId() {
         return id;
@@ -101,6 +117,14 @@ public class Employer {
     
     public Double getSalaire() {
         return salaire;
+    }
+
+    public List<Demande> setDemandes() {
+        return this.demandes;
+    }
+
+    public List<HistoriqueDemandeStatus> setHistoriqueDemandeStatus() {
+        return this.historiqueDemandeStatus;
     }
     
 }

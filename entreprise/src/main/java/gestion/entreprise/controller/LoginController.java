@@ -11,8 +11,7 @@ import org.springframework.ui.Model;
 
 import gestion.entreprise.modele.*;
 import gestion.entreprise.service.*;
-// import gestion.entreprise.repository.*;
-// import gestion.entreprise.vue.*;
+
 import jakarta.servlet.http.HttpSession;
 
 @Controller

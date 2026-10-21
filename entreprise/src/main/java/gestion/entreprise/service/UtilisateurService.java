@@ -34,4 +34,8 @@ public class UtilisateurService {
     public void saveUtilisateur(Utilisateur utilisateur) throws Exception{
         utilisateurRepository.save(utilisateur);
     }
+
+    public Utilisateur getById(int id) throws Exception{
+        return utilisateurRepository.findById(id).orElse(null);
+    }
 }

@@ -10,10 +10,10 @@ public class Utilisateur {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(name = "mdp", nullable = false)
+    @Column(name = "mdp", nullable = false, length = 255)
     private String mdp;
 
     @OneToOne
