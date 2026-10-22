@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Fragment: navbar -->
+<nav th:fragment="navbar" class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+
+    <a th:href="@{'/' + ${role != null ? role.sigle.toLowerCase() : ''} + '/accueil'}" class="logo" aria-label="Pivot — accueil">
+      <span class="logo__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="17" height="17">
+          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+      </span>
+      <span class="logo__word">Pivot</span>
+    </a>
+
+    <ul class="app-nav__links" id="appNavLinks">
+      <li>
+        <a th:href="@{'/' + ${role != null ? role.sigle.toLowerCase() : ''} + '/accueil'}"
+           class="app-nav__link">Demandes</a>
+      </li>
+      <!-- Nouvelle demande visible seulement pour MANAGER -->
+      <li th:if="${role != null and role.sigle == 'MANAGER'}">
+        <a th:href="@{'/' + ${role.sigle.toLowerCase()} + '/demandes/nouvelle'}"
+           class="app-nav__link">Nouvelle demande</a>
+      </li>
+    </ul>
+
+    <div class="app-nav__user">
+      <div class="avatar" aria-hidden="true"
+           th:text="${utilisateur != null and utilisateur.employer != null ? utilisateur.employer.nom.substring(0,1) : 'U'}">U</div>
+      <span class="app-nav__user-name"
+            th:text="${utilisateur != null and utilisateur.employer != null ? utilisateur.employer.nom + ' ' + utilisateur.employer.prenom : (utilisateur != null ? utilisateur.email : '')}">
+        Utilisateur
+      </span>
+      <span class="app-nav__role-badge" th:if="${role != null}" th:text="${role.libelle}">Role</span>
+      <a href="/logout" class="app-nav__link app-nav__logout" title="Déconnexion">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+      </a>
+    </div>
+
+    <button class="app-nav__toggle" id="appNavToggle"
+            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+</html>

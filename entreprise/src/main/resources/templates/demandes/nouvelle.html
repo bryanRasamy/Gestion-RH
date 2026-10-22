@@ -9,44 +9,11 @@
 
 <body class="dashboard-page">
 
-<nav class="app-nav" id="appNav">
-  <div class="app-nav__inner">
-
-    <a href="#" class="logo" aria-label="Pivot — accueil">
-      <span class="logo__mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="17" height="17">
-          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
-                stroke="currentColor" stroke-width="2.4"
-                stroke-linecap="square" stroke-linejoin="miter"/>
-        </svg>
-      </span>
-      <span class="logo__word">Pivot</span>
-    </a>
-
-    <ul class="app-nav__links" id="appNavLinks">
-      <li><a href="/departements/accueil" class="app-nav__link is-active">Demandes</a></li>
-      <li><a href="/departements/demandes/nouvelle" class="app-nav__link">Nouvelle demande</a></li>
-      <li><a href="#" class="app-nav__link">Équipe</a></li>
-      <li><a href="#" class="app-nav__link">Rapports</a></li>
-      <li><a href="#" class="app-nav__link">Paramètres</a></li>
-    </ul>
-
-    <div class="app-nav__user">
-      <div class="avatar" aria-hidden="true">U</div>
-      <span class="app-nav__user-name" th:text="|${utilisateur.employer.nom} ${utilisateur.employer.prenom}|">Amadou D.</span>
-    </div>
-
-    <button class="app-nav__toggle" id="appNavToggle"
-            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
-      <span></span><span></span><span></span>
-    </button>
-
-  </div>
-</nav>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="dashboard">
 
-    <a th:href="@{/departements/accueil}" class="back-link">
+    <a th:href="@{'/' + ${roleSigle} + '/accueil'}" class="back-link">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="1.8"
              stroke-linecap="round" stroke-linejoin="round">
@@ -56,14 +23,17 @@
     </a>
 
     <header class="dashboard__head">
-        <p class="eyebrow" th:text="|Département ${departement.libelle}|" >Département Informatique</p>
+        <p class="eyebrow" th:text="|Département ${departement != null ? departement.libelle : ''}|">Département</p>
         <h1>Nouvelle demande</h1>
         <p class="dashboard__count">Renseignez l'échéance, chaque poste requis, puis validez.</p>
     </header>
 
-    <form class="req-form" id="requestForm" th:action="@{/departements/demandes}" th:object="${demande}" method="post" novalidate>
-        <input type="hidden" name="departementId" id="departementId" th:value="${departement.id}">
-        
+    <form class="req-form" id="requestForm"
+          th:action="@{'/' + ${roleSigle} + '/demandes'}"
+          th:object="${demande}" method="post" novalidate>
+        <input type="hidden" name="departementId" id="departementId"
+               th:value="${departement != null ? departement.id : 0}">
+
         <p class="form__success is-visible is-error" role="alert" th:if="${erreur}">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

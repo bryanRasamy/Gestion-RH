@@ -23,6 +23,9 @@ public class HistoriqueDemandeStatus {
     @JoinColumn(name = "id_employer", nullable = false)
     private Employer employer;
 
+    @Column(name = "motif", columnDefinition = "TEXT")
+    private String motif;
+
     @Column(name = "date", nullable = false)
     private LocalDate date = LocalDate.now();
 
@@ -52,6 +55,10 @@ public class HistoriqueDemandeStatus {
         this.employer = employer;
     }
 
+    public void setMotif(String motif) {
+        this.motif = motif;
+    }
+
     /*Getters*/
     public int getId() {
         return id;
@@ -71,5 +78,9 @@ public class HistoriqueDemandeStatus {
     
     public LocalDate getDate() {
         return date;
+    }
+
+    public String getMotif() {
+        return motif;
     }
 }

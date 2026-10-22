@@ -18,54 +18,65 @@ public class UtilisateurService {
     @Autowired 
     private PasswordEncoder passwordEncoder;
 
-    public void findUtilisateur(Utilisateur utilisateur) throws Exception{
+    public void findUtilisateur(Utilisateur utilisateur) throws Exception {
         Utilisateur user = utilisateurRepository.findByEmail(utilisateur.getEmail());
 
-        if (user==null) {
+        if (user == null) {
             throw new Exception("L'email est invalide");
         }
 
-        if(!passwordEncoder.matches(utilisateur.getMdp(), user.getMdp())){
+        if (!passwordEncoder.matches(utilisateur.getMdp(), user.getMdp())) {
             throw new Exception("Le mot de passe est invalide");
         }
 
         utilisateur.setId(user.getId());
         utilisateur.setEmployer(user.getEmployer());
+        utilisateur.setRole(user.getRole());
     }
 
-    public void saveUtilisateur(Utilisateur utilisateur) throws Exception{
+    public void saveUtilisateur(Utilisateur utilisateur) throws Exception {
         utilisateurRepository.save(utilisateur);
     }
 
-    public Utilisateur getById(int id) throws Exception{
+    public Utilisateur getById(int id) throws Exception {
         return utilisateurRepository.findById(id).orElse(null);
     }
 
-    public Utilisateur authentifierUtilisateur(HttpSession session, Model model) throws Exception{
-        Utilisateur utilisateur = getById((int) session.getAttribute("idUtilisateur"));
-
-        Employer employer=utilisateur.getEmployer();
-
-        if (employer==null) {
-            throw new RuntimeException("Utilisateur non autoriser. Seule les employer peuvent acceder à cette page");
+    /**
+     * UNE seule méthode d'authentification.
+     * Récupère l'utilisateur en session, ajoute les attributs au model si model != null.
+     * Le contrôle de rôle se fait dans le controller appelant avec if/else.
+     */
+    public Utilisateur authentifierUtilisateur(HttpSession session, Model model) throws Exception {
+        Object sessionAttr = session.getAttribute("idUtilisateur");
+        if (sessionAttr == null) {
+            throw new RuntimeException("Session expirée. Veuillez vous reconnecter.");
         }
 
-        Poste poste=employer.getPoste();
+        Utilisateur utilisateur = getById((int) sessionAttr);
 
-        if (!poste.getSigle().equalsIgnoreCase("MI") && !poste.getSigle().equalsIgnoreCase("MC") && !poste.getSigle().equalsIgnoreCase("DG")) {
-            throw new RuntimeException("Seules les manager sont autoriser à acceder à cette page :"+poste.getSigle());
+        if (utilisateur == null) {
+            throw new RuntimeException("Utilisateur introuvable.");
         }
 
-        Departement departement=poste.getDepartement();
+        if (model != null) {
+            model.addAttribute("utilisateur", utilisateur);
 
-        if (departement.getSigle().equalsIgnoreCase("rh")) {
-            throw new RuntimeException("Les rh ne sont pas autoriser à acceder à cette page");
+            if (utilisateur.getRole() != null) {
+                model.addAttribute("role", utilisateur.getRole());
+            }
+
+            if (utilisateur.getEmployer() != null) {
+                Employer employer = utilisateur.getEmployer();
+                model.addAttribute("employer", employer);
+                if (employer.getPoste() != null) {
+                    model.addAttribute("poste", employer.getPoste());
+                    if (employer.getPoste().getDepartement() != null) {
+                        model.addAttribute("departement", employer.getPoste().getDepartement());
+                    }
+                }
+            }
         }
-
-        model.addAttribute("utilisateur", utilisateur);
-        model.addAttribute("poste", poste);
-        model.addAttribute("departement", departement);
-
 
         return utilisateur;
     }

@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class LoginController {
+
     @Autowired
     private UtilisateurService utilisateurService;
     
@@ -36,17 +37,17 @@ public class LoginController {
     @PostMapping("/login")
     public String seConnecter(@ModelAttribute Utilisateur utilisateur, RedirectAttributes redirectAttributes, HttpSession session) {
         try {
-            if (utilisateur.getEmail()==null || utilisateur.getEmail().isEmpty()) {
+            if (utilisateur.getEmail() == null || utilisateur.getEmail().isEmpty()) {
                 throw new RuntimeException("L'email est obligatoire");
             }
 
-            if (utilisateur.getMdp()==null || utilisateur.getMdp().isEmpty()) {
+            if (utilisateur.getMdp() == null || utilisateur.getMdp().isEmpty()) {
                 throw new RuntimeException("Le mot de passe est obligatoire");
             }
 
             utilisateurService.findUtilisateur(utilisateur);
 
-            if (utilisateur.getId()==0) {
+            if (utilisateur.getId() == 0) {
                 throw new RuntimeException("L'utilisateur est introuvable");
             }
 
@@ -54,26 +55,13 @@ public class LoginController {
 
             session.setAttribute("idUtilisateur", utilisateur.getId());
 
-            Employer employer = utilisateur.getEmployer();
+            Role role = utilisateur.getRole();
 
-            if (employer==null) {
+            if (role == null) {
                 return "redirect:/accueil";
             }
 
-            Poste poste = employer.getPoste();
-            Departement departement = poste.getDepartement();
-
-            String url = new String();
-
-            if (departement.getSigle().equalsIgnoreCase("rh")) {
-                url = "/rh/accueil";
-            } else if (departement.getSigle().equalsIgnoreCase("dg")) {
-                url = "/dg/accueil";
-            } else {
-                url = "/departements/accueil";
-            }
-
-            return "redirect:"+url;
+            return "redirect:/" + role.getSigle().toLowerCase() + "/accueil";
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
@@ -88,33 +76,33 @@ public class LoginController {
     }
 
     @PostMapping("/inscription")
-    public String inscrire(@ModelAttribute Utilisateur utilisateur, RedirectAttributes redirectAttributes ,HttpSession session) {
+    public String inscrire(@ModelAttribute Utilisateur utilisateur, RedirectAttributes redirectAttributes, HttpSession session) {
         try {
-            if (utilisateur.getEmail()==null || utilisateur.getEmail().isEmpty()) {
+            if (utilisateur.getEmail() == null || utilisateur.getEmail().isEmpty()) {
                 throw new RuntimeException("L'email est obligatoire");
             }
 
-            if (utilisateur.getMdp()==null || utilisateur.getMdp().isEmpty()) {
+            if (utilisateur.getMdp() == null || utilisateur.getMdp().isEmpty()) {
                 throw new RuntimeException("Le mot de passe est obligatoire");
             }
 
-            if (utilisateur.getMdp().length()<8) {
+            if (utilisateur.getMdp().length() < 8) {
                 throw new RuntimeException("Le mot de passe trop court (8 caractères minimum)");
             }
 
             try {
                 utilisateurService.findUtilisateur(utilisateur);
             } catch (Exception e) {
-               if (utilisateur.getId()>0) {
-                    throw new RuntimeException("L'utilisateur est existe deja");
+                if (utilisateur.getId() > 0) {
+                    throw new RuntimeException("L'utilisateur existe déjà");
                 }
 
                 utilisateur.setId(0);
                 utilisateur.setEmployer(null);
+                utilisateur.setRole(null);
                 utilisateur.setMdp(passwordEncoder.encode(utilisateur.getMdp()));
             }
-            
-        
+
             utilisateurService.saveUtilisateur(utilisateur);
 
             return "redirect:/accueil";
@@ -124,9 +112,9 @@ public class LoginController {
         }
     }
 
-    // @GetMapping("/logout")
-    // public String seDeconnecter(HttpSession session) {
-    //     session.invalidate();
-    //     return "redirect:/login";
-    // }
+    @GetMapping("/logout")
+    public String seDeconnecter(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
+    }
 }

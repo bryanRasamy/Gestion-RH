@@ -16,7 +16,7 @@ C'est les seul changement dans la base.
 Create the Models, Repos of these. Add inside loginCntroller, or any controllers that uses utilisateur, the role of the utilsiateur
 
 Upper Layers:
-Voici comment les transactions sont structure. Je veux que tu cree en API REST ValidationController dans dossier api qui permertra de faire ces transactions. Ce controller ne servira que de API REST et pas de redirection de page.
+Voici comment les transactions sont structure. Je veux que tu cree en API REST DemandeController dans dossier api qui permertra de faire ces transactions. Ce controller ne servira que de API REST et pas de redirection de page.
 pour les redirection de pages, tu creera des controller pour eux memes. Dans la suite, je definirais seulement les url mais a toi e voir si on redirge ou si c est redierect page:
 
 url: {role.libelle}/acceuil
@@ -37,35 +37,18 @@ que ce soit rh ou finance ou dg, alors on mettra le status comme valider et l id
 Ecrans de voir details demandes:
 Si rh ou dg, montre seulement les details.
 Si finance: 
-- cree fonction getMontantOfPoste(Demande_details) --> nb effectif * grille de budget montant max pour ce poste = prix du poste demande
-- cree fonction getMontantOfDemande(Demmande) --> boucle les demandes details de cette demande et call getMontantOfPoste(), retourne le prix de la demande
-- cree fonction estDansLeBudget():
+- cree fonction Demande_details.getMontant() --> nb effectif * grille de budget montant max pour ce poste = prix du poste demande
+- cree fonction Demande.getMontant() --> boucle les demandes details de cette demande et call getMontant(), retourne le prix de la demande
+- cree fonction boolean respecteLeBudget(): --> prend le budget dans la table historique_budget_annuel, regarder si demande.getDemande < budget maintenant avec date est lie avec la date de la demande (a respecter les dates)
+- sur la card, mettre le montant de la demande (call getMontantOfDemande()). Sur le style, mettre en vert si la demande respecte le truc, sinon en rouge. Call respecteLeBudget(). 
+Si manager ET si demande est "a revoir":
+- 2 cards: a gauche on a le card originale de la demande originale (ce que le manager a fait), a droite on a le card que le correcteur veut. Puis on a bouton accepter ou abadonner. Si abondonnee, la demadne est completement abondonnee et on ne peut plus rien y faire. Si accepter alors l historique statut de la deamdne prend comme statut "accepter" et comme id employer le correcteur qui a demander. 
 
-- sur la card, mettre le montant de la demande (call getMontantOfDemande()). Sur le style, mettre en vert si la demande est
-- 
-- avoir une fonction isBudgetSuffisant():
-  - regarder la demande 
-
-
-Ajoute les ecrans de: 
-- voir details d'une demande pour rh finance et dg
-- voir details 
-
-
-url: correction/{demande id}
-
+pour chaqun: bouton accepte, valider, refuser, a revoir. Pour refuser et a revoir, on aura un modal de confirmation avec input (motif de lhistorique de statut). Tu choisira l'url de controller convenables
 
 Note que quand un manager cree une demande, le statut est cree,(deja present dans el code existant. Juste pour te rappeler)
 
-
-
 Le navbar pour chaques utilisateur est le meme. Met le dans un fragments et link juste dan les views necessaries.
-
-
-
-
-
-
 
 regle:
 Pas de dto, on prend explicitement les attributs
@@ -78,3 +61,14 @@ N utilise jamais BigDecimal, fait plutot Double ou Integer avec numeric() sur la
 N utilsie jamais Optional.
 N utilise jamasi de stream ou de colletions masi fais des codes explicite avec for et if/
 respecte le style.css. Ajoute des classe de style si tu veux.
+Respect SOC
+url controller en API REST standards.
+Dans les 3 layers MVC (a part la base), s'assurer que les donnees sont coherents et logique. Par exemple on ne peut avoir des nb effectif ou prix negatif. OU on ne peut pas avoir une date inferieu a une atre (par exmepl). mettre des check if pour chaque layer avec throw execption et affichage en views.
+Pas de overengeneering.
+Respecte le schema existatn.
+Code le plus simple possible et pro et propre.
+ne cree pas de fichier dont on a pas besoin meme si la table existe.
+Verify throuhrougly if we handle sessions, roles, generic pages etc
+
+
+Tu feras tous les layers MVC et meme vue. 

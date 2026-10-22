@@ -20,6 +20,10 @@ public class Utilisateur {
     @JoinColumn(name = "id_employer")
     private Employer employer;
 
+    @ManyToOne
+    @JoinColumn(name = "id_role")
+    private Role role;
+
     /*Constructeur*/
     public Utilisateur(){
 
@@ -42,6 +46,10 @@ public class Utilisateur {
         this.employer = employer; 
     }
 
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
     /*Getters*/
     public int getId() { 
         return id; 
@@ -57,6 +65,10 @@ public class Utilisateur {
     
     public Employer getEmployer() { 
         return employer;
+    }
+
+    public Role getRole() {
+        return role;
     }
     
 }

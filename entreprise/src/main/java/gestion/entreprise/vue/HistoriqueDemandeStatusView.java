@@ -35,6 +35,12 @@ public class HistoriqueDemandeStatusView {
     @Column(name = "libelle")
     private String libelle;
 
+    @Column(name = "sigle")
+    private String sigle;
+
+    @Column(name = "motif")
+    private String motif;
+
     @Column(name = "date")
     private LocalDate date;
     
@@ -80,6 +86,14 @@ public class HistoriqueDemandeStatusView {
         this.libelle = libelle;
     }
 
+    public void setSigle(String sigle) {
+        this.sigle = sigle;
+    }
+
+    public void setMotif(String motif) {
+        this.motif = motif;
+    }
+
     public void setDate(LocalDate date) {
         this.date = date;
     }
@@ -119,6 +133,14 @@ public class HistoriqueDemandeStatusView {
 
     public String getLibelle() {
         return libelle;
+    }
+
+    public String getSigle() {
+        return sigle;
+    }
+
+    public String getMotif() {
+        return motif;
     }
 
     public LocalDate getDate() {
