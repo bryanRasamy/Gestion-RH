@@ -1,6 +1,7 @@
 # Base
 - motif = description. changer column motif en description
 - demande_statut: id, libelle, id_employe, date (cree valider, a revoir, refuser, abondonner, expire). id employe est la personne qui a fait l'action. Par exemple, RH a refuser cette demande
+
 - table demande_a_revoir: id, id_demandeur, id_demande_details, date.
 - grille_budget: id, id_poste, budget_min, budget_max, date_effective.
 - historique_budget_annuel: id, valeur, date_effective
