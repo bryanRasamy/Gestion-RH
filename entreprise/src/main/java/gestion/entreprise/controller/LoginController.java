@@ -1,30 +1,31 @@
 package gestion.entreprise.controller;
 
+import gestion.entreprise.modele.TypeRole;
+import gestion.entreprise.modele.Utilisateur;
+import gestion.entreprise.repository.RoleRepository;
+import gestion.entreprise.service.UtilisateurService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.ui.Model;
-
-import gestion.entreprise.modele.*;
-import gestion.entreprise.repository.RoleRepository;
-import gestion.entreprise.service.*;
-import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class LoginController {
+
     @Autowired
     private UtilisateurService utilisateurService;
-    
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private RoleRepository roleRepository;
-    
+
     @GetMapping("/")
     public String index() {
         return "redirect:/login";
@@ -37,19 +38,19 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String seConnecter(@ModelAttribute Utilisateur utilisateur, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String seConnecter(@ModelAttribute Utilisateur utilisateur, RedirectAttributes redirectAttributes,
+                              HttpSession session) {
         try {
-            if (utilisateur.getEmail()==null || utilisateur.getEmail().isEmpty()) {
+            if (utilisateur.getEmail() == null || utilisateur.getEmail().isEmpty()) {
                 throw new RuntimeException("L'email est obligatoire");
             }
-
-            if (utilisateur.getMdp()==null || utilisateur.getMdp().isEmpty()) {
+            if (utilisateur.getMdp() == null || utilisateur.getMdp().isEmpty()) {
                 throw new RuntimeException("Le mot de passe est obligatoire");
             }
 
             utilisateurService.findUtilisateur(utilisateur);
 
-            if (utilisateur.getId()==0) {
+            if (utilisateur.getId() == 0) {
                 throw new RuntimeException("L'utilisateur est introuvable");
             }
 
@@ -57,51 +58,23 @@ public class LoginController {
             session.setAttribute("idUtilisateur", utilisateur.getId());
             session.setAttribute("idRole", utilisateur.getIdRole());
 
-            if (utilisateur.getIdRole() > 0) {
-                Role role = roleRepository.findOneById(utilisateur.getIdRole());
-                if (role != null) {
-                    String libelle = role.getLibelle();
-                    if ("RH".equalsIgnoreCase(libelle)) {
-                        return "redirect:/rh/accueil";
-                    }
-                    if ("Finance".equalsIgnoreCase(libelle)) {
-                        return "redirect:/finance/accueil";
-                    }
-                    if ("DG".equalsIgnoreCase(libelle)) {
-                        return "redirect:/dg/accueil";
-                    }
-                    if ("Manager".equalsIgnoreCase(libelle)) {
-                        return "redirect:/manager/accueil";
-                    }
-                }
-                return "redirect:/login";
-            }
-
-            Employer employer = utilisateur.getEmployer();
-
-            if (employer==null) {
-                return "redirect:/accueil";
-            }
-
-            Poste poste = employer.getPoste();
-            Departement departement = poste.getDepartement();
-
-            String url = new String();
-
-            if (departement.getSigle().equalsIgnoreCase("rh")) {
-                url = "/rh/accueil";
-            } else if (departement.getSigle().equalsIgnoreCase("dg")) {
-                url = "/dg/accueil";
-            } else {
-                url = "/departements/accueil";
-            }
-
-            return "redirect:"+url;
-
+            return "redirect:" + pageAccueil(utilisateur);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
             return "redirect:/login";
         }
+    }
+
+    @PostMapping("/logout")
+    public String seDeconnecter(HttpSession session, RedirectAttributes redirectAttributes) {
+        session.invalidate();
+        redirectAttributes.addFlashAttribute("message", "Vous etes deconnecte.");
+        return "redirect:/login";
+    }
+
+    @GetMapping("/accueil")
+    public String accueil() {
+        return "accueil";
     }
 
     @GetMapping("/inscription")
@@ -111,33 +84,29 @@ public class LoginController {
     }
 
     @PostMapping("/inscription")
-    public String inscrire(@ModelAttribute Utilisateur utilisateur, RedirectAttributes redirectAttributes ,HttpSession session) {
+    public String inscrire(@ModelAttribute Utilisateur utilisateur, RedirectAttributes redirectAttributes) {
         try {
-            if (utilisateur.getEmail()==null || utilisateur.getEmail().isEmpty()) {
+            if (utilisateur.getEmail() == null || utilisateur.getEmail().isEmpty()) {
                 throw new RuntimeException("L'email est obligatoire");
             }
-
-            if (utilisateur.getMdp()==null || utilisateur.getMdp().isEmpty()) {
+            if (utilisateur.getMdp() == null || utilisateur.getMdp().isEmpty()) {
                 throw new RuntimeException("Le mot de passe est obligatoire");
             }
-
-            if (utilisateur.getMdp().length()<8) {
-                throw new RuntimeException("Le mot de passe trop court (8 caractères minimum)");
+            if (utilisateur.getMdp().length() < 8) {
+                throw new RuntimeException("Le mot de passe trop court (8 caracteres minimum)");
             }
 
             try {
                 utilisateurService.findUtilisateur(utilisateur);
             } catch (Exception e) {
-               if (utilisateur.getId()>0) {
-                    throw new RuntimeException("L'utilisateur est existe deja");
+                if (utilisateur.getId() > 0) {
+                    throw new RuntimeException("L'utilisateur existe deja");
                 }
-
                 utilisateur.setId(0);
                 utilisateur.setEmployer(null);
                 utilisateur.setMdp(passwordEncoder.encode(utilisateur.getMdp()));
             }
-            
-        
+
             utilisateurService.saveUtilisateur(utilisateur);
 
             return "redirect:/accueil";
@@ -147,9 +116,12 @@ public class LoginController {
         }
     }
 
-    // @GetMapping("/logout")
-    // public String seDeconnecter(HttpSession session) {
-    //     session.invalidate();
-    //     return "redirect:/login";
-    // }
+    /** Page d'accueil selon le role de l'utilisateur connecte. */
+    private String pageAccueil(Utilisateur utilisateur) {
+        TypeRole role = utilisateurService.role(utilisateur);
+        if (role == null) {
+            return "/accueil";
+        }
+        return role == TypeRole.MANAGER ? "/validation/manager/corrections" : "/validation";
+    }
 }

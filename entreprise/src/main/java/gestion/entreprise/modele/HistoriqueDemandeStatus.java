@@ -3,8 +3,17 @@ package gestion.entreprise.modele;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+/**
+ * Historique des actions realisees sur une demande : une ligne par changement
+ * de statut.
+ *
+ * <p>{@code idEmploye} identifie la personne qui a realise l'action (la
+ * connexion {@code id_employer} est nullable : l'expiration est une action du
+ * systeme). {@code motif} porte la raison du refus ou le commentaire de la
+ * revision.</p>
+ */
 @Entity
-@Table(name = "demande_statut")
+@Table(name = "historique_demande_status")
 public class HistoriqueDemandeStatus {
 
     @Id
@@ -14,10 +23,11 @@ public class HistoriqueDemandeStatus {
     @Column(name = "id_demande", nullable = false)
     private int idDemande;
 
-    @Column(nullable = false, length = 30)
-    private String libelle;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_status", nullable = false)
+    private Status status;
 
-    @Column(name = "id_employe")
+    @Column(name = "id_employer")
     private Integer idEmploye;
 
     @Column(columnDefinition = "TEXT")
@@ -26,24 +36,56 @@ public class HistoriqueDemandeStatus {
     @Column(nullable = false)
     private LocalDate date;
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public int getIdDemande() { return idDemande; }
-    public void setIdDemande(int idDemande) { this.idDemande = idDemande; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getLibelle() { return libelle; }
-    public void setLibelle(String libelle) { this.libelle = libelle; }
+    public int getIdDemande() {
+        return idDemande;
+    }
 
-    public Integer getIdEmploye() { return idEmploye; }
-    public void setIdEmploye(Integer idEmploye) { this.idEmploye = idEmploye; }
+    public void setIdDemande(int idDemande) {
+        this.idDemande = idDemande;
+    }
 
-    public Integer getIdEmployer() { return idEmploye; }
-    public void setIdEmployer(Integer idEmployer) { this.idEmploye = idEmployer; }
+    public Status getStatus() {
+        return status;
+    }
 
-    public String getMotif() { return motif; }
-    public void setMotif(String motif) { this.motif = motif; }
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
+    /** Libelle du statut (table {@code status}). */
+    public String getLibelle() {
+        return status != null ? status.getLibelle() : null;
+    }
+
+    public Integer getIdEmploye() {
+        return idEmploye;
+    }
+
+    public void setIdEmploye(Integer idEmploye) {
+        this.idEmploye = idEmploye;
+    }
+
+    public String getMotif() {
+        return motif;
+    }
+
+    public void setMotif(String motif) {
+        this.motif = motif;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 }

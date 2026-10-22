@@ -2,6 +2,7 @@ package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
 
+/** Ligne d'une demande : un poste, un nombre de personnes et un motif/description. */
 @Entity
 @Table(name = "detail_demande")
 public class DetailDemande {
@@ -25,24 +26,73 @@ public class DetailDemande {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    @Column(name = "id_diplome", nullable = false)
+    private int idDiplome;
 
-    public int getIdDemande() { return idDemande; }
-    public void setIdDemande(int idDemande) { this.idDemande = idDemande; }
+    @Column(name = "annee_experience", nullable = false)
+    private int anneeExperience;
 
-    public int getIdPoste() { return idPoste; }
-    public void setIdPoste(int idPoste) { this.idPoste = idPoste; }
+    public int getId() {
+        return id;
+    }
 
-    public int getIdDepartement() { return idDepartement; }
-    public void setIdDepartement(int idDepartement) { this.idDepartement = idDepartement; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getNbrPersonnel() { return nbrPersonnel; }
-    public void setNbrPersonnel(int nbrPersonnel) { this.nbrPersonnel = nbrPersonnel; }
+    public int getIdDemande() {
+        return idDemande;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public void setIdDemande(int idDemande) {
+        this.idDemande = idDemande;
+    }
 
-    public String getMotif() { return description; }
-    public void setMotif(String motif) { this.description = motif; }
+    public int getIdPoste() {
+        return idPoste;
+    }
+
+    public void setIdPoste(int idPoste) {
+        this.idPoste = idPoste;
+    }
+
+    public int getIdDepartement() {
+        return idDepartement;
+    }
+
+    public void setIdDepartement(int idDepartement) {
+        this.idDepartement = idDepartement;
+    }
+
+    public int getNbrPersonnel() {
+        return nbrPersonnel;
+    }
+
+    public void setNbrPersonnel(int nbrPersonnel) {
+        this.nbrPersonnel = nbrPersonnel;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getIdDiplome() {
+        return idDiplome;
+    }
+
+    public void setIdDiplome(int idDiplome) {
+        this.idDiplome = idDiplome;
+    }
+
+    public int getAnneeExperience() {
+        return anneeExperience;
+    }
+
+    public void setAnneeExperience(int anneeExperience) {
+        this.anneeExperience = anneeExperience;
+    }
 }

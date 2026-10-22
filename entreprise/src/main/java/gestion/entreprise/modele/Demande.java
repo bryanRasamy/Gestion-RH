@@ -3,6 +3,7 @@ package gestion.entreprise.modele;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+/** Demande de recrutement (une par besoin du manager). */
 @Entity
 @Table(name = "demande")
 public class Demande {
@@ -20,33 +21,38 @@ public class Demande {
     @Column(name = "date_limite")
     private LocalDate dateLimite;
 
-    @Column(columnDefinition = "TEXT")
-    private String commentaire;
+    public Demande() {
+    }
 
-    @Column(name = "nbr_personnel_propose")
-    private Integer nbrPersonnelPropose;
+    public int getId() {
+        return id;
+    }
 
-    @Column(nullable = false)
-    private boolean traite;
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public String getMatricule() {
+        return matricule;
+    }
 
-    public String getMatricule() { return matricule; }
-    public void setMatricule(String matricule) { this.matricule = matricule; }
+    public void setMatricule(String matricule) {
+        this.matricule = matricule;
+    }
 
-    public int getIdEmployer() { return idEmployer; }
-    public void setIdEmployer(int idEmployer) { this.idEmployer = idEmployer; }
+    public int getIdEmployer() {
+        return idEmployer;
+    }
 
-    public LocalDate getDateLimite() { return dateLimite; }
-    public void setDateLimite(LocalDate dateLimite) { this.dateLimite = dateLimite; }
+    public void setIdEmployer(int idEmployer) {
+        this.idEmployer = idEmployer;
+    }
 
-    public String getCommentaire() { return commentaire; }
-    public void setCommentaire(String commentaire) { this.commentaire = commentaire; }
+    public LocalDate getDateLimite() {
+        return dateLimite;
+    }
 
-    public Integer getNbrPersonnelPropose() { return nbrPersonnelPropose; }
-    public void setNbrPersonnelPropose(Integer nbrPersonnelPropose) { this.nbrPersonnelPropose = nbrPersonnelPropose; }
-
-    public boolean isTraite() { return traite; }
-    public void setTraite(boolean traite) { this.traite = traite; }
+    public void setDateLimite(LocalDate dateLimite) {
+        this.dateLimite = dateLimite;
+    }
 }

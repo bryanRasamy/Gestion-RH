@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Validation — ' + ${role}">Validation</title>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body class="dashboard-page">
+
+<nav th:replace="~{fragments/app-nav :: appNav('validation', ${role}, ${nomUtilisateur})}"></nav>
+
+<main class="dashboard validation-page">
+
+    <header class="dashboard__head">
+        <p class="eyebrow">Circuit de validation</p>
+        <h1 th:text="'Demandes a valider — ' + ${role}">Demandes a valider</h1>
+        <p class="dashboard__count"
+           th:text="${#lists.size(demandes)} + ' demande(s) en attente a votre etape.'">0 demande(s)</p>
+    </header>
+
+    <p class="flash flash--success" th:if="${message}" th:text="${message}">Message</p>
+    <p class="flash flash--error" th:if="${erreur}" th:text="${erreur}">Erreur</p>
+
+    <!-- Multifiltre : statut et periode -->
+    <form method="get" th:action="@{/validation}" class="validation-filters">
+        <label>Date min
+            <input type="date" name="dateMin" th:value="${dateMin}">
+        </label>
+        <label>Date max
+            <input type="date" name="dateMax" th:value="${dateMax}">
+        </label>
+        <label>Statut
+            <input type="text" name="statut" th:value="${statut}" placeholder="ex : creer">
+        </label>
+        <button type="submit">Filtrer</button>
+        <a th:href="@{/validation}">Reinitialiser</a>
+    </form>
+
+    <section class="val-grid">
+
+        <article class="val-card" th:each="demande : ${demandes}"
+                 th:classappend="'val-card--' + ${demande.statutSlug}">
+
+            <header class="val-card__head">
+                <p class="val-card__ref" th:text="${demande.matricule}">REQ-2026-001</p>
+                <span class="badge" th:classappend="${demande.statutClasse}"
+                      th:text="${demande.statut}">cree</span>
+            </header>
+
+            <p class="val-card__meta">
+                Echeance : <strong th:text="${demande.dateLimite}">2026-12-31</strong><br>
+                Demandeur : <strong th:text="${demande.demandeur}">Manager</strong><br>
+                <span th:if="${demande.statutDate != null}">
+                    Statut depuis le <span th:text="${demande.statutDate}">2026-10-20</span>
+                </span>
+            </p>
+
+            <p class="compare__note" th:if="${demande.statutMotif != null}" th:text="${demande.statutMotif}">Motif</p>
+
+            <!-- Zone montants : visible par la Finance -->
+            <div class="budget" th:if="${demande.montantMin != null}">
+                <div class="budget__row">
+                    <span>Montant minimum</span>
+                    <span class="budget__value"
+                          th:text="${#numbers.formatDecimal(demande.montantMin, 1, 'WHITESPACE', 2, 'POINT')}">0</span>
+                </div>
+                <div class="budget__row">
+                    <span>Montant maximum</span>
+                    <span class="budget__value"
+                          th:text="${#numbers.formatDecimal(demande.montantMax, 1, 'WHITESPACE', 2, 'POINT')}">0</span>
+                </div>
+                <div class="budget__row">
+                    <span>Budget annuel</span>
+                    <span class="budget__value"
+                          th:text="${#numbers.formatDecimal(demande.budget, 1, 'WHITESPACE', 2, 'POINT')}">0</span>
+                </div>
+                <div class="budget__row" th:if="${demande.evaluation != null}">
+                    <span>Cotation budgetaire</span>
+                    <span class="budget__flag" th:classappend="${demande.evaluationClasse}"
+                          th:text="${demande.evaluation}">Validable</span>
+                </div>
+            </div>
+
+            <ul class="val-card__lines">
+                <li th:each="ligne : ${demande.lignes}">
+                    <span><b th:text="${ligne.poste}">Poste</b><br>
+                        <span th:text="${ligne.departement}">Departement</span></span>
+                    <span th:text="${ligne.nbrPersonnel} + ' p.'">1 p.</span>
+                </li>
+            </ul>
+
+            <footer class="val-card__foot">
+                <a class="btn" th:href="@{'/demandes/' + ${demande.id}}">Details</a>
+
+                <button type="button" class="btn btn--primary" th:attr="data-dialog='valider-' + ${demande.id}"
+                        th:disabled="${demande.estBloqueeParBudget()}"
+                        th:title="${demande.estBloqueeParBudget()} ? 'Le montant minimum depasse le budget annuel' : ''">
+                    Valider
+                </button>
+                <button type="button" class="btn" th:attr="data-dialog='revoir-' + ${demande.id}">
+                    A revoir
+                </button>
+                <button type="button" class="btn btn--danger"
+                        th:attr="data-dialog='refuser-' + ${demande.id}">Refuser</button>
+            </footer>
+        </article>
+
+        <p class="validation-empty" th:if="${#lists.isEmpty(demandes)}">
+            Aucune demande a votre etape pour ces criteres.
+        </p>
+    </section>
+
+    <!-- Modale : validation -->
+    <dialog class="modal" th:each="demande : ${demandes}" th:id="'valider-' + ${demande.id}">
+        <form method="post" th:action="@{'/validation/demandes/' + ${demande.id} + '/valider'}">
+            <header class="modal__head">
+                <h2 th:text="'Valider ' + ${demande.matricule}">Valider la demande</h2>
+                <button type="button" class="modal__close" data-close-dialog>&times;</button>
+            </header>
+            <div class="modal__body">
+                <p>La demande passe a l'etape suivante du circuit de validation.
+                    Cette action est definitive.</p>
+            </div>
+            <footer class="modal__foot">
+                <button type="button" class="btn" data-close-dialog>Annuler</button>
+                <button type="submit" class="btn btn--primary">Confirmer</button>
+            </footer>
+        </form>
+    </dialog>
+
+    <!-- Modale : demande de revision -->
+    <dialog class="modal" th:each="demande : ${demandes}" th:id="'revoir-' + ${demande.id}">
+        <form method="post" th:action="@{'/validation/demandes/' + ${demande.id} + '/revoir'}">
+            <header class="modal__head">
+                <h2 th:text="'Renvoyer ' + ${demande.matricule} + ' en revision'">Renvoyer en revision</h2>
+                <button type="button" class="modal__close" data-close-dialog>&times;</button>
+            </header>
+            <div class="modal__body">
+                <div class="form-row">
+                    <label for="commentaire">Commentaire general</label>
+                    <textarea id="commentaire" name="commentaire"
+                              placeholder="Ce qui doit etre corrige dans la demande"></textarea>
+                    <span class="form-row__hint">Un commentaire par ligne peut preciser la correction attendue.</span>
+                </div>
+
+                <div class="revision-line" th:each="ligne : ${demande.lignes}">
+                    <div>
+                        <p class="revision-line__label" th:text="${ligne.poste} + ' — ' + ${ligne.departement}">Poste</p>
+                        <p class="revision-line__desc"
+                           th:text="${ligne.description} + ' · ' + ${ligne.nbrPersonnel} + ' personne(s)'">Description</p>
+                        <div class="form-row">
+                            <label th:for="'commentaire_' + ${ligne.id}">Commentaire de la ligne</label>
+                            <input type="text" th:id="'commentaire_' + ${ligne.id}"
+                                   th:name="'commentaire_' + ${ligne.id}"
+                                   placeholder="Correction attendue sur cette ligne">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-row">
+                            <label th:for="'effectif_' + ${ligne.id}">Effectif propose</label>
+                            <input type="number" min="1" th:id="'effectif_' + ${ligne.id}"
+                                   th:name="'effectif_' + ${ligne.id}" placeholder="—">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="modal__foot">
+                <button type="button" class="btn" data-close-dialog>Annuler</button>
+                <button type="submit" class="btn btn--primary">Envoyer en revision</button>
+            </footer>
+        </form>
+    </dialog>
+
+    <!-- Modale : refus -->
+    <dialog class="modal" th:each="demande : ${demandes}" th:id="'refuser-' + ${demande.id}">
+        <form method="post" th:action="@{'/validation/demandes/' + ${demande.id} + '/refuser'}">
+            <header class="modal__head">
+                <h2 th:text="'Refuser ' + ${demande.matricule}">Refuser la demande</h2>
+                <button type="button" class="modal__close" data-close-dialog>&times;</button>
+            </header>
+            <div class="modal__body">
+                <div class="form-row">
+                    <label for="motif">Motif du refus</label>
+                    <textarea id="motif" name="motif" required
+                              placeholder="La raison du refus est obligatoire"></textarea>
+                </div>
+            </div>
+            <footer class="modal__foot">
+                <button type="button" class="btn" data-close-dialog>Annuler</button>
+                <button type="submit" class="btn btn--danger">Refuser la demande</button>
+            </footer>
+        </form>
+    </dialog>
+
+</main>
+
+<script th:src="@{/assets/js/validation.js}"></script>
+
+</body>
+</html>

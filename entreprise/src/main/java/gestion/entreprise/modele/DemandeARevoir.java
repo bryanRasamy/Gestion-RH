@@ -3,9 +3,17 @@ package gestion.entreprise.modele;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+/**
+ * Ligne de detail d'une demande remise a revoir.
+ *
+ * <p>{@code idDemandeur} identifie l'employe (RH, Finance ou DG) qui demande
+ * la revision. Une revision en attente se deduit du statut courant de la
+ * demande : il n'existe pas de colonne {@code traite}.</p>
+ */
 @Entity
 @Table(name = "demande_a_revoir")
 public class DemandeARevoir {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -25,9 +33,6 @@ public class DemandeARevoir {
     @Column(name = "nbr_personnel_propose")
     private Integer nbrPersonnelPropose;
 
-    @Column(nullable = false)
-    private boolean traite;
-
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public int getIdDemandeur() { return idDemandeur; }
@@ -40,6 +45,4 @@ public class DemandeARevoir {
     public void setCommentaire(String commentaire) { this.commentaire = commentaire; }
     public Integer getNbrPersonnelPropose() { return nbrPersonnelPropose; }
     public void setNbrPersonnelPropose(Integer nbrPersonnelPropose) { this.nbrPersonnelPropose = nbrPersonnelPropose; }
-    public boolean isTraite() { return traite; }
-    public void setTraite(boolean traite) { this.traite = traite; }
 }

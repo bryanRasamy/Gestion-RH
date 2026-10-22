@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Correction — ' + ${correction.matricule}">Correction</title>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body class="dashboard-page">
+
+<nav th:replace="~{fragments/app-nav :: appNav('corrections', ${role}, ${nomUtilisateur})}"></nav>
+
+<main class="dashboard validation-page">
+
+    <a th:href="@{/validation/manager/corrections}" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M11 6l-6 6 6 6"/>
+        </svg>
+        Retour aux corrections
+    </a>
+
+    <header class="dashboard__head">
+        <p class="eyebrow">Correction</p>
+        <h1 th:text="${correction.matricule}">REQ-2026-001</h1>
+        <p class="dashboard__count">
+            Revision demandee par <strong th:text="${correction.auteur}">RH</strong>
+            (<span th:text="${correction.roleAuteur}">RH</span>)
+            le <span th:text="${correction.dateRevision}">2026-10-20</span>
+        </p>
+    </header>
+
+    <p class="flash flash--success" th:if="${message}" th:text="${message}">Message</p>
+    <p class="flash flash--error" th:if="${erreur}" th:text="${erreur}">Erreur</p>
+
+    <p class="compare__note" th:if="${correction.commentaire != null}" th:text="${correction.commentaire}">Motif</p>
+
+    <section class="compare">
+
+        <!-- Colonne gauche : la demande d'origine du manager -->
+        <article class="compare__col">
+            <h2 class="compare__title">
+                <span>Demande initiale</span>
+                <span th:text="${correction.dateLimite}">2026-12-31</span>
+            </h2>
+            <div class="compare__row" th:each="ligne : ${correction.lignes}">
+                <span>
+                    <b th:text="${ligne.poste}">Poste</b><br>
+                    <small th:text="${ligne.departement} + ' · ' + ${ligne.description}">Departement</small>
+                </span>
+                <span class="compare__value" th:text="${ligne.nbrPersonnelInitial} + ' p.'">1 p.</span>
+            </div>
+        </article>
+
+        <!-- Colonne droite : la correction demandee par le RH / Finance / DG -->
+        <article class="compare__col compare__col--revised">
+            <h2 class="compare__title">
+                <span>Revision demandee</span>
+                <span th:text="${correction.roleAuteur}">RH</span>
+            </h2>
+            <div class="compare__row" th:each="ligne : ${correction.lignes}">
+                <span>
+                    <b th:text="${ligne.poste}">Poste</b><br>
+                    <small th:text="${ligne.commentaire}">Commentaire</small>
+                </span>
+                <span class="compare__value"
+                      th:classappend="${ligne.estModifie()} ? 'compare__value--changed' : 'compare__value'"
+                      th:text="${ligne.nbrPersonnelPropose != null} ? ${ligne.nbrPersonnelPropose} + ' p.' : 'inchange'">1 p.</span>
+            </div>
+        </article>
+
+    </section>
+
+    <footer class="modal__foot" style="margin-top:32px; justify-content:flex-start;">
+        <form method="post" th:action="@{'/validation/manager/corrections/' + ${correction.idDemande} + '/decision'}">
+            <input type="hidden" name="accepter" value="true">
+            <button type="submit" class="btn btn--primary">Accepter la correction</button>
+        </form>
+        <form method="post" th:action="@{'/validation/manager/corrections/' + ${correction.idDemande} + '/decision'}">
+            <input type="hidden" name="accepter" value="false">
+            <button type="submit" class="btn btn--danger">Abandonner la demande</button>
+        </form>
+        <a class="btn" th:href="@{'/demandes/' + ${correction.idDemande}}">Voir la demande</a>
+    </footer>
+
+</main>
+
+</body>
+</html>

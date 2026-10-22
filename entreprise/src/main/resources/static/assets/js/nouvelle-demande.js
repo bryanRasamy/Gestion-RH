@@ -3,6 +3,7 @@
 
     // ---------- État global ----------
     var DEPARTEMENTS = [];
+    var DIPLOMES = [];
     var nextId = 1;
 
     // ---------- DOM ----------
@@ -21,39 +22,38 @@
     deadline.min = todayISO;
 
     // ---------- Chargement initial des données métier ----------
-    async function chargerDepartements() {
+    async function chargerJSON(url) {
         try {
-            var r = await fetch('/api/departements');
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            DEPARTEMENTS = await r.json();
-        } catch (e) {
-            console.error('Impossible de charger les départements', e);
-            DEPARTEMENTS = [];
-        }
-    }
-
-    async function chargerPostes(idDepartement) {
-        try {
-            var r = await fetch('/api/postes?idDepartement=' + encodeURIComponent(idDepartement));
+            var r = await fetch(url);
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return await r.json();
         } catch (e) {
-            console.error('Impossible de charger les postes', e);
+            console.error('Impossible de charger ' + url, e);
             return [];
         }
     }
 
+    async function chargerDepartements() {
+        DEPARTEMENTS = await chargerJSON('/api/departements');
+    }
+
+    async function chargerDiplomes() {
+        DIPLOMES = await chargerJSON('/api/diplomes');
+    }
+
+    async function chargerPostes(idDepartement) {
+        return await chargerJSON('/api/postes?idDepartement=' + encodeURIComponent(idDepartement));
+    }
+
     // ---------- Rendu d'une ligne ----------
-    function construireOptionsDepartements(selectedId) {
+    function construireOptionsDepartements() {
         if (DEPARTEMENTS.length === 0) {
             return '<option value="">Chargement…</option>';
         }
         var html = '';
         for (var i = 0; i < DEPARTEMENTS.length; i++) {
             var d = DEPARTEMENTS[i];
-            var sel = (d.id === selectedId) ? ' selected' : '';
-            html += '<option value="' + d.id + '"' + sel + '>'
-                + escapeHtml(d.libelle) + '</option>';
+            html += '<option value="' + d.id + '">' + escapeHtml(d.libelle) + '</option>';
         }
         return html;
     }
@@ -65,8 +65,20 @@
         var html = '<option value="">Sélectionner un poste…</option>';
         for (var i = 0; i < postes.length; i++) {
             var p = postes[i];
-            html += '<option value="' + p.id + '">'
-                + escapeHtml(p.libelle) + '</option>';
+            html += '<option value="' + p.id + '">' + escapeHtml(p.libelle) + '</option>';
+        }
+        return html;
+    }
+
+    function construireOptionsDiplomes() {
+        if (DIPLOMES.length === 0) {
+            return '<option value="">Chargement…</option>';
+        }
+        var html = '';
+        for (var i = 0; i < DIPLOMES.length; i++) {
+            var d = DIPLOMES[i];
+            html += '<option value="' + d.id + '">'
+                + escapeHtml(d.nomDiplome) + ' — ' + d.anneeEtude + ' ans</option>';
         }
         return html;
     }
@@ -75,7 +87,6 @@
         var n = nextId++;
         var row = document.createElement('div');
         row.className = 'req-row';
-        row.dataset.id = n;
         row.innerHTML = ''
             + '<span class="req-row__index">' + String(n).padStart(2, '0') + '</span>'
             + '<div class="req-row__field req-row__field--dept">'
@@ -94,9 +105,19 @@
             +   '<label class="req-row__label-mobile">Nombre</label>'
             +   '<input type="number" class="nombre" min="1" value="1" required>'
             + '</div>'
+            + '<div class="req-row__field req-row__field--diplome">'
+            +   '<label class="req-row__label-mobile">Diplôme</label>'
+            +   '<select class="diplome" required>'
+            +     construireOptionsDiplomes()
+            +   '</select>'
+            + '</div>'
+            + '<div class="req-row__field req-row__field--experience">'
+            +   '<label class="req-row__label-mobile">Expérience (ans)</label>'
+            +   '<input type="number" class="experience" min="0" value="0" required>'
+            + '</div>'
             + '<div class="req-row__field req-row__field--motif">'
-            +   '<label class="req-row__label-mobile">Motif</label>'
-            +   '<input type="text" class="motif" placeholder="Ex : renfort sur le projet Atlas" required>'
+            +   '<label class="req-row__label-mobile">Description</label>'
+            +   '<input type="text" class="description" placeholder="Ex : renfort sur le projet Atlas" required>'
             + '</div>'
             + '<button type="button" class="req-row__remove" aria-label="Supprimer">'
             +   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" '
@@ -191,32 +212,39 @@
 
         for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
-            var deptEl  = row.querySelector('.departement');
-            var posteEl = row.querySelector('.poste');
-            var numEl   = row.querySelector('.nombre');
-            var motifEl = row.querySelector('.motif');
+            var deptEl      = row.querySelector('.departement');
+            var posteEl     = row.querySelector('.poste');
+            var numEl       = row.querySelector('.nombre');
+            var diplomeEl   = row.querySelector('.diplome');
+            var experienceEl= row.querySelector('.experience');
+            var descEl      = row.querySelector('.description');
 
-            deptEl.classList.remove('is-invalid');
-            posteEl.classList.remove('is-invalid');
-            numEl.classList.remove('is-invalid');
-            motifEl.classList.remove('is-invalid');
+            [deptEl, posteEl, numEl, diplomeEl, experienceEl, descEl].forEach(function (el) {
+                el.classList.remove('is-invalid');
+            });
 
-            var idDepartement = parseInt(deptEl.value, 10);
-            var idPoste       = parseInt(posteEl.value, 10);
-            var nbrPersonnel  = parseInt(numEl.value, 10);
-            var motif         = motifEl.value.trim();
+            var idDepartement   = parseInt(deptEl.value, 10);
+            var idPoste         = parseInt(posteEl.value, 10);
+            var nbrPersonnel    = parseInt(numEl.value, 10);
+            var idDiplome       = parseInt(diplomeEl.value, 10);
+            var anneeExperience = parseInt(experienceEl.value, 10);
+            var description     = descEl.value.trim();
 
-            if (!idDepartement) { deptEl.classList.add('is-invalid'); ok = false; }
-            if (!idPoste)       { posteEl.classList.add('is-invalid'); ok = false; }
+            if (!idDepartement)   { deptEl.classList.add('is-invalid'); ok = false; }
+            if (!idPoste)         { posteEl.classList.add('is-invalid'); ok = false; }
             if (!nbrPersonnel || nbrPersonnel < 1) { numEl.classList.add('is-invalid'); ok = false; }
-            if (!motif)         { motifEl.classList.add('is-invalid'); ok = false; }
+            if (!idDiplome)       { diplomeEl.classList.add('is-invalid'); ok = false; }
+            if (isNaN(anneeExperience) || anneeExperience < 0) { experienceEl.classList.add('is-invalid'); ok = false; }
+            if (!description)     { descEl.classList.add('is-invalid'); ok = false; }
 
             if (ok) {
                 lignes.push({
                     idDepartement: idDepartement,
                     idPoste: idPoste,
                     nbrPersonnel: nbrPersonnel,
-                    motif: motif
+                    idDiplome: idDiplome,
+                    anneeExperience: anneeExperience,
+                    description: description
                 });
             }
         }
@@ -227,8 +255,8 @@
             return;
         }
 
+        // Le manager connecte est determine par la session : il n'est pas envoye.
         var payload = {
-            idEmployer: 1,
             dateLimite: deadline.value,
             lignes: lignes
         };
@@ -289,7 +317,7 @@
 
     // ---------- Démarrage ----------
     (async function init() {
-        await chargerDepartements();
+        await Promise.all([chargerDepartements(), chargerDiplomes()]);
         ajouterLigne();
     })();
 

@@ -7,8 +7,6 @@
 - roles: id, roles (RH, Manager, Finance, DG)
 - utilisateur: ajout de colonne role
 
-
-
 Transaction:
 Liste demande backoffice:
 if Date aujourduit > date limite:
@@ -46,8 +44,9 @@ Pour chaque ecran avec liste, on a un multifiltre par statut et par date min et 
 ON ne peut rien faire sur les demande expire ou Explicitement refuser. 
 On doit ajouter un motif/raison si c'est refuser.
 
-On ajoute `commentaire` (TEXT), `nbr_personnel_propose` (INT, nullable) et `traite` (BOOLEAN, défaut faux)
+On ajoute `commentaire` (TEXT), `nbr_personnel_propose` (INT, nullable)
 
-
-Tu creera dans un nouveau ficher sql les alters tables ou les insert necessaire pour faire ce sprint
+Ne cree pas un nouvel sql
 motif` (nullable) dans `historique_demande_status`.
+
+BAse toi sur donnee.sql et tables.sql. Efface les codes qui les utilie pas 

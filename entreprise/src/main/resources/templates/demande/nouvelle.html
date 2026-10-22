@@ -9,28 +9,7 @@
 
 <body class="dashboard-page">
 
-<nav class="app-nav">
-    <div class="app-nav__inner">
-        <a href="#" class="logo">
-            <span class="logo__mark">
-                <svg viewBox="0 0 32 32" width="17" height="17">
-                    <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
-                          stroke="currentColor" stroke-width="2.4"
-                          stroke-linecap="square" stroke-linejoin="miter"/>
-                </svg>
-            </span>
-            <span class="logo__word">Pivot</span>
-        </a>
-        <ul class="app-nav__links">
-            <li><a th:href="@{/demandes}" class="app-nav__link">Demandes</a></li>
-            <li><a th:href="@{/demandes/nouvelle}" class="app-nav__link is-active">Nouvelle demande</a></li>
-        </ul>
-        <div class="app-nav__user">
-            <div class="avatar">A</div>
-            <span class="app-nav__user-name">Amadou D.</span>
-        </div>
-    </div>
-</nav>
+<nav th:replace="~{fragments/app-nav :: appNav('nouvelle-demande', 'Manager', ${nomUtilisateur})}"></nav>
 
 <main class="dashboard">
 
@@ -49,7 +28,7 @@
         <p class="dashboard__count">Renseignez l'échéance, chaque poste requis, puis validez.</p>
     </header>
 
-    <form class="req-form" id="requestForm">
+    <form class="req-form req-form--complet" id="requestForm">
 
         <div class="req-form__top">
             <p class="req-form__count" id="count">01 poste · 01 personne</p>
@@ -66,6 +45,17 @@
                     <input type="date" id="deadline" required>
                 </div>
             </div>
+        </div>
+
+        <div class="req-form__cols req-form__cols--complet">
+            <span></span>
+            <span>Département</span>
+            <span>Poste</span>
+            <span>Effectif</span>
+            <span>Diplôme</span>
+            <span>Expérience</span>
+            <span>Description</span>
+            <span></span>
         </div>
 
         <div class="req-form__rows" id="rows"></div>

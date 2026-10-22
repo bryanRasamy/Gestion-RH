@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Corrections a traiter</title>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body class="dashboard-page">
+
+<nav th:replace="~{fragments/app-nav :: appNav('corrections', ${role}, ${nomUtilisateur})}"></nav>
+
+<main class="dashboard validation-page">
+
+    <header class="dashboard__head">
+        <p class="eyebrow">Corrections</p>
+        <h1>Demandes a revoir</h1>
+        <p class="dashboard__count"
+           th:text="${#lists.size(demandes)} + ' demande(s) en attente de votre reponse.'">0 demande(s)</p>
+    </header>
+
+    <p class="flash flash--success" th:if="${message}" th:text="${message}">Message</p>
+    <p class="flash flash--error" th:if="${erreur}" th:text="${erreur}">Erreur</p>
+
+    <section class="val-grid">
+        <article class="val-card val-card--a-revoir" th:each="demande : ${demandes}">
+            <header class="val-card__head">
+                <p class="val-card__ref" th:text="${demande.matricule}">REQ-2026-001</p>
+                <span class="badge badge--review" th:text="${demande.statut}">a revoir</span>
+            </header>
+
+            <p class="val-card__meta">
+                Echeance : <strong th:text="${demande.dateLimite}">2026-12-31</strong><br>
+                <span th:if="${demande.statutDate != null}">
+                    Demandee le <span th:text="${demande.statutDate}">2026-10-20</span>
+                </span>
+            </p>
+
+            <p class="compare__note" th:if="${demande.statutMotif != null}" th:text="${demande.statutMotif}">Motif</p>
+
+            <ul class="val-card__lines">
+                <li th:each="ligne : ${demande.lignes}">
+                    <span><b th:text="${ligne.poste}">Poste</b><br>
+                        <span th:text="${ligne.departement}">Departement</span></span>
+                    <span th:text="${ligne.nbrPersonnel} + ' p.'">1 p.</span>
+                </li>
+            </ul>
+
+            <footer class="val-card__foot">
+                <a class="btn btn--primary"
+                   th:href="@{'/validation/manager/corrections/' + ${demande.id}}">Comparer et decider</a>
+                <a class="btn" th:href="@{'/demandes/' + ${demande.id}}">Details</a>
+            </footer>
+        </article>
+
+        <p class="validation-empty" th:if="${#lists.isEmpty(demandes)}">
+            Aucune demande en attente de correction.
+        </p>
+    </section>
+
+</main>
+
+</body>
+</html>

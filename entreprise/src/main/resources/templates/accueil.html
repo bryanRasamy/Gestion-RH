@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pivot — Accueil</title>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body class="dashboard-page">
+
+<nav class="app-nav">
+    <div class="app-nav__inner">
+        <a th:href="@{/}" class="logo">
+            <span class="logo__mark">
+                <svg viewBox="0 0 32 32" width="17" height="17" aria-hidden="true">
+                    <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                          stroke="currentColor" stroke-width="2.4"
+                          stroke-linecap="square" stroke-linejoin="miter"/>
+                </svg>
+            </span>
+            <span class="logo__word">Pivot</span>
+        </a>
+        <div class="app-nav__user">
+            <form method="post" th:action="@{/logout}" class="app-nav__logout">
+                <button type="submit" class="app-nav__logout-btn">Se deconnecter</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="dashboard">
+    <header class="dashboard__head">
+        <p class="eyebrow">Plateforme d'entreprise</p>
+        <h1>Votre espace</h1>
+        <p class="dashboard__count">
+            Ce compte n'est pas encore rattache a un role du circuit de validation.
+        </p>
+    </header>
+
+    <p class="flash flash--info">
+        Demandez a l'administration de vous attribuer un role (RH, Manager, Finance ou DG)
+        pour acceder au circuit de validation.
+    </p>
+</main>
+
+</body>
+</html>

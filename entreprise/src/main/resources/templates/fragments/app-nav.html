@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Navigation</title>
+</head>
+<body>
+
+<!-- Barre de navigation commune : l'onglet actif depend du role connecte. -->
+<nav class="app-nav" th:fragment="appNav(active, role, nomUtilisateur)">
+    <div class="app-nav__inner">
+        <a th:href="@{/}" class="logo">
+            <span class="logo__mark">
+                <svg viewBox="0 0 32 32" width="17" height="17" aria-hidden="true">
+                    <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                          stroke="currentColor" stroke-width="2.4"
+                          stroke-linecap="square" stroke-linejoin="miter"/>
+                </svg>
+            </span>
+            <span class="logo__word">Pivot</span>
+        </a>
+
+        <ul class="app-nav__links">
+            <li th:if="${role == 'Manager'}">
+                <a th:href="@{/demandes}" class="app-nav__link"
+                   th:classappend="${active == 'demandes'} ? 'is-active'">Mes demandes</a>
+            </li>
+            <li th:if="${role == 'Manager'}">
+                <a th:href="@{/demandes/nouvelle}" class="app-nav__link"
+                   th:classappend="${active == 'nouvelle-demande'} ? 'is-active'">Nouvelle demande</a>
+            </li>
+            <li th:unless="${role == 'Manager'}">
+                <a th:href="@{/validation}" class="app-nav__link"
+                   th:classappend="${active == 'validation'} ? 'is-active'">Validation</a>
+            </li>
+            <li th:if="${role == 'Manager'}">
+                <a th:href="@{/validation/manager/corrections}" class="app-nav__link"
+                   th:classappend="${active == 'corrections'} ? 'is-active'">Corrections</a>
+            </li>
+        </ul>
+
+        <div class="app-nav__user">
+            <div class="avatar"
+                 th:text="${#strings.isEmpty(nomUtilisateur) ? '?' : #strings.substring(nomUtilisateur, 0, 1)}">P</div>
+            <span class="app-nav__user-name" th:text="${nomUtilisateur}">Amadou D.</span>
+            <form method="post" th:action="@{/logout}" class="app-nav__logout">
+                <button type="submit" class="app-nav__logout-btn">Quitter</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>

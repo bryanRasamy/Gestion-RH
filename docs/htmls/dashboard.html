@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pivot — Demandes de personnel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-page">
+
+<nav class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+
+    <a href="#" class="logo" aria-label="Pivot — accueil">
+      <span class="logo__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="17" height="17">
+          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+      </span>
+      <span class="logo__word">Pivot</span>
+    </a>
+
+    <ul class="app-nav__links" id="appNavLinks">
+      <li><a href="dashboard.html" class="app-nav__link is-active">Demandes</a></li>
+      <li><a href="demande.html" class="app-nav__link">Nouvelle demande</a></li>
+      <li><a href="#" class="app-nav__link">Équipe</a></li>
+      <li><a href="#" class="app-nav__link">Rapports</a></li>
+      <li><a href="#" class="app-nav__link">Paramètres</a></li>
+    </ul>
+
+    <div class="app-nav__user">
+      <div class="avatar" aria-hidden="true">A</div>
+      <span class="app-nav__user-name">Amadou D.</span>
+    </div>
+
+    <button class="app-nav__toggle" id="appNavToggle"
+            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+<main class="dashboard">
+
+  <header class="dashboard__head">
+    <p class="eyebrow">Département Informatique</p>
+    <h1>Demandes de personnel</h1>
+    <p class="dashboard__count">06 demandes · 03 en attente de traitement</p>
+  </header>
+
+  <!-- Pour activer la vue liste haute densité, ajouter la classe "is-list" ci-dessous -->
+  <div class="dashboard__grid">
+
+    <article class="req-card req-card--pending">
+      <div class="req-card__head">
+        <span class="badge badge--pending">En attente</span>
+      </div>
+      <h3 class="req-card__ref">REQ-2026-014</h3>
+      <p class="req-card__meta">Créée le 12 juin 2026</p>
+      <div class="req-card__foot">
+        <a href="#" class="req-card__link">
+          Voir détail
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+    <article class="req-card req-card--review">
+      <div class="req-card__head">
+        <span class="badge badge--review">À revoir</span>
+      </div>
+      <h3 class="req-card__ref">REQ-2026-013</h3>
+      <p class="req-card__meta">Créée le 10 juin 2026</p>
+      <div class="req-card__foot">
+        <a href="#" class="req-card__link">
+          Voir détail
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+    <article class="req-card req-card--pending">
+      <div class="req-card__head">
+        <span class="badge badge--pending">En attente</span>
+      </div>
+      <h3 class="req-card__ref">REQ-2026-012</h3>
+      <p class="req-card__meta">Créée le 08 juin 2026</p>
+      <div class="req-card__foot">
+        <a href="#" class="req-card__link">
+          Voir détail
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+    <article class="req-card req-card--accepted">
+      <div class="req-card__head">
+        <span class="badge badge--accepted">Acceptée</span>
+      </div>
+      <h3 class="req-card__ref">REQ-2026-011</h3>
+      <p class="req-card__meta">Créée le 05 juin 2026</p>
+      <div class="req-card__foot">
+        <a href="#" class="req-card__link">
+          Voir détail
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+    <article class="req-card req-card--refused">
+      <div class="req-card__head">
+        <span class="badge badge--refused">Refusée</span>
+      </div>
+      <h3 class="req-card__ref">REQ-2026-010</h3>
+      <p class="req-card__meta">Créée le 02 juin 2026</p>
+      <div class="req-card__foot">
+        <a href="#" class="req-card__link">
+          Voir détail
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+    <article class="req-card req-card--pending">
+      <div class="req-card__head">
+        <span class="badge badge--pending">En attente</span>
+      </div>
+      <h3 class="req-card__ref">REQ-2026-009</h3>
+      <p class="req-card__meta">Créée le 28 mai 2026</p>
+      <div class="req-card__foot">
+        <a href="#" class="req-card__link">
+          Voir détail
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+  </div>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+  const nav    = document.getElementById('appNav');
+  const toggle = document.getElementById('appNavToggle');
+
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open);
+    toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  });
+
+  document.querySelectorAll('.app-nav__link').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
