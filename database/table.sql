@@ -19,6 +19,7 @@ CREATE TABLE poste(
     FOREIGN KEY (id_departement) REFERENCES departement(id)
 );
 
+
 CREATE TABLE employer(
     id SERIAL PRIMARY KEY,
     matricule VARCHAR(50) NOT NULL UNIQUE,
