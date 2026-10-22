@@ -13,8 +13,8 @@ public class Diplome {
     @Column(name = "annee_etude", nullable = false)
     private int anneeEtude;
 
-    @Column(name = "nom_diplome", nullable = false)
-    private int nomDiplome;
+    @Column(name = "nom_diplome", nullable = false, length = 100)
+    private String nomDiplome;
 
     @OneToMany(mappedBy = "diplome")
     private List<DetailDemande> detailDemandes;
@@ -33,7 +33,7 @@ public class Diplome {
         this.anneeEtude = anneeEtude;
     }
 
-    public void setNomDiplome(int nomDiplome) {
+    public void setNomDiplome(String nomDiplome) {
         this.nomDiplome = nomDiplome;
     }
 
@@ -50,7 +50,7 @@ public class Diplome {
         return this.anneeEtude;
     }
 
-    public int getNomDiplome() {
+    public String getNomDiplome() {
         return this.nomDiplome;
     }
 

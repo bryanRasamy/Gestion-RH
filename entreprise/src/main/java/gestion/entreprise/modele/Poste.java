@@ -48,8 +48,8 @@ public class Poste {
         this.sigle = sigle;
     }
 
-    public void setSalaire(Double salaire) { 
-        this.salaire = salaire; 
+    public void setSalaire(Double salaire) {
+        this.salaire = salaire;
     }
 
     public void setDetailDemandes(List<DetailDemande> detailDemandes) {

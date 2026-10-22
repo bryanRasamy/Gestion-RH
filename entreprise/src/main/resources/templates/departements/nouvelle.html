@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pivot — Nouvelle demande</title>
+    <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body class="dashboard-page">
+
+<nav class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+
+    <a href="#" class="logo" aria-label="Pivot — accueil">
+      <span class="logo__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="17" height="17">
+          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="square" stroke-linejoin="miter"/>
+        </svg>
+      </span>
+      <span class="logo__word">Pivot</span>
+    </a>
+
+    <ul class="app-nav__links" id="appNavLinks">
+      <li><a href="/departements/accueil" class="app-nav__link is-active">Demandes</a></li>
+      <li><a href="/departements/demandes/nouvelle" class="app-nav__link">Nouvelle demande</a></li>
+      <li><a href="#" class="app-nav__link">Équipe</a></li>
+      <li><a href="#" class="app-nav__link">Rapports</a></li>
+      <li><a href="#" class="app-nav__link">Paramètres</a></li>
+    </ul>
+
+    <div class="app-nav__user">
+      <div class="avatar" aria-hidden="true">U</div>
+      <span class="app-nav__user-name" th:text="|${utilisateur.employer.nom} ${utilisateur.employer.prenom}|">Amadou D.</span>
+    </div>
+
+    <button class="app-nav__toggle" id="appNavToggle"
+            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+<main class="dashboard">
+
+    <a th:href="@{/departements/accueil}" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M11 6l-6 6 6 6"/>
+        </svg>
+        Retour aux demandes
+    </a>
+
+    <header class="dashboard__head">
+        <p class="eyebrow" th:text="|Département ${departement.libelle}|" >Département Informatique</p>
+        <h1>Nouvelle demande</h1>
+        <p class="dashboard__count">Renseignez l'échéance, chaque poste requis, puis validez.</p>
+    </header>
+
+    <form class="req-form" id="requestForm" th:action="@{/departements/demandes}" th:object="${demande}" method="post" novalidate>
+        <input type="hidden" name="departementId" id="departementId" th:value="${departement.id}">
+        
+        <p class="form__success is-visible is-error" role="alert" th:if="${erreur}">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <span th:text="${erreur}"></span>
+        </p>
+
+        <div class="req-form__top">
+            <p class="req-form__count" id="count">01 poste · 01 personne</p>
+            <button type="button" class="btn-add" id="addRow">
+                <span class="btn-add__icon">+</span>
+                <span>Ajouter un poste</span>
+            </button>
+        </div>
+
+        <div class="req-form__meta">
+            <div class="req-form__deadline">
+                <label for="deadline" class="req-form__deadline-label">Date limite</label>
+                <div class="req-form__deadline-control">
+                    <input type="date" id="deadline" th:field="*{dateLimite}" required>
+                </div>
+                <p th:if="${#fields.hasErrors('dateLimite')}" th:errors="*{dateLimite}"></p>
+            </div>
+        </div>
+
+        <div class="req-form__cols" aria-hidden="true">
+            <span></span>
+            <span>Département</span>
+            <span>Poste</span>
+            <span>Diplôme</span>
+            <span>Exp. (ans)</span>
+            <span>Nb</span>
+            <span>Motif</span>
+            <span></span>
+        </div>
+
+        <div class="req-form__rows" id="rows"></div>
+
+        <div class="req-form__foot">
+            <p class="req-form__hint">
+                Chaque poste est compté séparément. Votre demande sera transmise pour validation.
+            </p>
+            <button type="submit" class="submit" id="submitBtn">
+                <span class="submit__label">Créer ma demande</span>
+                <span class="submit__icon">
+                    <svg class="submit__arrow" width="18" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="1.6"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 12h15M13 6l6 6-6 6"/>
+                    </svg>
+                    <span class="spinner"></span>
+                </span>
+            </button>
+        </div>
+
+        <p class="form__success" id="formSuccess" role="status"></p>
+    </form>
+
+</main>
+
+<script th:src="@{/assets/js/nouvelle-demande.js}"></script>
+
+</body>
+</html>

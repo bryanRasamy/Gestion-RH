@@ -31,7 +31,7 @@ public class DetailDemande {
     @JoinColumn(name = "id_diplome")
     private Diplome diplome;
 
-    @Column(name = "annee_experienxe", nullable = false)
+    @Column(name = "annee_experience", nullable = false)
     private int anneeExperience;
 
     /*Constructeur*/

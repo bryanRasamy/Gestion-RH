@@ -25,7 +25,7 @@
 
     <ul class="app-nav__links" id="appNavLinks">
       <li><a href="/departements/accueil" class="app-nav__link is-active">Demandes</a></li>
-      <li><a href="demande.html" class="app-nav__link">Nouvelle demande</a></li>
+      <li><a href="/departements/demandes/nouvelle" class="app-nav__link">Nouvelle demande</a></li>
       <li><a href="#" class="app-nav__link">Équipe</a></li>
       <li><a href="#" class="app-nav__link">Rapports</a></li>
       <li><a href="#" class="app-nav__link">Paramètres</a></li>
@@ -51,6 +51,14 @@
     <h1>Demandes de personnel</h1>
     <p class="dashboard__count" th:text="${#lists.size(demandes) + ' demandes · ' + #lists.size(demandes.?[libelle == 'En attente']) + ' en attente de traitement'}">06 demandes · 03 en attente de traitement</p>
   </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    <span th:text="${erreur}"></span>
+  </p>
 
   <div class="dashboard__grid">
 

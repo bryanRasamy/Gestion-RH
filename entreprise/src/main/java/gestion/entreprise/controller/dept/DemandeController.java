@@ -1,16 +1,21 @@
 package gestion.entreprise.controller.dept;
 
 import gestion.entreprise.modele.*;
+import gestion.entreprise.repository.DepartementRepository;
+import gestion.entreprise.repository.DiplomeRepository;
+import gestion.entreprise.repository.PosteRepository;
 import gestion.entreprise.service.*;
 import gestion.entreprise.vue.*;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -24,34 +29,27 @@ public class DemandeController {
     @Autowired 
     private UtilisateurService utilisateurService;
 
+    @Autowired 
+    private DemandeService demandeService;
+
+    @Autowired 
+    private PosteRepository posteRepository;
+
+    @Autowired 
+    private DepartementRepository departementRepository;
+
+    @Autowired 
+    private DiplomeRepository diplomeRepository;
+
+
+
     @GetMapping("/accueil")
     public String getListeDemande(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         try {
-            Utilisateur utilisateur = utilisateurService.getById((int) session.getAttribute("idUtilisateur"));
-
-            Employer employer=utilisateur.getEmployer();
-
-            if (employer==null) {
-                throw new RuntimeException("Utilisateur non autoriser. Seule les employer peuvent acceder à cette page");
-            }
-
-            Poste poste=employer.getPoste();
-
-            if (!poste.getSigle().equalsIgnoreCase("MI") && !poste.getSigle().equalsIgnoreCase("MC") && !poste.getSigle().equalsIgnoreCase("DG")) {
-                throw new RuntimeException("Seules les manager sont autoriser à acceder à cette page :"+poste.getSigle());
-            }
-
-            Departement departement=poste.getDepartement();
-
-            if (departement.getSigle().equalsIgnoreCase("rh")) {
-                throw new RuntimeException("Les rh ne sont pas autoriser à acceder à cette page");
-            }
+            utilisateurService.authentifierUtilisateur(session, model);
 
             List<HistoriqueDemandeStatusView> demandes = historiqueDemandeStatusService.getDemandesRecent();
 
-            model.addAttribute("utilisateur", utilisateur);
-            model.addAttribute("poste", poste);
-            model.addAttribute("departement", departement);
             model.addAttribute("demandes", demandes);
 
             return "departements/accueil";
@@ -59,8 +57,79 @@ public class DemandeController {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
             return "redirect:/login";
         }
-        
+    }
 
+    @GetMapping("/demandes/nouvelle")
+    public String nouvelleDemande(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        try {
+            utilisateurService.authentifierUtilisateur(session, model);
+
+            model.addAttribute("demande", new Demande());
+
+            return "departements/nouvelle";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erreur", e.getMessage());
+            return "redirect:/accueil";
+        }
         
+    }
+
+    @PostMapping("/demandes")
+    public String sauvegarderDemande(Model model, HttpSession session, RedirectAttributes redirectAttributes, Demande demande) {
+        try {
+            Utilisateur utilisateur=utilisateurService.authentifierUtilisateur(session, model);
+
+            List<DetailDemande> detailDemandes = demande.getdetailDemandes();
+
+            /*Controle*/
+            if(demande.getDateLimite() == null){
+                throw new RuntimeException("La date limite est obligatoire");
+            }
+
+            if (demande.getDateLimite().isBefore(LocalDate.now())) {
+                throw new RuntimeException("La date limite ne peut pas être dans le passé");
+            }
+
+            demande.setEmployer(utilisateur.getEmployer());
+            
+            for (DetailDemande detailDemande : detailDemandes) {
+                Poste poste = posteRepository.findById(detailDemande.getPoste().getId()).orElseThrow(() -> new RuntimeException("Poste introuvable"));
+                Departement departement = departementRepository.findById(detailDemande.getDepartement().getId()).orElseThrow(() -> new RuntimeException("Département introuvable"));
+                Diplome diplome = diplomeRepository.findById(detailDemande.getDiplome().getId()).orElseThrow(() -> new RuntimeException("Diplôme introuvable"));
+
+                if (detailDemande.getDepartement()==null) {
+                    throw new RuntimeException("Le departement est obligatoire");
+                }
+
+                if (poste.getDepartement().getId() != utilisateur.getEmployer().getPoste().getDepartement().getId()) {
+                    throw new RuntimeException("Le poste doit etre dans votre departement");
+                }
+
+                if (detailDemande.getDiplome()==null) {
+                    throw new RuntimeException("Le diplome est obligatoire");
+                }
+                
+                if (detailDemande.getAnneeExperience() < 0) {
+                    throw new RuntimeException("L'annee d'experience ne peut pas etre negatif");
+                }
+
+                if (detailDemande.getNbrPersonnel()<=0) {
+                    throw new RuntimeException("Le nombre de personnel doit etre strictement positif");
+                }
+    
+                detailDemande.setDemande(demande);
+                detailDemande.setPoste(poste);
+                detailDemande.setDepartement(departement);
+                detailDemande.setDiplome(diplome);
+            }
+                
+            demandeService.save(demande);
+            
+
+            return "departements/nouvelle";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erreur", e.getMessage());
+            return "redirect:/departements/demandes/nouvelle";
+        }
     }
 }
