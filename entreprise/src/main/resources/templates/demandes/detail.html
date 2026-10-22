@@ -39,30 +39,30 @@
     <h2 class="detail-section__title">Informations générales</h2>
     <div class="detail-meta">
       <span><strong>Matricule:</strong> <span th:text="${demande.matricule}"></span></span>
-      <span><strong>Date limite:</strong> <span th:text="${demande.dateLimite != null ? #temporals.format(demande.dateLimite, 'dd MMMM yyyy') : 'Non définie'}"></span></span>
-      <span><strong>Demandeur:</strong> <span th:text="${demande.employer.nom + ' ' + demande.employer.prenom}"></span></span>
+      <span><strong>Date limite:</strong>
+        <span th:text="${demande.dateLimite != null ? #temporals.format(demande.dateLimite, 'dd MMMM yyyy') : 'Non définie'}"></span>
+      </span>
+      <span><strong>Demandeur:</strong>
+        <span th:text="${demande.employer.nom + ' ' + demande.employer.prenom}"></span>
+      </span>
     </div>
   </section>
 
-  <!-- Budget (affiché seulement pour FINANCE) -->
+  <!-- Budget (Finance uniquement) -->
   <section class="detail-section" th:if="${afficherBudget}">
     <h2 class="detail-section__title">Analyse budgétaire</h2>
     <div class="budget-card" th:classappend="${respecteBudget ? ' budget-card--ok' : ' budget-card--ko'}">
       <p class="budget-card__montant">
-        Montant de la demande:
+        Montant estimé de la demande:
         <strong th:text="${#numbers.formatDecimal(montant, 0, 'COMMA', 0, 'POINT')} + ' Ar'">0 Ar</strong>
       </p>
-      <p class="budget-card__verdict" th:if="${respecteBudget}">
-        ✓ La demande respecte le budget annuel.
-      </p>
-      <p class="budget-card__verdict" th:if="${!respecteBudget}">
-        ✗ La demande dépasse le budget annuel.
-      </p>
+      <p class="budget-card__verdict" th:if="${respecteBudget}">✓ Respecte le budget annuel.</p>
+      <p class="budget-card__verdict" th:if="${!respecteBudget}">✗ Dépasse le budget annuel.</p>
       <p class="budget-card__erreur" th:if="${erreurBudget != null}" th:text="${erreurBudget}"></p>
     </div>
   </section>
 
-  <!-- Mode NORMAL: postes demandés (RH, DG, Finance et Manager quand pas à revoir) -->
+  <!-- Postes demandés (mode normal, pas à revoir) -->
   <section class="detail-section" th:if="${!estARevoir}">
     <h2 class="detail-section__title">Postes demandés</h2>
     <div class="detail-cards">
@@ -81,15 +81,14 @@
     </div>
   </section>
 
-  <!-- Mode À REVOIR (Manager): 2 colonnes original vs correction -->
+  <!-- Mode À REVOIR (Manager): original vs correction côte à côte -->
   <section class="detail-section" th:if="${estARevoir}">
     <h2 class="detail-section__title">Demande à revoir — Comparaison</h2>
-
     <div class="comparison-grid">
       <th:block th:each="detail : ${details}">
         <div class="comparison-pair">
 
-          <!-- Carte originale -->
+          <!-- Original -->
           <div class="detail-card detail-card--original">
             <div class="detail-card__label">Original</div>
             <div class="detail-card__head">
@@ -104,18 +103,19 @@
             </dl>
           </div>
 
-          <!-- Carte correction -->
+          <!-- Correction proposée -->
           <th:block th:if="${corrections != null}" th:each="correction : ${corrections}">
-            <div class="detail-card detail-card--correction" th:if="${correction.demandeDetails.id == detail.id}">
-              <div class="detail-card__label detail-card__label--correction">Correction proposée</div>
+            <div class="detail-card detail-card--correction"
+                 th:if="${correction.demandeDetails.id == detail.id}">
+              <div class="detail-card__label detail-card__label--correction">Correction proposée (effectif)</div>
               <div class="detail-card__head">
                 <span class="badge badge--review" th:text="${detail.poste.libelle}">Poste</span>
               </div>
               <dl class="detail-card__body">
                 <dt>Département</dt><dd th:text="${detail.departement.libelle}"></dd>
                 <dt>Nb personnel</dt><dd th:text="${correction.nbSouhaite}"></dd>
-                <dt>Diplôme</dt><dd th:text="${correction.diplome.nomDiplome}"></dd>
-                <dt>Expérience</dt><dd th:text="${correction.nbExperience} + ' ans'"></dd>
+                <dt>Diplôme</dt><dd th:text="${detail.diplome.nomDiplome}"></dd>
+                <dt>Expérience</dt><dd th:text="${detail.anneeExperience} + ' ans'"></dd>
               </dl>
             </div>
           </th:block>
@@ -124,31 +124,31 @@
       </th:block>
     </div>
 
-    <!-- Actions Manager pour demande à revoir -->
+    <!-- Manager: abandonner seulement -->
     <div class="action-bar">
-      <button class="btn btn--accept" id="btnAccepterCorrection"
-              th:attr="data-id=${demande.id}">
-        ✓ Accepter les corrections
-      </button>
-      <button class="btn btn--danger" id="btnAbandonner"
-              th:attr="data-id=${demande.id}">
+      <button class="btn btn--danger" id="btnAbandonner" th:attr="data-id=${demande.id}">
         ✗ Abandonner la demande
       </button>
     </div>
   </section>
 
-  <!-- Boutons d'action (pour tout rôle, sauf si a_revoir déjà traité) -->
+  <!-- Actions (tous rôles sauf si estARevoir géré ci-dessus) -->
   <section class="detail-section" th:if="${!estARevoir}">
     <h2 class="detail-section__title">Actions</h2>
     <div class="action-bar">
-      <button class="btn btn--accept" id="btnAccepter"
-              th:attr="data-id=${demande.id}">Accepter</button>
-      <button class="btn btn--accept" id="btnValider"
-              th:attr="data-id=${demande.id}">Valider</button>
-      <button class="btn btn--warning" id="btnARevenir"
-              th:attr="data-id=${demande.id}">À revoir</button>
-      <button class="btn btn--danger" id="btnRefuser"
-              th:attr="data-id=${demande.id}">Refuser</button>
+      <!-- Manager: seulement abandonner -->
+      <th:block th:if="${roleSigle == 'manager'}">
+        <button class="btn btn--danger" id="btnAbandonnerManager" th:attr="data-id=${demande.id}">
+          ✗ Abandonner la demande
+        </button>
+      </th:block>
+      <!-- Autres rôles: valider, à revoir, refuser -->
+      <th:block th:if="${roleSigle != 'manager'}">
+        <button class="btn btn--accept" id="btnValider" th:attr="data-id=${demande.id}">✓ Valider</button>
+        <a th:href="@{'/' + ${roleSigle} + '/demandes/' + ${demande.id} + '/correction'}"
+           class="btn btn--warning">↩ À revoir</a>
+        <button class="btn btn--danger" id="btnRefuser" th:attr="data-id=${demande.id}">✗ Refuser</button>
+      </th:block>
     </div>
   </section>
 
@@ -158,24 +158,25 @@
     <div class="timeline">
       <div class="timeline-item" th:each="hist : ${historiques}">
         <div class="timeline-item__dot"
-             th:classappend="${hist.sigle == 'AC' ? ' dot--accepted' :
-                              hist.sigle == 'VA' ? ' dot--accepted' :
+             th:classappend="${hist.sigle == 'VA' ? ' dot--accepted' :
                               hist.sigle == 'RF' ? ' dot--refused' :
                               hist.sigle == 'AR' ? ' dot--review' :
                               hist.sigle == 'AN' ? ' dot--refused' :
                               ' dot--pending'}"></div>
         <div class="timeline-item__body">
           <span class="badge"
-                th:classappend="${hist.sigle == 'AC' ? ' badge--accepted' :
-                                 hist.sigle == 'VA' ? ' badge--accepted' :
+                th:classappend="${hist.sigle == 'VA' ? ' badge--accepted' :
                                  hist.sigle == 'RF' ? ' badge--refused' :
                                  hist.sigle == 'AR' ? ' badge--review' :
                                  hist.sigle == 'AN' ? ' badge--refused' :
                                  ' badge--pending'}"
                 th:text="${hist.libelle}">Statut</span>
-          <span class="timeline-item__date" th:text="${#temporals.format(hist.date, 'dd/MM/yyyy')}"></span>
-          <span class="timeline-item__who" th:text="${hist.nomEvaluateur + ' ' + hist.prenomEvaluateur}"></span>
-          <p class="timeline-item__motif" th:if="${hist.motif != null and !hist.motif.isEmpty()}"
+          <span class="timeline-item__date"
+                th:text="${#temporals.format(hist.date, 'dd/MM/yyyy')}"></span>
+          <span class="timeline-item__who"
+                th:text="${hist.nomEvaluateur + ' ' + hist.prenomEvaluateur}"></span>
+          <p class="timeline-item__motif"
+             th:if="${hist.motif != null and !hist.motif.isEmpty()}"
              th:text="'Motif: ' + ${hist.motif}"></p>
         </div>
       </div>
@@ -184,13 +185,15 @@
 
 </main>
 
-<!-- Modal motif (pour refuser et à revoir) -->
+<!-- Modal motif (refuser) -->
 <div class="modal-overlay" id="modalMotif" style="display:none;">
   <div class="modal">
-    <h3 class="modal__title" id="modalTitle">Motif</h3>
+    <h3 class="modal__title" id="modalTitle">Motif du refus</h3>
     <div class="field">
       <div class="field__control">
-        <textarea id="modalMotifInput" rows="3" placeholder="Saisissez le motif..." style="width:100%; padding:12px; border:1px solid var(--line-strong); font-family:var(--sans); font-size:14px; resize:vertical;"></textarea>
+        <textarea id="modalMotifInput" rows="3" placeholder="Saisissez le motif..."
+                  style="width:100%; padding:12px; border:1px solid var(--line-strong);
+                         font-family:var(--sans); font-size:14px; resize:vertical;"></textarea>
       </div>
     </div>
     <div class="modal__actions">
@@ -204,7 +207,7 @@
 <div class="modal-overlay" id="modalAbandon" style="display:none;">
   <div class="modal">
     <h3 class="modal__title">Abandonner la demande</h3>
-    <p>Êtes-vous sûr de vouloir abandonner cette demande ? Cette action est irréversible.</p>
+    <p>Êtes-vous sûr de vouloir abandonner ? Cette action est irréversible.</p>
     <div class="modal__actions">
       <button class="btn btn--ghost" id="modalAbandonAnnuler">Annuler</button>
       <button class="btn btn--danger" id="modalAbandonConfirmer">Confirmer l'abandon</button>
@@ -235,7 +238,7 @@
     fetch(url, options)
       .then(function(r) { return r.json(); })
       .then(function(data) { callback(data); })
-      .catch(function(err) { alert('Erreur: ' + err); });
+      .catch(function(err) { alert('Erreur réseau: ' + err); });
   }
 
   function redirectAccueil() {
@@ -243,11 +246,10 @@
   }
 
   // Modal motif
-  var modalMotif = document.getElementById('modalMotif');
-  var modalMotifInput = document.getElementById('modalMotifInput');
-  var modalTitle = document.getElementById('modalTitle');
-  var modalAnnuler = document.getElementById('modalAnnuler');
-  var modalConfirmer = document.getElementById('modalConfirmer');
+  var modalMotif    = document.getElementById('modalMotif');
+  var modalInput    = document.getElementById('modalMotifInput');
+  var modalAnnuler  = document.getElementById('modalAnnuler');
+  var modalConf     = document.getElementById('modalConfirmer');
   var pendingAction = null;
 
   if (modalAnnuler) {
@@ -257,29 +259,13 @@
     });
   }
 
-  if (modalConfirmer) {
-    modalConfirmer.addEventListener('click', function() {
-      var motif = modalMotifInput.value.trim();
-      if (!motif) {
-        alert('Le motif est obligatoire.');
-        return;
-      }
-      if (pendingAction) {
-        pendingAction(motif);
-      }
+  if (modalConf) {
+    modalConf.addEventListener('click', function() {
+      var motif = modalInput.value.trim();
+      if (!motif) { alert('Le motif est obligatoire.'); return; }
+      if (pendingAction) { pendingAction(motif); }
       modalMotif.style.display = 'none';
       pendingAction = null;
-    });
-  }
-
-  // Accepter
-  var btnAccepter = document.getElementById('btnAccepter');
-  if (btnAccepter) {
-    btnAccepter.addEventListener('click', function() {
-      var id = this.dataset.id;
-      apiCall('/api/demandes/' + id + '/accepter', 'POST', null, function(data) {
-        if (data.succes) { redirectAccueil(); } else { alert('Erreur: ' + data.erreur); }
-      });
     });
   }
 
@@ -294,13 +280,12 @@
     });
   }
 
-  // Refuser (avec modal motif)
+  // Refuser
   var btnRefuser = document.getElementById('btnRefuser');
   if (btnRefuser) {
     btnRefuser.addEventListener('click', function() {
       var id = this.dataset.id;
-      modalTitle.textContent = 'Motif du refus';
-      modalMotifInput.value = '';
+      modalInput.value = '';
       modalMotif.style.display = 'flex';
       pendingAction = function(motif) {
         apiCall('/api/demandes/' + id + '/refuser', 'POST', { motif: motif }, function(data) {
@@ -310,42 +295,27 @@
     });
   }
 
-  // À revoir (avec modal motif)
-  var btnARevenir = document.getElementById('btnARevenir');
-  if (btnARevenir) {
-    btnARevenir.addEventListener('click', function() {
-      var id = this.dataset.id;
-      modalTitle.textContent = 'Motif de la mise à revoir';
-      modalMotifInput.value = '';
-      modalMotif.style.display = 'flex';
-      pendingAction = function(motif) {
-        apiCall('/api/demandes/' + id + '/a-revoir', 'POST', { motif: motif }, function(data) {
-          if (data.succes) { redirectAccueil(); } else { alert('Erreur: ' + data.erreur); }
-        });
-      };
-    });
-  }
-
-  // Accepter correction
-  var btnAccepterCorr = document.getElementById('btnAccepterCorrection');
-  if (btnAccepterCorr) {
-    btnAccepterCorr.addEventListener('click', function() {
-      var id = this.dataset.id;
-      apiCall('/api/demandes/' + id + '/accepter-correction', 'POST', null, function(data) {
-        if (data.succes) { redirectAccueil(); } else { alert('Erreur: ' + data.erreur); }
-      });
-    });
-  }
-
-  // Abandonner (avec modal confirmation)
-  var btnAbandon = document.getElementById('btnAbandonner');
+  // Abandonner (Manager, mode normal)
+  var btnAbandonnerManager = document.getElementById('btnAbandonnerManager');
+  var btnAbandonner = document.getElementById('btnAbandonner');
   var modalAbandon = document.getElementById('modalAbandon');
   var modalAbandonAnnuler = document.getElementById('modalAbandonAnnuler');
-  var modalAbandonConfirmer = document.getElementById('modalAbandonConfirmer');
+  var modalAbandonConf = document.getElementById('modalAbandonConfirmer');
 
-  if (btnAbandon) {
-    btnAbandon.addEventListener('click', function() {
-      modalAbandon.style.display = 'flex';
+  function ouvrirModalAbandon(id) {
+    modalAbandon.style.display = 'flex';
+    modalAbandon.dataset.id = id;
+  }
+
+  if (btnAbandonnerManager) {
+    btnAbandonnerManager.addEventListener('click', function() {
+      ouvrirModalAbandon(this.dataset.id);
+    });
+  }
+
+  if (btnAbandonner) {
+    btnAbandonner.addEventListener('click', function() {
+      ouvrirModalAbandon(this.dataset.id);
     });
   }
 
@@ -355,9 +325,9 @@
     });
   }
 
-  if (modalAbandonConfirmer) {
-    modalAbandonConfirmer.addEventListener('click', function() {
-      var id = btnAbandon.dataset.id;
+  if (modalAbandonConf) {
+    modalAbandonConf.addEventListener('click', function() {
+      var id = modalAbandon.dataset.id;
       apiCall('/api/demandes/' + id + '/abandonner', 'POST', null, function(data) {
         if (data.succes) { redirectAccueil(); } else { alert('Erreur: ' + data.erreur); }
       });

@@ -15,7 +15,6 @@ CREATE TABLE poste(
     id_departement INT NOT NULL,
     libelle VARCHAR(100) NOT NULL,
     sigle VARCHAR(20) NOT NULL,
-    salaire NUMERIC(15,2),
     FOREIGN KEY (id_departement) REFERENCES departement(id)
 );
 
@@ -94,17 +93,15 @@ CREATE TABLE historique_demande_status(
 );
 
 -- Snapshot d'une detail_demande jugée "à revoir" par le correcteur
+-- Seul l'effectif (nb_souhaite) est modifiable par le correcteur
 CREATE TABLE demande_a_revoir(
     id SERIAL PRIMARY KEY,
     id_demandeur INT NOT NULL,
     id_demande_details INT NOT NULL,
     nb_souhaite INT NOT NULL,
-    id_diplome INT NOT NULL,
-    nb_experience INT NOT NULL,
     id_date DATE NOT NULL DEFAULT CURRENT_DATE,
     FOREIGN KEY (id_demandeur) REFERENCES employer(id),
-    FOREIGN KEY (id_demande_details) REFERENCES detail_demande(id),
-    FOREIGN KEY (id_diplome) REFERENCES diplome(id)
+    FOREIGN KEY (id_demande_details) REFERENCES detail_demande(id)
 );
 
 -- Budget max/min associé à un poste, avec date d'effectivité
@@ -141,4 +138,4 @@ SELECT
 FROM historique_demande_status h
 JOIN demande d ON d.id = h.id_demande
 JOIN status s ON s.id = h.id_status
-JOIN employer e ON e.id=h.id_employer;
+JOIN employer e ON e.id = h.id_employer;

@@ -43,7 +43,7 @@ public class HistoriqueDemandeStatusView {
 
     @Column(name = "date")
     private LocalDate date;
-    
+
     /*Constructeur*/
     public HistoriqueDemandeStatusView() {
 

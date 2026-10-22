@@ -25,21 +25,18 @@ public interface HistoriqueDemandeStatusViewRepository extends JpaRepository<His
             nativeQuery = true)
     List<HistoriqueDemandeStatusView> findLatestStatusPerDemandByEmployer(@Param("idEmployer") int idEmployer);
 
+    /**
+     * Workflow: filtre par sigle du statut ET id de l'évaluateur.
+     * Le service appelle cette méthode en passant la liste d'ids des employers ayant le bon rôle.
+     */
     @Query(value = "SELECT DISTINCT ON (id_demande) " +
             "id, id_demande, id_status, id_employer_evaluateur, nom_evaluateur, prenom_evaluateur, matricule, id_employer, libelle, sigle, motif, date " +
             "FROM v_historique_demande_status " +
-            "WHERE sigle = :sigle " +
+            "WHERE sigle = :sigle AND id_employer_evaluateur = ANY(:evaluateurIds) " +
             "ORDER BY id_demande, date DESC",
             nativeQuery = true)
-    List<HistoriqueDemandeStatusView> findLatestStatusPerDemandBySigle(@Param("sigle") String sigle);
-
-    @Query(value = "SELECT DISTINCT ON (id_demande) " +
-            "id, id_demande, id_status, id_employer_evaluateur, nom_evaluateur, prenom_evaluateur, matricule, id_employer, libelle, sigle, motif, date " +
-            "FROM v_historique_demande_status " +
-            "WHERE sigle = :sigle AND id_employer_evaluateur = :idEmployerEvaluateur " +
-            "ORDER BY id_demande, date DESC",
-            nativeQuery = true)
-    List<HistoriqueDemandeStatusView> findLatestStatusPerDemandBySigleAndEvaluateur(@Param("sigle") String sigle, @Param("idEmployerEvaluateur") int idEmployerEvaluateur);
+    List<HistoriqueDemandeStatusView> findLatestByStatusAndEvaluateurs(
+            @Param("sigle") String sigle, @Param("evaluateurIds") int[] evaluateurIds);
 
     @Query(value = "SELECT id, id_demande, id_status, id_employer_evaluateur, nom_evaluateur, prenom_evaluateur, matricule, id_employer, libelle, sigle, motif, date " +
             "FROM v_historique_demande_status WHERE id_demande = :idDemande ORDER BY date ASC",

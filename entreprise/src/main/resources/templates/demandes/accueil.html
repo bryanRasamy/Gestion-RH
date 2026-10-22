@@ -36,6 +36,14 @@
     <span th:text="${succes}"></span>
   </p>
 
+  <!-- Budget annuel pour Finance -->
+  <div class="budget-card budget-card--ok" th:if="${budgetAnnuel != null}" style="margin-bottom: 24px;">
+    <p class="budget-card__montant">
+      Budget annuel de l'entreprise:
+      <strong th:text="${#numbers.formatDecimal(budgetAnnuel, 0, 'COMMA', 0, 'POINT')} + ' Ar'">0 Ar</strong>
+    </p>
+  </div>
+
   <!-- Filtres server-side -->
   <form class="dashboard__filters" method="get" th:action="@{'/' + ${roleSigle} + '/accueil'}">
     <div class="filter-group">
@@ -43,7 +51,6 @@
       <select name="status" id="status" class="filter-input">
         <option value="">Tous</option>
         <option value="CR" th:selected="${filterStatus == 'CR'}">Creer</option>
-        <option value="AC" th:selected="${filterStatus == 'AC'}">Accepter</option>
         <option value="VA" th:selected="${filterStatus == 'VA'}">Valider</option>
         <option value="RF" th:selected="${filterStatus == 'RF'}">Refuser</option>
         <option value="AR" th:selected="${filterStatus == 'AR'}">A Revoir</option>
@@ -65,16 +72,14 @@
 
     <article class="req-card"
              th:each="demande : ${demandes}"
-             th:classappend="${demande.sigle == 'AC' ? ' req-card--accepted' :
-                              demande.sigle == 'VA' ? ' req-card--accepted' :
+             th:classappend="${demande.sigle == 'VA' ? ' req-card--accepted' :
                               demande.sigle == 'RF' ? ' req-card--refused' :
                               demande.sigle == 'AR' ? ' req-card--review' :
                               demande.sigle == 'AN' ? ' req-card--refused' :
                               ' req-card--pending'}">
       <div class="req-card__head">
         <span class="badge"
-              th:classappend="${demande.sigle == 'AC' ? ' badge--accepted' :
-                               demande.sigle == 'VA' ? ' badge--accepted' :
+              th:classappend="${demande.sigle == 'VA' ? ' badge--accepted' :
                                demande.sigle == 'RF' ? ' badge--refused' :
                                demande.sigle == 'AR' ? ' badge--review' :
                                demande.sigle == 'AN' ? ' badge--refused' :

@@ -22,13 +22,6 @@ public class DemandeARevoir {
     @Column(name = "nb_souhaite", nullable = false)
     private int nbSouhaite;
 
-    @ManyToOne
-    @JoinColumn(name = "id_diplome", nullable = false)
-    private Diplome diplome;
-
-    @Column(name = "nb_experience", nullable = false)
-    private int nbExperience;
-
     @Column(name = "id_date", nullable = false)
     private LocalDate idDate = LocalDate.now();
 
@@ -54,14 +47,6 @@ public class DemandeARevoir {
         this.nbSouhaite = nbSouhaite;
     }
 
-    public void setDiplome(Diplome diplome) {
-        this.diplome = diplome;
-    }
-
-    public void setNbExperience(int nbExperience) {
-        this.nbExperience = nbExperience;
-    }
-
     public void setIdDate(LocalDate idDate) {
         this.idDate = idDate;
     }
@@ -81,14 +66,6 @@ public class DemandeARevoir {
 
     public int getNbSouhaite() {
         return nbSouhaite;
-    }
-
-    public Diplome getDiplome() {
-        return diplome;
-    }
-
-    public int getNbExperience() {
-        return nbExperience;
     }
 
     public LocalDate getIdDate() {

@@ -39,7 +39,6 @@ public class PosteRestController {
             posteMap.put("idDepartment",poste.getDepartement().getId());
             posteMap.put("libelle", poste.getLibelle());
             posteMap.put("sigle", poste.getSigle());
-            posteMap.put("salaire", poste.getSalaire());
 
             response.add(posteMap);
         }

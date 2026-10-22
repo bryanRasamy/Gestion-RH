@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Correction de demande</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body class="dashboard-page">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="dashboard">
+
+  <a th:href="@{'/' + ${roleSigle} + '/demandes/' + ${demande.id}}" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M11 6l-6 6 6 6"/>
+    </svg>
+    Retour au détail
+  </a>
+
+  <header class="dashboard__head">
+    <p class="eyebrow" th:text="|Correction — ${demande.matricule}|">Correction</p>
+    <h1>Mettre à revoir</h1>
+    <p class="dashboard__count">Seul l'effectif est modifiable. Les autres champs sont présentés à titre indicatif.</p>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    <span th:text="${erreur}"></span>
+  </p>
+
+  <form class="req-form"
+        th:action="@{'/' + ${roleSigle} + '/demandes/' + ${demande.id} + '/correction'}"
+        method="post" novalidate>
+
+    <!-- Motif obligatoire -->
+    <div class="req-form__meta" style="margin-bottom: 24px;">
+      <div class="field">
+        <label for="motif" class="field__label">Motif de la mise à revoir <span class="field__required">*</span></label>
+        <div class="field__control">
+          <textarea id="motif" name="motif" rows="2" required
+                    placeholder="Expliquez pourquoi la demande doit être revue..."
+                    style="width:100%; padding:12px; border:1px solid var(--line-strong);
+                           font-family:var(--sans); font-size:14px; resize:vertical;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau des postes — seul l'effectif est enabled -->
+    <div class="req-form__cols" aria-hidden="true" style="grid-template-columns: 2fr 2fr 1fr 2fr 1fr 1fr">
+      <span>Poste</span>
+      <span>Département</span>
+      <span>Effectif <em style="color:var(--ok);">(modifiable)</em></span>
+      <span>Diplôme</span>
+      <span>Exp.</span>
+      <span>Motif</span>
+    </div>
+
+    <div class="req-form__rows" id="correctionRows">
+      <div class="req-form__row" th:each="detail, iter : ${details}">
+        <!-- id caché du detail -->
+        <input type="hidden" name="detailId" th:value="${detail.id}">
+
+        <!-- Poste (disabled) -->
+        <div class="req-form__cell">
+          <input type="text" class="field__input" th:value="${detail.poste.libelle}" disabled>
+        </div>
+
+        <!-- Département (disabled) -->
+        <div class="req-form__cell">
+          <input type="text" class="field__input" th:value="${detail.departement.libelle}" disabled>
+        </div>
+
+        <!-- Effectif (enabled, seul champ modifiable) -->
+        <div class="req-form__cell">
+          <input type="number" name="nbSouhaite" class="field__input"
+                 th:value="${detail.nbrPersonnel}"
+                 min="1" required
+                 oninput="if(this.value < 1) this.value = 1;">
+        </div>
+
+        <!-- Diplôme (disabled) -->
+        <div class="req-form__cell">
+          <input type="text" class="field__input" th:value="${detail.diplome.nomDiplome}" disabled>
+        </div>
+
+        <!-- Expérience (disabled) -->
+        <div class="req-form__cell">
+          <input type="number" class="field__input" th:value="${detail.anneeExperience}" disabled>
+        </div>
+
+        <!-- Motif original (disabled) -->
+        <div class="req-form__cell">
+          <input type="text" class="field__input" th:value="${detail.motif}" disabled>
+        </div>
+      </div>
+    </div>
+
+    <div class="req-form__foot">
+      <p class="req-form__hint">
+        Les champs grisés ne sont pas modifiables. Seul l'effectif sera enregistré comme correction.
+      </p>
+      <button type="submit" class="submit" id="submitBtn" onclick="return validerFormulaire()">
+        <span class="submit__label">Soumettre la correction</span>
+        <span class="submit__icon">
+          <svg class="submit__arrow" width="18" height="18" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.6"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12h15M13 6l6 6-6 6"/>
+          </svg>
+        </span>
+      </button>
+    </div>
+  </form>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var nav    = document.getElementById('appNav');
+  var toggle = document.getElementById('appNavToggle');
+  if (toggle) {
+    toggle.addEventListener('click', function() {
+      var open = nav.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+  }
+
+  window.validerFormulaire = function() {
+    var motif = document.getElementById('motif').value.trim();
+    if (!motif) {
+      alert('Le motif est obligatoire.');
+      return false;
+    }
+
+    var inputs = document.querySelectorAll('input[name="nbSouhaite"]');
+    for (var i = 0; i < inputs.length; i++) {
+      var val = parseInt(inputs[i].value, 10);
+      if (isNaN(val) || val < 1) {
+        alert('L\'effectif doit être un entier strictement positif.');
+        inputs[i].focus();
+        return false;
+      }
+    }
+
+    return true;
+  };
+})();
+</script>
+
+</body>
+</html>

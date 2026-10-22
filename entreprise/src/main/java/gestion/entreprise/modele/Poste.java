@@ -20,9 +20,6 @@ public class Poste {
     @Column(name = "sigle", nullable = false, length = 20)
     private String sigle;
 
-    @Column(name = "salaire", nullable = false)
-    private Double salaire;
-
     @OneToMany(mappedBy = "poste")
     private List<DetailDemande> detailDemandes;
 
@@ -48,10 +45,6 @@ public class Poste {
         this.sigle = sigle;
     }
 
-    public void setSalaire(Double salaire) {
-        this.salaire = salaire;
-    }
-
     public void setDetailDemandes(List<DetailDemande> detailDemandes) {
         this.detailDemandes = detailDemandes;
     }
@@ -71,10 +64,6 @@ public class Poste {
 
     public String getSigle() {
         return sigle;
-    }
-    
-    public Double getSalaire() {
-        return salaire;
     }
 
     public List<DetailDemande> getdetailDemandes() {

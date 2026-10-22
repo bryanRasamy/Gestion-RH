@@ -24,6 +24,9 @@ public class HistoriqueDemandeStatusService {
     @Autowired
     private StatusRepository statusRepository;
 
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
+
     public List<HistoriqueDemandeStatusView> getDemandesRecent() {
         return historiqueDemandeStatusViewRepository.findLatestStatusPerDemand();
     }
@@ -32,8 +35,25 @@ public class HistoriqueDemandeStatusService {
         return historiqueDemandeStatusViewRepository.findLatestStatusPerDemandByEmployer(idEmployer);
     }
 
-    public List<HistoriqueDemandeStatusView> getDemandesBySigle(String sigle) {
-        return historiqueDemandeStatusViewRepository.findLatestStatusPerDemandBySigle(sigle);
+    /**
+     * Workflow: demandes dont le DERNIER statut = sigleStatus
+     * ET dont l'évaluateur (id_employer_evaluateur) est un utilisateur ayant le sigleRole.
+     *
+     * On résout les employer ids du rôle en Java, puis on passe au repository.
+     */
+    public List<HistoriqueDemandeStatusView> getDemandesByStatusAndRole(String sigleStatus, String sigleRole) {
+        List<Utilisateur> utilisateurs = utilisateurRepository.findByRoleSigle(sigleRole);
+
+        if (utilisateurs == null || utilisateurs.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        int[] evaluateurIds = new int[utilisateurs.size()];
+        for (int i = 0; i < utilisateurs.size(); i++) {
+            evaluateurIds[i] = utilisateurs.get(i).getEmployer().getId();
+        }
+
+        return historiqueDemandeStatusViewRepository.findLatestByStatusAndEvaluateurs(sigleStatus, evaluateurIds);
     }
 
     public List<HistoriqueDemandeStatusView> getByDemande(int idDemande) {
@@ -41,8 +61,7 @@ public class HistoriqueDemandeStatusService {
     }
 
     /**
-     * Filtre côté serveur une liste de demandes par statut (sigle) et dates min/max.
-     * Si un paramètre est null, on ne filtre pas sur ce critère.
+     * Filtre serveur-side par statut et dates.
      */
     public List<HistoriqueDemandeStatusView> filtrer(List<HistoriqueDemandeStatusView> demandes,
             String statusSigle, LocalDate dateMin, LocalDate dateMax) {
