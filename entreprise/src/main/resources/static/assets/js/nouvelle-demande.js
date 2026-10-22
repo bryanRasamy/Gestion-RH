@@ -115,6 +115,9 @@
        ============================================================ */
     function createRow() {
         const n = nextId++;
+        const idDepartementManager = document.getElementById('departementId')?.value;
+        const departementsAutorises = DEPARTEMENTS.filter(
+            departement => String(departement.id) === String(idDepartementManager));
         const row = document.createElement('div');
         row.className = 'req-row';
         row.dataset.id = n;
@@ -125,7 +128,7 @@
         <label for="dept-${n}" class="req-row__label-mobile">Département</label>
         <select id="dept-${n}" name="detailDemandes[0].departement.id"
                 class="departement" required>
-          ${optionsHtml(DEPARTEMENTS)}
+          ${optionsHtml(departementsAutorises)}
         </select>
       </div>
 
@@ -139,7 +142,7 @@
 
       <div class="req-row__field req-row__field--diplome">
         <label for="diplome-${n}" class="req-row__label-mobile">Diplôme</label>
-        <select id="diplome-${n}" name="detailDemandes[0].diplome"
+        <select id="diplome-${n}" name="detailDemandes[0].diplome.id"
                 class="diplome" required>
           <option value="">Sélectionner un diplôme…</option>
           ${optionsDiplomesHtml()}
@@ -160,7 +163,7 @@
 
       <div class="req-row__field req-row__field--motif">
         <label for="motif-${n}" class="req-row__label-mobile">Motif</label>
-        <input type="text" id="motif-${n}" name="detailDemandes[0].motif"
+        <input type="text" id="motif-${n}" name="detailDemandes[0].description"
                class="motif" placeholder="Ex : renfort projet" autocomplete="off" required>
       </div>
 

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -18,11 +17,7 @@ public class DemandeService {
     @Autowired
     private DetailDemandeRepository detailDemandeRepository;
 
-    @Autowired
-    private StatusRepository statusRepository;
-
-    @Autowired
-    private HistoriqueDemandeStatusRepository historiqueRepository;
+    @Autowired private DemandeStatutService demandeStatutService;
 
     @Transactional
     public Demande save(Demande demande) throws Exception{
@@ -41,20 +36,8 @@ public class DemandeService {
             detailDemandeRepository.save(detailDemande);
         }
 
-        // 3. Historique : statut "En attente"
-        Status status = statusRepository.findBySigle("CR");
-
-        if (status == null) {
-            throw new Exception("Status introuvable");
-        }
-
-        HistoriqueDemandeStatus hist = new HistoriqueDemandeStatus();
-        hist.setDemande(saved);
-        hist.setEmployer(saved.getEmployer());
-        hist.setStatus(status);
-        hist.setDate(LocalDate.now());
-
-        historiqueRepository.save(hist);
+        // Seul DemandeStatutService écrit l'audit des statuts.
+        demandeStatutService.initialiser(saved, saved.getEmployer());
 
         return saved;
     }

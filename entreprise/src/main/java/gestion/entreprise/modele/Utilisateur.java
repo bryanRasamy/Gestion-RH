@@ -1,6 +1,7 @@
 package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
+import gestion.entreprise.security.Role;
 
 @Entity
 @Table(name = "utilisateur")
@@ -19,6 +20,10 @@ public class Utilisateur {
     @OneToOne
     @JoinColumn(name = "id_employer")
     private Employer employer;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    private Role role = Role.CANDIDAT;
 
     /*Constructeur*/
     public Utilisateur(){
@@ -41,6 +46,7 @@ public class Utilisateur {
     public void setEmployer(Employer employer) { 
         this.employer = employer; 
     }
+    public void setRole(Role role) { this.role = role; }
 
     /*Getters*/
     public int getId() { 
@@ -58,5 +64,6 @@ public class Utilisateur {
     public Employer getEmployer() { 
         return employer;
     }
+    public Role getRole() { return role; }
     
 }

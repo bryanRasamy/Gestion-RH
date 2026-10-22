@@ -24,8 +24,8 @@ public class DetailDemande {
     @Column(name = "nbr_personnel", nullable = false)
     private int nbrPersonnel;
 
-    @Column(columnDefinition = "TEXT")
-    private String motif;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "id_diplome")
@@ -60,9 +60,7 @@ public class DetailDemande {
         this.nbrPersonnel = nbrPersonnel;
     }
 
-    public void setMotif(String motif) {
-        this.motif = motif;
-    }
+    public void setDescription(String description) { this.description = description; }
 
     public void setDiplome(Diplome diplome) {
         this.diplome = diplome;
@@ -94,9 +92,7 @@ public class DetailDemande {
         return nbrPersonnel;
     }
     
-    public String getMotif() {
-        return motif;
-    }
+    public String getDescription() { return description; }
 
     public Diplome getDiplome() {
         return this.diplome;

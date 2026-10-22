@@ -80,6 +80,7 @@ public class DemandeController {
             Utilisateur utilisateur=utilisateurService.authentifierUtilisateur(session, model);
 
             List<DetailDemande> detailDemandes = demande.getdetailDemandes();
+            if (detailDemandes == null || detailDemandes.isEmpty()) throw new RuntimeException("Ajoutez au moins un poste");
 
             /*Controle*/
             if(demande.getDateLimite() == null){
@@ -93,22 +94,21 @@ public class DemandeController {
             demande.setEmployer(utilisateur.getEmployer());
             
             for (DetailDemande detailDemande : detailDemandes) {
+                if (detailDemande.getPoste() == null || detailDemande.getDepartement() == null || detailDemande.getDiplome() == null) {
+                    throw new RuntimeException("Le département, le poste et le diplôme sont obligatoires");
+                }
                 Poste poste = posteRepository.findById(detailDemande.getPoste().getId()).orElseThrow(() -> new RuntimeException("Poste introuvable"));
                 Departement departement = departementRepository.findById(detailDemande.getDepartement().getId()).orElseThrow(() -> new RuntimeException("Département introuvable"));
                 Diplome diplome = diplomeRepository.findById(detailDemande.getDiplome().getId()).orElseThrow(() -> new RuntimeException("Diplôme introuvable"));
 
-                if (detailDemande.getDepartement()==null) {
-                    throw new RuntimeException("Le departement est obligatoire");
+                if (poste.getDepartement().getId() != departement.getId()) {
+                    throw new RuntimeException("Le poste doit appartenir au département sélectionné");
                 }
 
-                if (poste.getDepartement().getId() != utilisateur.getEmployer().getPoste().getDepartement().getId()) {
-                    throw new RuntimeException("Le poste doit etre dans votre departement");
+                if (departement.getId() != utilisateur.getEmployer().getPoste().getDepartement().getId()) {
+                    throw new RuntimeException("Vous ne pouvez créer une demande que pour votre département");
                 }
 
-                if (detailDemande.getDiplome()==null) {
-                    throw new RuntimeException("Le diplome est obligatoire");
-                }
-                
                 if (detailDemande.getAnneeExperience() < 0) {
                     throw new RuntimeException("L'annee d'experience ne peut pas etre negatif");
                 }
@@ -126,7 +126,8 @@ public class DemandeController {
             demandeService.save(demande);
             
 
-            return "departements/nouvelle";
+            redirectAttributes.addFlashAttribute("succes", "Demande créée et transmise à RH.");
+            return "redirect:/departements/accueil";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
             return "redirect:/departements/demandes/nouvelle";

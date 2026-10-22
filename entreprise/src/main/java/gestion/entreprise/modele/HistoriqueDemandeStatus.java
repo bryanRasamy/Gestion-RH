@@ -1,7 +1,7 @@
 package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "historique_demande_status")
@@ -20,11 +20,15 @@ public class HistoriqueDemandeStatus {
     private Status status;
 
     @ManyToOne
-    @JoinColumn(name = "id_employer", nullable = false)
+    @JoinColumn(name = "id_employer")
     private Employer employer;
 
-    @Column(name = "date", nullable = false)
-    private LocalDate date = LocalDate.now();
+    @Column(name = "etape", nullable = false, length = 20)
+    private String etape;
+    @Column(name = "commentaire", columnDefinition = "TEXT")
+    private String commentaire;
+    @Column(name = "date_action", nullable = false)
+    private OffsetDateTime dateAction = OffsetDateTime.now();
 
     /*Constructeur*/
     public HistoriqueDemandeStatus() {
@@ -44,9 +48,9 @@ public class HistoriqueDemandeStatus {
         this.status = status;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+    public void setEtape(String etape) { this.etape = etape; }
+    public void setCommentaire(String commentaire) { this.commentaire = commentaire; }
+    public void setDateAction(OffsetDateTime dateAction) { this.dateAction = dateAction; }
 
     public void setEmployer(Employer employer) {
         this.employer = employer;
@@ -69,7 +73,7 @@ public class HistoriqueDemandeStatus {
         return employer;
     }
     
-    public LocalDate getDate() {
-        return date;
-    }
+    public String getEtape() { return etape; }
+    public String getCommentaire() { return commentaire; }
+    public OffsetDateTime getDateAction() { return dateAction; }
 }

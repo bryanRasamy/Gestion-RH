@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 
 import gestion.entreprise.modele.*;
 import gestion.entreprise.service.*;
+import gestion.entreprise.security.Role;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -60,18 +61,18 @@ public class LoginController {
                 return "redirect:/accueil";
             }
 
-            Poste poste = employer.getPoste();
-            Departement departement = poste.getDepartement();
-
-            String url = new String();
-
-            if (departement.getSigle().equalsIgnoreCase("rh")) {
-                url = "/rh/accueil";
-            } else if (departement.getSigle().equalsIgnoreCase("dg")) {
-                url = "/dg/accueil";
-            } else {
-                url = "/departements/accueil";
+            Role role = utilisateur.getRole();
+            if (role == null) {
+                throw new RuntimeException("Ce compte n'a pas de rôle. Exécutez la migration 01_roles_et_statuts.sql.");
             }
+
+            String url = switch (role) {
+                case RH -> "/rh/demandes";
+                case FINANCE -> "/finance/demandes";
+                case DG -> "/dg/demandes";
+                case MANAGER -> "/departements/accueil";
+                case CANDIDAT -> "/offres";
+            };
 
             return "redirect:"+url;
 
@@ -124,9 +125,6 @@ public class LoginController {
         }
     }
 
-    // @GetMapping("/logout")
-    // public String seDeconnecter(HttpSession session) {
-    //     session.invalidate();
-    //     return "redirect:/login";
-    // }
+    @GetMapping("/logout")
+    public String seDeconnecter(HttpSession session) { session.invalidate(); return "redirect:/login"; }
 }

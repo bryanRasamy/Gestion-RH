@@ -31,13 +31,14 @@ public class UtilisateurService {
 
         utilisateur.setId(user.getId());
         utilisateur.setEmployer(user.getEmployer());
+        utilisateur.setRole(user.getRole());
     }
 
     public void saveUtilisateur(Utilisateur utilisateur) throws Exception{
         utilisateurRepository.save(utilisateur);
     }
 
-    public Utilisateur getById(int id) throws Exception{
+    public Utilisateur getById(int id) {
         return utilisateurRepository.findById(id).orElse(null);
     }
 
