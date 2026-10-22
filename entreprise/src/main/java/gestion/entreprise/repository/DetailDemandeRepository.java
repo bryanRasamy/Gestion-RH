@@ -19,11 +19,16 @@ public interface DetailDemandeRepository extends JpaRepository<DetailDemande, In
 
     /**
      * Frontoffice — liste des offres actives :
-     * détails de demandes dont le DERNIER statut est "Valider" (VA)
-     * et dont la date limite n'est pas encore dépassée.
+     * détails de demandes dont le DERNIER statut est "Valider" (VA),
+     * POSÉ PAR UN DG (rôle DG), et dont la date limite n'est pas dépassée.
      *
      * On utilise le MAX(id) pour identifier la dernière ligne d'historique
      * (robuste aux changements d'horloge, cohérent avec le backoffice).
+     *
+     * Le filtre "DG" passe par la jointure :
+     *   historique_demande_status.id_employer
+     *     → utilisateur.id_employer
+     *     → role.sigle = 'DG'
      */
     @Query("""
             select distinct dd
@@ -42,6 +47,12 @@ public interface DetailDemandeRepository extends JpaRepository<DetailDemande, In
                         where h2.demande = d
                     )
                     and h.status.sigle = 'VA'
+                    and exists (
+                        select 1
+                        from Utilisateur u
+                        where u.employer = h.employer
+                          and u.role.sigle = 'DG'
+                    )
               )
             order by d.dateLimite, dd.id
             """)
@@ -49,6 +60,7 @@ public interface DetailDemandeRepository extends JpaRepository<DetailDemande, In
 
     /**
      * Frontoffice — détail d'une offre active.
+     * Mêmes conditions que findOffresActives + filtre sur dd.id.
      */
     @Query("""
             select distinct dd
@@ -68,6 +80,12 @@ public interface DetailDemandeRepository extends JpaRepository<DetailDemande, In
                         where h2.demande = d
                     )
                     and h.status.sigle = 'VA'
+                    and exists (
+                        select 1
+                        from Utilisateur u
+                        where u.employer = h.employer
+                          and u.role.sigle = 'DG'
+                    )
               )
             """)
     DetailDemande findOffreActiveById(@Param("idDetail") int idDetail,
