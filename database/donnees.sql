@@ -61,3 +61,22 @@ INSERT INTO historique_demande_status(id_demande,id_status,id_employer,date) VAL
 (5,5,2,'2026-10-26'),
 (6,1,3,'2026-10-21'),
 (6,6,3,'2026-10-27');
+
+INSERT INTO diplome(annee_etude,nom_diplome) VALUES
+(3,'Licence'),
+(5,'Master'),
+(8,'Doctorat');
+
+INSERT INTO detail_demande(id_demande,id_poste,id_departement,nbr_personnel,motif,id_diplome,annee_experience) VALUES
+(1,4,3,2,'Projet Atlas',2,3),
+(1,5,3,3,'Projet Atlas',2,3),
+(2,6,3,4,'Projet Akoho',2,1),
+(2,4,3,1,'Projet Akoho',2,3),
+(3,5,3,3,'Creation de Saas',1,2),
+(3,6,3,4,'creation de Saas',1,2),
+(4,4,4,2,'Creation d''application mobile',1,3),
+(4,6,4,3,'Creation d''application mobile',1,1),
+(5,5,4,2,'Creation d''une application de gestion',2,5),
+(5,4,4,4,'Creation d''une application de gestion',2,5),
+(6,6,4,1,'Refonte de site web',1,1),
+(6,5,4,4,'Refonte de site web',1,2);

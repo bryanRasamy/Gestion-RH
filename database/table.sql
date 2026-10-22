@@ -53,6 +53,12 @@ CREATE TABLE demande(
     FOREIGN KEY (id_employer) REFERENCES employer(id)
 );
 
+CREATE TABLE diplome(
+    id SERIAL PRIMARY KEY,
+    annee_etude INT NOT NULL,
+    nom_diplome VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE detail_demande(
     id SERIAL PRIMARY KEY,
     id_demande INT NOT NULL,
@@ -60,6 +66,8 @@ CREATE TABLE detail_demande(
     id_departement INT NOT NULL,
     nbr_personnel INT NOT NULL,
     motif TEXT,
+    id_diplome INT NOT NULL,
+    annee_experience INT NOT NULL,
     FOREIGN KEY (id_demande) REFERENCES demande(id),
     FOREIGN KEY (id_poste) REFERENCES poste(id),
     FOREIGN KEY (id_departement) REFERENCES departement(id)
