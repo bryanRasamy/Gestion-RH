@@ -5,9 +5,7 @@ import gestion.entreprise.repository.*;
 import gestion.entreprise.service.*;
 import jakarta.servlet.http.HttpSession;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +28,6 @@ public class DemandeRestController {
     @Autowired
     private StatusRepository statusRepository;
 
-    @Autowired
-    private DemandeARevoirRepository demandeARevoirRepository;
-
-    @Autowired
-    private DetailDemandeRepository detailDemandeRepository;
-
-    /**
-     * POST /api/demandes/{id}/valider
-     * Tout rôle authentifié. Change le statut à VA. id_employer = celui qui fait l'action.
-     */
     @PostMapping("/{id}/valider")
     public ResponseEntity<Map<String, Object>> valider(@PathVariable int id,
             @RequestBody(required = false) Map<String, String> body,
@@ -47,10 +35,11 @@ public class DemandeRestController {
         Map<String, Object> response = new HashMap<>();
         try {
             Utilisateur utilisateur = utilisateurService.authentifierUtilisateur(session, null);
-
             if (utilisateur.getEmployer() == null) {
                 throw new RuntimeException("Utilisateur sans employé associé.");
             }
+
+            demandeService.verifierNonCloturee(id);
 
             Demande demande = demandeService.getById(id);
 
@@ -60,7 +49,6 @@ public class DemandeRestController {
             }
 
             String motif = (body != null) ? body.get("motif") : null;
-
             historiqueDemandeStatusService.changerStatut(demande, statusValider, utilisateur.getEmployer(), motif);
 
             response.put("succes", true);
@@ -74,9 +62,44 @@ public class DemandeRestController {
     }
 
     /**
-     * POST /api/demandes/{id}/refuser
-     * Tout rôle authentifié. Change le statut à RF. Motif obligatoire.
+     * POST /api/demandes/{id}/valider-correction
+     * Réservé au MANAGER quand la demande est en statut AR.
+     * Insère les snapshots dans demande_a_revoir, puis pose le statut VA.
      */
+    @PostMapping("/{id}/valider-correction")
+    public ResponseEntity<Map<String, Object>> validerCorrection(@PathVariable int id,
+            @RequestBody(required = false) Map<String, String> body,
+            HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Utilisateur utilisateur = utilisateurService.authentifierUtilisateur(session, null);
+            if (utilisateur.getRole() == null
+                    || !"MANAGER".equalsIgnoreCase(utilisateur.getRole().getSigle())) {
+                throw new RuntimeException("Seul un manager peut valider une correction.");
+            }
+            if (utilisateur.getEmployer() == null) {
+                throw new RuntimeException("Utilisateur sans employé associé.");
+            }
+
+            Demande demande = demandeService.getById(id);
+
+            String motif = (body != null && body.get("motif") != null)
+                    ? body.get("motif")
+                    : "Correction acceptée par le manager.";
+
+            historiqueDemandeStatusService.validerCorrection(
+                    demande, utilisateur.getEmployer(), motif);
+
+            response.put("succes", true);
+            response.put("message", "Correction validée.");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("succes", false);
+            response.put("erreur", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @PostMapping("/{id}/refuser")
     public ResponseEntity<Map<String, Object>> refuser(@PathVariable int id,
             @RequestBody Map<String, String> body,
@@ -84,7 +107,6 @@ public class DemandeRestController {
         Map<String, Object> response = new HashMap<>();
         try {
             Utilisateur utilisateur = utilisateurService.authentifierUtilisateur(session, null);
-
             if (utilisateur.getEmployer() == null) {
                 throw new RuntimeException("Utilisateur sans employé associé.");
             }
@@ -93,6 +115,8 @@ public class DemandeRestController {
             if (motif == null || motif.trim().isEmpty()) {
                 throw new RuntimeException("Le motif est obligatoire pour refuser une demande.");
             }
+
+            demandeService.verifierNonCloturee(id);
 
             Demande demande = demandeService.getById(id);
 
@@ -113,20 +137,17 @@ public class DemandeRestController {
         }
     }
 
-    /**
-     * POST /api/demandes/{id}/abandonner
-     * Tout rôle. Statut = AN.
-     */
     @PostMapping("/{id}/abandonner")
     public ResponseEntity<Map<String, Object>> abandonner(@PathVariable int id,
             HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
             Utilisateur utilisateur = utilisateurService.authentifierUtilisateur(session, null);
-
             if (utilisateur.getEmployer() == null) {
                 throw new RuntimeException("Utilisateur sans employé associé.");
             }
+
+            demandeService.verifierNonCloturee(id);
 
             Demande demande = demandeService.getById(id);
 

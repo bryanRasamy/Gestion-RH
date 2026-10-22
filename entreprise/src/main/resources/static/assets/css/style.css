@@ -3082,3 +3082,22 @@ body.dashboard-page {
     transition-duration: .001ms !important;
   }
 }
+
+/* ============================================================
+   15. CHAMPS DÉSACTIVÉS (page correction)
+   ============================================================ */
+.req-row__field input[disabled] {
+  color: var(--text-3);
+  border-bottom-style: dashed;
+  border-bottom-color: var(--line);
+  cursor: not-allowed;
+  background: transparent;
+}
+
+.req-row__field input[disabled]::placeholder {
+  color: var(--text-4);
+}
+
+.req-row__field input.is-invalid {
+  border-bottom-color: var(--no);
+}

@@ -7,6 +7,7 @@ import gestion.entreprise.vue.*;
 import jakarta.servlet.http.HttpSession;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,15 +50,6 @@ public class DemandeController {
     @Autowired
     private HistoriqueBudgetAnnuelRepository historiqueBudgetAnnuelRepository;
 
-    /**
-     * GET /{roleSigle}/accueil?status=XX&dateMin=YYYY-MM-DD&dateMax=YYYY-MM-DD
-     * UN seul accueil pour tous les rôles, avec if/else.
-     * Workflow:
-     *   MANAGER → ses propres demandes
-     *   RH → demandes avec dernier statut CR par un MANAGER
-     *   FINANCE → demandes avec dernier statut VA par un RH
-     *   DG → demandes avec dernier statut VA par FINANCE
-     */
     @GetMapping("/{roleSigle}/accueil")
     public String accueil(@PathVariable String roleSigle,
                           @RequestParam(required = false) String status,
@@ -75,14 +67,13 @@ public class DemandeController {
                 throw new RuntimeException("Accès non autorisé pour ce rôle.");
             }
 
-            // Parser dates filtres
-            LocalDate dMin = null;
-            LocalDate dMax = null;
-            if (dateMin != null && !dateMin.isEmpty()) {
-                dMin = LocalDate.parse(dateMin);
-            }
-            if (dateMax != null && !dateMax.isEmpty()) {
-                dMax = LocalDate.parse(dateMax);
+            LocalDateTime dMin = null;
+            LocalDateTime dMax = null;
+            try {
+                if (dateMin != null && !dateMin.isEmpty()) dMin = LocalDate.parse(dateMin).atStartOfDay();
+                if (dateMax != null && !dateMax.isEmpty()) dMax = LocalDate.parse(dateMax).atTime(23, 59, 59);
+            } catch (Exception ignored) {
+                // dates invalides : filtre ignoré silencieusement
             }
 
             List<HistoriqueDemandeStatusView> demandes;
@@ -92,29 +83,24 @@ public class DemandeController {
                 demandes = historiqueDemandeStatusService
                         .getDemandesByEmployer(utilisateur.getEmployer().getId());
             } else if (sigleRole.equals("RH")) {
-                // RH voit les demandes créées par un MANAGER
                 demandes = historiqueDemandeStatusService
                         .getDemandesByStatusAndRole("CR", "MANAGER");
             } else if (sigleRole.equals("FINANCE")) {
-                // Finance voit les demandes validées par un RH
                 demandes = historiqueDemandeStatusService
                         .getDemandesByStatusAndRole("VA", "RH");
 
-                // Budget annuel actuel pour Finance
                 HistoriqueBudgetAnnuel budgetActuel = historiqueBudgetAnnuelRepository
-                        .findActiveAtDate(LocalDate.now());
+                        .findActiveAtDate(LocalDateTime.now());
                 if (budgetActuel != null) {
                     model.addAttribute("budgetAnnuel", budgetActuel.getValeur());
                 }
             } else if (sigleRole.equals("DG")) {
-                // DG voit les demandes validées par la FINANCE
                 demandes = historiqueDemandeStatusService
                         .getDemandesByStatusAndRole("VA", "FINANCE");
             } else {
                 demandes = historiqueDemandeStatusService.getDemandesRecent();
             }
 
-            // Filtrage serveur-side
             demandes = historiqueDemandeStatusService.filtrer(demandes, status, dMin, dMax);
 
             model.addAttribute("demandes", demandes);
@@ -130,11 +116,7 @@ public class DemandeController {
         }
     }
 
-    /**
-     * GET /{roleSigle}/demandes/{idDemande}
-     * UN seul détail. Manager = seulement abandonner. Finance = budget.
-     */
-    @GetMapping("/{roleSigle}/demandes/{idDemande}")
+        @GetMapping("/{roleSigle}/demandes/{idDemande}")
     public String detail(@PathVariable String roleSigle,
                          @PathVariable int idDemande,
                          Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -160,30 +142,48 @@ public class DemandeController {
 
             String sigleRole = utilisateur.getRole().getSigle().toUpperCase();
 
-            // Dernier statut
             HistoriqueDemandeStatusView dernierStatut = null;
             if (!historiques.isEmpty()) {
                 dernierStatut = historiques.get(historiques.size() - 1);
             }
 
-            // Manager: s'il y a des corrections "à revoir", on les affiche
             boolean estARevoir = false;
             if (sigleRole.equals("MANAGER") && dernierStatut != null
                     && dernierStatut.getSigle().equalsIgnoreCase("AR")) {
                 estARevoir = true;
-                List<DemandeARevoir> corrections = new ArrayList<>();
-                for (DetailDemande detail : details) {
-                    List<DemandeARevoir> revisions = demandeARevoirRepository
-                            .findByDemandeDetailsId(detail.getId());
-                    for (DemandeARevoir rev : revisions) {
-                        corrections.add(rev);
+
+                // Identifier le correcteur courant (auteur du dernier AR)
+                HistoriqueDemandeStatus histDernierAR = historiqueDemandeStatusService
+                        .getDernierStatutHistorique(idDemande);
+
+                if (histDernierAR != null && histDernierAR.getEmployer() != null) {
+                    int idCorrecteur = histDernierAR.getEmployer().getId();
+
+                    // Ne garder que les corrections du correcteur courant,
+                    // la plus récente par détail (id max)
+                    List<DemandeARevoir> toutes = demandeARevoirRepository
+                            .findByDemandeDetailsDemandeId(idDemande);
+
+                    java.util.Map<Integer, DemandeARevoir> parDetail = new java.util.HashMap<>();
+                    for (DemandeARevoir c : toutes) {
+                        if (c.getDemandeur() == null
+                                || c.getDemandeur().getId() != idCorrecteur) {
+                            continue;
+                        }
+                        int idDetail = c.getDemandeDetails().getId();
+                        DemandeARevoir existant = parDetail.get(idDetail);
+                        if (existant == null || c.getId() > existant.getId()) {
+                            parDetail.put(idDetail, c);
+                        }
                     }
+
+                    model.addAttribute("corrections", new ArrayList<>(parDetail.values()));
+                } else {
+                    model.addAttribute("corrections", new ArrayList<DemandeARevoir>());
                 }
-                model.addAttribute("corrections", corrections);
             }
             model.addAttribute("estARevoir", estARevoir);
 
-            // Finance: calcul du montant et vérification du budget
             if (sigleRole.equals("FINANCE")) {
                 double montant = 0;
                 boolean respecteBudget = false;
@@ -211,10 +211,6 @@ public class DemandeController {
         }
     }
 
-    /**
-     * GET /{roleSigle}/demandes/nouvelle
-     * Formulaire de nouvelle demande (MANAGER uniquement).
-     */
     @GetMapping("/{roleSigle}/demandes/nouvelle")
     public String nouvelleDemande(@PathVariable String roleSigle,
                                   Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -243,10 +239,6 @@ public class DemandeController {
         }
     }
 
-    /**
-     * POST /{roleSigle}/demandes
-     * Sauvegarde de la demande (MANAGER uniquement).
-     */
     @PostMapping("/{roleSigle}/demandes")
     public String sauvegarderDemande(@PathVariable String roleSigle,
                                      Model model, HttpSession session,
@@ -272,7 +264,7 @@ public class DemandeController {
                 throw new RuntimeException("La date limite est obligatoire.");
             }
 
-            if (demande.getDateLimite().isBefore(LocalDate.now())) {
+            if (demande.getDateLimite().isBefore(LocalDateTime.now())) {
                 throw new RuntimeException("La date limite ne peut pas être dans le passé.");
             }
 
@@ -295,7 +287,7 @@ public class DemandeController {
                 }
 
                 if (detailDemande.getAnneeExperience() < 0) {
-                    throw new RuntimeException("L'annee d'expérience ne peut pas être négative.");
+                    throw new RuntimeException("L'année d'expérience ne peut pas être négative.");
                 }
 
                 if (detailDemande.getNbrPersonnel() <= 0) {
@@ -318,11 +310,6 @@ public class DemandeController {
         }
     }
 
-    /**
-     * GET /{roleSigle}/demandes/{idDemande}/correction
-     * Page de correction (comme nouvelle demande mais pré-rempli, seul l'effectif est modifiable).
-     * Tout rôle sauf MANAGER peut y accéder.
-     */
     @GetMapping("/{roleSigle}/demandes/{idDemande}/correction")
     public String pageCorrection(@PathVariable String roleSigle,
                                  @PathVariable int idDemande,
@@ -352,11 +339,6 @@ public class DemandeController {
         }
     }
 
-    /**
-     * POST /{roleSigle}/demandes/{idDemande}/correction
-     * Soumet la correction. Insert dans demande_a_revoir + change statut à AR.
-     * Seul l'effectif est accepté côté serveur.
-     */
     @PostMapping("/{roleSigle}/demandes/{idDemande}/correction")
     public String soumettreCorrection(@PathVariable String roleSigle,
                                       @PathVariable int idDemande,
@@ -379,9 +361,13 @@ public class DemandeController {
                 throw new RuntimeException("Le motif est obligatoire.");
             }
 
+            // Vérification structurelle : mêmes tailles
+            if (detailIds == null || nbSouhaites == null || detailIds.size() != nbSouhaites.size()) {
+                throw new RuntimeException("Données de correction invalides.");
+            }
+
             Demande demande = demandeService.getById(idDemande);
 
-            // Changer le statut à AR
             Status statusAR = historiqueDemandeStatusService.getStatusBySigle("AR");
             if (statusAR == null) {
                 throw new RuntimeException("Statut 'A Revoir' introuvable.");
@@ -389,7 +375,6 @@ public class DemandeController {
 
             historiqueDemandeStatusService.changerStatut(demande, statusAR, utilisateur.getEmployer(), motif.trim());
 
-            // Insérer les snapshots de correction (seul l'effectif)
             if (detailIds != null) {
                 for (int i = 0; i < detailIds.size(); i++) {
                     int detailId = detailIds.get(i);
@@ -404,7 +389,6 @@ public class DemandeController {
                         throw new RuntimeException("Détail de demande introuvable: " + detailId);
                     }
 
-                    // Vérifier que le detail appartient bien à cette demande
                     if (detail.getDemande().getId() != idDemande) {
                         throw new RuntimeException("Ce détail n'appartient pas à cette demande.");
                     }

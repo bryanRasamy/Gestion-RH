@@ -1,7 +1,7 @@
 package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "historique_budget_annuel")
@@ -15,7 +15,7 @@ public class HistoriqueBudgetAnnuel {
     private double valeur;
 
     @Column(name = "date_effective", nullable = false)
-    private LocalDate dateEffective;
+    private LocalDateTime dateEffective;
 
     /*Constructeur*/
     public HistoriqueBudgetAnnuel() {
@@ -31,7 +31,7 @@ public class HistoriqueBudgetAnnuel {
         this.valeur = valeur;
     }
 
-    public void setDateEffective(LocalDate dateEffective) {
+    public void setDateEffective(LocalDateTime dateEffective) {
         this.dateEffective = dateEffective;
     }
 
@@ -44,7 +44,7 @@ public class HistoriqueBudgetAnnuel {
         return valeur;
     }
 
-    public LocalDate getDateEffective() {
+    public LocalDateTime getDateEffective() {
         return dateEffective;
     }
 }

@@ -56,7 +56,7 @@ CREATE TABLE demande(
     id SERIAL PRIMARY KEY,
     matricule VARCHAR(50) NOT NULL UNIQUE,
     id_employer INT NOT NULL,
-    date_limite DATE,
+    date_limite TIMESTAMP,
     FOREIGN KEY (id_employer) REFERENCES employer(id)
 );
 
@@ -86,7 +86,7 @@ CREATE TABLE historique_demande_status(
     id_status INT NOT NULL,
     id_employer INT NOT NULL,
     motif TEXT,
-    date DATE NOT NULL DEFAULT CURRENT_DATE,
+    date TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (id_demande) REFERENCES demande(id),
     FOREIGN KEY (id_status) REFERENCES status(id),
     FOREIGN KEY (id_employer) REFERENCES employer(id)
@@ -99,7 +99,7 @@ CREATE TABLE demande_a_revoir(
     id_demandeur INT NOT NULL,
     id_demande_details INT NOT NULL,
     nb_souhaite INT NOT NULL,
-    id_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    id_date TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (id_demandeur) REFERENCES employer(id),
     FOREIGN KEY (id_demande_details) REFERENCES detail_demande(id)
 );
@@ -110,7 +110,7 @@ CREATE TABLE grille_budget(
     id_poste INT NOT NULL,
     budget_min NUMERIC(15,2) NOT NULL,
     budget_max NUMERIC(15,2) NOT NULL,
-    date_effective DATE NOT NULL DEFAULT CURRENT_DATE,
+    date_effective TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (id_poste) REFERENCES poste(id)
 );
 
@@ -118,7 +118,7 @@ CREATE TABLE grille_budget(
 CREATE TABLE historique_budget_annuel(
     id SERIAL PRIMARY KEY,
     valeur NUMERIC(15,2) NOT NULL,
-    date_effective DATE NOT NULL DEFAULT CURRENT_DATE
+    date_effective TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE VIEW v_historique_demande_status AS
@@ -139,3 +139,8 @@ FROM historique_demande_status h
 JOIN demande d ON d.id = h.id_demande
 JOIN status s ON s.id = h.id_status
 JOIN employer e ON e.id = h.id_employer;
+
+
+ALTER TABLE historique_demande_status
+    ADD CONSTRAINT uk_historique_demande_status_employer
+    UNIQUE (id_demande, id_status, id_employer);

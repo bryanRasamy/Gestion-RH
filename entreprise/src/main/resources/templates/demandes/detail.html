@@ -34,26 +34,24 @@
     <span th:text="${erreur}"></span>
   </p>
 
-  <!-- Infos générales -->
   <section class="detail-section">
     <h2 class="detail-section__title">Informations générales</h2>
     <div class="detail-meta">
-      <span><strong>Matricule:</strong> <span th:text="${demande.matricule}"></span></span>
-      <span><strong>Date limite:</strong>
-        <span th:text="${demande.dateLimite != null ? #temporals.format(demande.dateLimite, 'dd MMMM yyyy') : 'Non définie'}"></span>
+      <span><strong>Matricule :</strong> <span th:text="${demande.matricule}"></span></span>
+      <span><strong>Date limite :</strong>
+        <span th:text="${demande.dateLimite != null ? #temporals.format(demande.dateLimite, 'dd MMMM yyyy HH:mm') : 'Non définie'}"></span>
       </span>
-      <span><strong>Demandeur:</strong>
+      <span><strong>Demandeur :</strong>
         <span th:text="${demande.employer.nom + ' ' + demande.employer.prenom}"></span>
       </span>
     </div>
   </section>
 
-  <!-- Budget (Finance uniquement) -->
   <section class="detail-section" th:if="${afficherBudget}">
     <h2 class="detail-section__title">Analyse budgétaire</h2>
     <div class="budget-card" th:classappend="${respecteBudget ? ' budget-card--ok' : ' budget-card--ko'}">
       <p class="budget-card__montant">
-        Montant estimé de la demande:
+        Montant estimé de la demande :
         <strong th:text="${#numbers.formatDecimal(montant, 0, 'COMMA', 0, 'POINT')} + ' Ar'">0 Ar</strong>
       </p>
       <p class="budget-card__verdict" th:if="${respecteBudget}">✓ Respecte le budget annuel.</p>
@@ -62,7 +60,6 @@
     </div>
   </section>
 
-  <!-- Postes demandés (mode normal, pas à revoir) -->
   <section class="detail-section" th:if="${!estARevoir}">
     <h2 class="detail-section__title">Postes demandés</h2>
     <div class="detail-cards">
@@ -81,14 +78,12 @@
     </div>
   </section>
 
-  <!-- Mode À REVOIR (Manager): original vs correction côte à côte -->
   <section class="detail-section" th:if="${estARevoir}">
     <h2 class="detail-section__title">Demande à revoir — Comparaison</h2>
     <div class="comparison-grid">
       <th:block th:each="detail : ${details}">
         <div class="comparison-pair">
 
-          <!-- Original -->
           <div class="detail-card detail-card--original">
             <div class="detail-card__label">Original</div>
             <div class="detail-card__head">
@@ -103,7 +98,6 @@
             </dl>
           </div>
 
-          <!-- Correction proposée -->
           <th:block th:if="${corrections != null}" th:each="correction : ${corrections}">
             <div class="detail-card detail-card--correction"
                  th:if="${correction.demandeDetails.id == detail.id}">
@@ -124,35 +118,50 @@
       </th:block>
     </div>
 
-    <!-- Manager: abandonner seulement -->
+    <!-- Actions du MANAGER quand la demande est à revoir -->
     <div class="action-bar">
+      <button class="btn btn--accept" id="btnValiderCorrection" th:attr="data-id=${demande.id}">
+        ✓ Valider la correction
+      </button>
       <button class="btn btn--danger" id="btnAbandonner" th:attr="data-id=${demande.id}">
         ✗ Abandonner la demande
       </button>
     </div>
   </section>
 
-  <!-- Actions (tous rôles sauf si estARevoir géré ci-dessus) -->
+  <!-- Actions normales — masquées UNIQUEMENT si la demande est abandonnée (AN) -->
   <section class="detail-section" th:if="${!estARevoir}">
     <h2 class="detail-section__title">Actions</h2>
-    <div class="action-bar">
-      <!-- Manager: seulement abandonner -->
-      <th:block th:if="${roleSigle == 'manager'}">
-        <button class="btn btn--danger" id="btnAbandonnerManager" th:attr="data-id=${demande.id}">
-          ✗ Abandonner la demande
-        </button>
-      </th:block>
-      <!-- Autres rôles: valider, à revoir, refuser -->
-      <th:block th:if="${roleSigle != 'manager'}">
-        <button class="btn btn--accept" id="btnValider" th:attr="data-id=${demande.id}">✓ Valider</button>
-        <a th:href="@{'/' + ${roleSigle} + '/demandes/' + ${demande.id} + '/correction'}"
-           class="btn btn--warning">↩ À revoir</a>
-        <button class="btn btn--danger" id="btnRefuser" th:attr="data-id=${demande.id}">✗ Refuser</button>
-      </th:block>
-    </div>
+
+    <th:block th:with="dernier=${historiques != null and !#lists.isEmpty(historiques) ? historiques[#lists.size(historiques) - 1] : null}">
+
+      <div class="action-bar" th:if="${dernier != null and dernier.sigle == 'AN'}">
+        <p class="req-form__hint" style="margin:0;">
+          Cette demande a été abandonnée (<span th:text="${dernier.libelleEnrichi}"></span>).
+          Aucune action n'est possible.
+        </p>
+      </div>
+
+      <div class="action-bar" th:if="${dernier == null or dernier.sigle != 'AN'}">
+
+        <th:block th:if="${roleSigle == 'manager'}">
+          <button class="btn btn--danger" id="btnAbandonnerManager" th:attr="data-id=${demande.id}">
+            ✗ Abandonner la demande
+          </button>
+        </th:block>
+
+        <th:block th:if="${roleSigle != 'manager'}">
+          <button class="btn btn--accept" id="btnValider" th:attr="data-id=${demande.id}">✓ Valider</button>
+          <a th:href="@{'/' + ${roleSigle} + '/demandes/' + ${demande.id} + '/correction'}"
+             class="btn btn--warning">↩ À revoir</a>
+          <button class="btn btn--danger" id="btnRefuser" th:attr="data-id=${demande.id}">✗ Refuser</button>
+        </th:block>
+
+      </div>
+
+    </th:block>
   </section>
 
-  <!-- Historique des statuts -->
   <section class="detail-section">
     <h2 class="detail-section__title">Historique des statuts</h2>
     <div class="timeline">
@@ -170,14 +179,14 @@
                                  hist.sigle == 'AR' ? ' badge--review' :
                                  hist.sigle == 'AN' ? ' badge--refused' :
                                  ' badge--pending'}"
-                th:text="${hist.libelle}">Statut</span>
+                th:text="${hist.libelleEnrichi}">Statut</span>
           <span class="timeline-item__date"
-                th:text="${#temporals.format(hist.date, 'dd/MM/yyyy')}"></span>
+                th:text="${#temporals.format(hist.date, 'dd/MM/yyyy HH:mm')}"></span>
           <span class="timeline-item__who"
                 th:text="${hist.nomEvaluateur + ' ' + hist.prenomEvaluateur}"></span>
           <p class="timeline-item__motif"
              th:if="${hist.motif != null and !hist.motif.isEmpty()}"
-             th:text="'Motif: ' + ${hist.motif}"></p>
+             th:text="'Motif : ' + ${hist.motif}"></p>
         </div>
       </div>
     </div>
@@ -221,31 +230,37 @@
 
   var roleSigle = /*[[${roleSigle}]]*/ '';
 
+  /* ------------------------------------------------------------
+     Navbar mobile
+     ------------------------------------------------------------ */
   var nav = document.getElementById('appNav');
   var toggle = document.getElementById('appNavToggle');
   if (toggle) {
-    toggle.addEventListener('click', function() {
+    toggle.addEventListener('click', function () {
       var open = nav.classList.toggle('is-open');
       toggle.setAttribute('aria-expanded', open);
     });
   }
 
+  /* ------------------------------------------------------------
+     Helper API
+     ------------------------------------------------------------ */
   function apiCall(url, method, body, callback) {
     var options = { method: method, headers: { 'Content-Type': 'application/json' } };
-    if (body) {
-      options.body = JSON.stringify(body);
-    }
+    if (body) options.body = JSON.stringify(body);
     fetch(url, options)
-      .then(function(r) { return r.json(); })
-      .then(function(data) { callback(data); })
-      .catch(function(err) { alert('Erreur réseau: ' + err); });
+      .then(function (r) { return r.json(); })
+      .then(function (data) { callback(data); })
+      .catch(function (err) { alert('Erreur réseau : ' + err); });
   }
 
   function redirectAccueil() {
     window.location.href = '/' + roleSigle + '/accueil';
   }
 
-  // Modal motif
+  /* ------------------------------------------------------------
+     Modal motif (refuser)
+     ------------------------------------------------------------ */
   var modalMotif    = document.getElementById('modalMotif');
   var modalInput    = document.getElementById('modalMotifInput');
   var modalAnnuler  = document.getElementById('modalAnnuler');
@@ -253,54 +268,81 @@
   var pendingAction = null;
 
   if (modalAnnuler) {
-    modalAnnuler.addEventListener('click', function() {
+    modalAnnuler.addEventListener('click', function () {
       modalMotif.style.display = 'none';
       pendingAction = null;
     });
   }
 
   if (modalConf) {
-    modalConf.addEventListener('click', function() {
+    modalConf.addEventListener('click', function () {
       var motif = modalInput.value.trim();
       if (!motif) { alert('Le motif est obligatoire.'); return; }
-      if (pendingAction) { pendingAction(motif); }
+      if (pendingAction) pendingAction(motif);
       modalMotif.style.display = 'none';
       pendingAction = null;
     });
   }
 
-  // Valider
-  var btnValider = document.getElementById('btnValider');
-  if (btnValider) {
-    btnValider.addEventListener('click', function() {
+  /* ------------------------------------------------------------
+     Valider une correction (MANAGER, statut AR)
+     → POST /api/demandes/{id}/valider-correction
+        Insère les snapshots dans demande_a_revoir + pose le statut VA.
+     ------------------------------------------------------------ */
+  var btnValiderCorrection = document.getElementById('btnValiderCorrection');
+  if (btnValiderCorrection) {
+    btnValiderCorrection.addEventListener('click', function () {
       var id = this.dataset.id;
-      apiCall('/api/demandes/' + id + '/valider', 'POST', null, function(data) {
-        if (data.succes) { redirectAccueil(); } else { alert('Erreur: ' + data.erreur); }
+      apiCall('/api/demandes/' + id + '/valider-correction', 'POST', null, function (data) {
+        if (data.succes) { redirectAccueil(); }
+        else { alert('Erreur: ' + data.erreur); }
       });
     });
   }
 
-  // Refuser
+  /* ------------------------------------------------------------
+     Valider (rôles RH / FINANCE / DG, workflow normal)
+     → POST /api/demandes/{id}/valider
+     ------------------------------------------------------------ */
+  var btnValider = document.getElementById('btnValider');
+  if (btnValider) {
+    btnValider.addEventListener('click', function () {
+      var id = this.dataset.id;
+      apiCall('/api/demandes/' + id + '/valider', 'POST', null, function (data) {
+        if (data.succes) { redirectAccueil(); }
+        else { alert('Erreur: ' + data.erreur); }
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------
+     Refuser (rôles RH / FINANCE / DG) → motif obligatoire
+     → POST /api/demandes/{id}/refuser
+     ------------------------------------------------------------ */
   var btnRefuser = document.getElementById('btnRefuser');
   if (btnRefuser) {
-    btnRefuser.addEventListener('click', function() {
+    btnRefuser.addEventListener('click', function () {
       var id = this.dataset.id;
       modalInput.value = '';
       modalMotif.style.display = 'flex';
-      pendingAction = function(motif) {
-        apiCall('/api/demandes/' + id + '/refuser', 'POST', { motif: motif }, function(data) {
-          if (data.succes) { redirectAccueil(); } else { alert('Erreur: ' + data.erreur); }
+      pendingAction = function (motif) {
+        apiCall('/api/demandes/' + id + '/refuser', 'POST', { motif: motif }, function (data) {
+          if (data.succes) { redirectAccueil(); }
+          else { alert('Erreur: ' + data.erreur); }
         });
       };
     });
   }
 
-  // Abandonner (Manager, mode normal)
+  /* ------------------------------------------------------------
+     Abandonner (MANAGER — mode normal + mode à revoir)
+     → POST /api/demandes/{id}/abandonner
+     ------------------------------------------------------------ */
   var btnAbandonnerManager = document.getElementById('btnAbandonnerManager');
-  var btnAbandonner = document.getElementById('btnAbandonner');
-  var modalAbandon = document.getElementById('modalAbandon');
-  var modalAbandonAnnuler = document.getElementById('modalAbandonAnnuler');
-  var modalAbandonConf = document.getElementById('modalAbandonConfirmer');
+  var btnAbandonner        = document.getElementById('btnAbandonner');
+  var modalAbandon         = document.getElementById('modalAbandon');
+  var modalAbandonAnnuler  = document.getElementById('modalAbandonAnnuler');
+  var modalAbandonConf     = document.getElementById('modalAbandonConfirmer');
 
   function ouvrirModalAbandon(id) {
     modalAbandon.style.display = 'flex';
@@ -308,28 +350,29 @@
   }
 
   if (btnAbandonnerManager) {
-    btnAbandonnerManager.addEventListener('click', function() {
+    btnAbandonnerManager.addEventListener('click', function () {
       ouvrirModalAbandon(this.dataset.id);
     });
   }
 
   if (btnAbandonner) {
-    btnAbandonner.addEventListener('click', function() {
+    btnAbandonner.addEventListener('click', function () {
       ouvrirModalAbandon(this.dataset.id);
     });
   }
 
   if (modalAbandonAnnuler) {
-    modalAbandonAnnuler.addEventListener('click', function() {
+    modalAbandonAnnuler.addEventListener('click', function () {
       modalAbandon.style.display = 'none';
     });
   }
 
   if (modalAbandonConf) {
-    modalAbandonConf.addEventListener('click', function() {
+    modalAbandonConf.addEventListener('click', function () {
       var id = modalAbandon.dataset.id;
-      apiCall('/api/demandes/' + id + '/abandonner', 'POST', null, function(data) {
-        if (data.succes) { redirectAccueil(); } else { alert('Erreur: ' + data.erreur); }
+      apiCall('/api/demandes/' + id + '/abandonner', 'POST', null, function (data) {
+        if (data.succes) { redirectAccueil(); }
+        else { alert('Erreur: ' + data.erreur); }
       });
       modalAbandon.style.display = 'none';
     });

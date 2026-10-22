@@ -1,7 +1,7 @@
 package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "historique_demande_status")
@@ -27,7 +27,7 @@ public class HistoriqueDemandeStatus {
     private String motif;
 
     @Column(name = "date", nullable = false)
-    private LocalDate date = LocalDate.now();
+    private LocalDateTime date = LocalDateTime.now();
 
     /*Constructeur*/
     public HistoriqueDemandeStatus() {
@@ -47,7 +47,7 @@ public class HistoriqueDemandeStatus {
         this.status = status;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
@@ -76,7 +76,7 @@ public class HistoriqueDemandeStatus {
         return employer;
     }
     
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 

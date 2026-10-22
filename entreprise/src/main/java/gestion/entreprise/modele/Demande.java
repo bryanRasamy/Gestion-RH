@@ -1,8 +1,9 @@
 package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "demande")
@@ -20,7 +21,8 @@ public class Demande {
     private Employer employer;
 
     @Column(name = "date_limite")
-    private LocalDate dateLimite;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime dateLimite;
 
     @OneToMany(mappedBy = "demande")
     private List<HistoriqueDemandeStatus> historiques;
@@ -46,7 +48,7 @@ public class Demande {
         this.employer = employer;
     }
 
-    public void setDateLimite(LocalDate dateLimite) {
+    public void setDateLimite(LocalDateTime dateLimite) {
         this.dateLimite = dateLimite;
     }
 
@@ -71,7 +73,7 @@ public class Demande {
         return this.employer;
     }
 
-    public LocalDate getDateLimite() {
+    public LocalDateTime getDateLimite() {
         return this.dateLimite;
     }
     

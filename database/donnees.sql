@@ -38,27 +38,18 @@ INSERT INTO employer (matricule,nom,prenom,telephone,compte,id_poste,salaire) VA
 ('EMP009','Rafidison','Tendry','0381945643','CP009',9,3000000);
 
 -- Utilisateurs avec roles
--- DG: role DG (id=4)
 INSERT INTO utilisateur(id_employer, id_role, email, mdp) VALUES
-(1, 4, 'dg@gmail.com', crypt('dg', gen_salt('bf', 10)));
-
--- RH: role RH (id=2)
+(1, 4, 'dg@gmail.com',       crypt('dg',       gen_salt('bf', 10)));
 INSERT INTO utilisateur(id_employer, id_role, email, mdp) VALUES
-(2, 2, 'rh@gmail.com', crypt('rh', gen_salt('bf', 10)));
-
--- Finance: role FINANCE (id=3)
+(2, 2, 'rh@gmail.com',       crypt('rh',       gen_salt('bf', 10)));
 INSERT INTO utilisateur(id_employer, id_role, email, mdp) VALUES
-(3, 3, 'finance@gmail.com', crypt('finance', gen_salt('bf', 10)));
-
--- Manager IT: role MANAGER (id=1)
+(3, 3, 'finance@gmail.com',  crypt('finance',  gen_salt('bf', 10)));
 INSERT INTO utilisateur(id_employer, id_role, email, mdp) VALUES
-(4, 1, 'manager@gmail.com', crypt('manager', gen_salt('bf', 10)));
-
--- Candidat sans employer ni role
+(4, 1, 'manager@gmail.com',  crypt('manager',  gen_salt('bf', 10)));
 INSERT INTO utilisateur(email, mdp) VALUES
 ('candidat@gmail.com', crypt('candidat', gen_salt('bf', 10)));
 
--- Statuts (Accepter supprimé, on garde uniquement Valider)
+-- Statuts
 INSERT INTO status(libelle, sigle) VALUES
 ('Creer','CR'),
 ('Valider','VA'),
@@ -68,45 +59,44 @@ INSERT INTO status(libelle, sigle) VALUES
 
 -- Demandes (faites par le manager EMP004, employer id=4)
 INSERT INTO demande(matricule, id_employer, date_limite) VALUES
-('DM001', 4, '2026-11-23'),
-('DM002', 4, '2026-11-30'),
-('DM003', 4, '2026-11-30'),
-('DM004', 4, '2026-11-30'),
-('DM005', 4, '2026-11-30'),
-('DM006', 4, '2026-11-30');
+('DM001', 4, '2026-11-23 00:00:00'),
+('DM002', 4, '2026-11-30 00:00:00'),
+('DM003', 4, '2026-11-30 00:00:00'),
+('DM004', 4, '2026-11-30 00:00:00'),
+('DM005', 4, '2026-11-30 00:00:00'),
+('DM006', 4, '2026-11-30 00:00:00');
 
--- Historique statuts (Workflow: CR→VA par RH→VA par Finance→VA par DG)
--- status ids: CR=1, VA=2, RF=3, AR=4, AN=5
+-- Historique statuts (CR=1, VA=2, RF=3, AR=4, AN=5)
 
--- DM001: Creer par manager (employer id=4, status id=1 CR)
+-- DM001: Creer par manager
 INSERT INTO historique_demande_status(id_demande, id_status, id_employer, date) VALUES
-(1, 1, 4, '2026-10-21');
+(1, 1, 4, '2026-10-21 08:00:00');
 
--- DM002: Creer par manager, puis Valider par RH (employer id=2, status id=2 VA)
+-- DM002: Creer par manager, puis Valider par RH
 INSERT INTO historique_demande_status(id_demande, id_status, id_employer, date) VALUES
-(2, 1, 4, '2026-10-21'),
-(2, 2, 2, '2026-10-22');
+(2, 1, 4, '2026-10-21 08:05:00'),
+(2, 2, 2, '2026-10-22 09:30:00');
 
--- DM003: Creer, Valider par RH, Valider par Finance (employer id=3, status id=2 VA)
+-- DM003: Creer, Valider par RH, Valider par Finance
 INSERT INTO historique_demande_status(id_demande, id_status, id_employer, date) VALUES
-(3, 1, 4, '2026-10-21'),
-(3, 2, 2, '2026-10-22'),
-(3, 2, 3, '2026-10-24');
+(3, 1, 4, '2026-10-21 08:10:00'),
+(3, 2, 2, '2026-10-22 10:00:00'),
+(3, 2, 3, '2026-10-24 14:00:00');
 
--- DM004: Creer puis Refuser par RH (status id=3 RF)
+-- DM004: Creer puis Refuser par RH
 INSERT INTO historique_demande_status(id_demande, id_status, id_employer, motif, date) VALUES
-(4, 1, 4, null, '2026-10-21'),
-(4, 3, 2, 'Budget insuffisant pour ce trimestre', '2026-10-25');
+(4, 1, 4, null,                                    '2026-10-21 08:15:00'),
+(4, 3, 2, 'Budget insuffisant pour ce trimestre',  '2026-10-25 11:00:00');
 
--- DM005: Creer puis A Revoir par RH (status id=4 AR)
+-- DM005: Creer puis A Revoir par RH
 INSERT INTO historique_demande_status(id_demande, id_status, id_employer, motif, date) VALUES
-(5, 1, 4, null, '2026-10-21'),
-(5, 4, 2, 'Nombre de postes trop eleve, merci de revoir', '2026-10-26');
+(5, 1, 4, null,                                              '2026-10-21 08:20:00'),
+(5, 4, 2, 'Nombre de postes trop eleve, merci de revoir',   '2026-10-26 15:30:00');
 
--- DM006: Creer puis Annuler (status id=5 AN)
+-- DM006: Creer puis Annuler
 INSERT INTO historique_demande_status(id_demande, id_status, id_employer, date) VALUES
-(6, 1, 4, '2026-10-21'),
-(6, 5, 4, '2026-10-27');
+(6, 1, 4, '2026-10-21 08:25:00'),
+(6, 5, 4, '2026-10-27 16:00:00');
 
 -- Diplomes
 INSERT INTO diplome(annee_etude, nom_diplome) VALUES
@@ -129,21 +119,21 @@ INSERT INTO detail_demande(id_demande, id_poste, id_departement, nbr_personnel, 
 (6, 7, 3, 1, 'Refonte de site web', 1, 1),
 (6, 6, 3, 4, 'Refonte de site web', 1, 2);
 
--- Grille budget (budget max par poste)
+-- Grille budget
 INSERT INTO grille_budget(id_poste, budget_min, budget_max, date_effective) VALUES
-(4, 2000000, 4000000, '2026-01-01'),
-(5, 2500000, 3500000, '2026-01-01'),
-(6, 2000000, 3000000, '2026-01-01'),
-(7, 800000,  1200000, '2026-01-01'),
-(8, 3000000, 4500000, '2026-01-01'),
-(9, 2000000, 3200000, '2026-01-01');
+(4, 2000000, 4000000, '2026-01-01 00:00:00'),
+(5, 2500000, 3500000, '2026-01-01 00:00:00'),
+(6, 2000000, 3000000, '2026-01-01 00:00:00'),
+(7, 800000,  1200000, '2026-01-01 00:00:00'),
+(8, 3000000, 4500000, '2026-01-01 00:00:00'),
+(9, 2000000, 3200000, '2026-01-01 00:00:00');
 
 -- Historique budget annuel
 INSERT INTO historique_budget_annuel(valeur, date_effective) VALUES
-(500000000, '2026-01-01'),
-(600000000, '2027-01-01');
+(500000000, '2026-01-01 00:00:00'),
+(600000000, '2027-01-01 00:00:00');
 
--- Demandes a revoir: snapshot de effectif corrigé pour DM005
+-- Demandes a revoir: snapshot effectif pour DM005
 INSERT INTO demande_a_revoir(id_demandeur, id_demande_details, nb_souhaite, id_date) VALUES
-(2, 9, 1, '2026-10-26'),
-(2, 10, 2, '2026-10-26');
+(2, 9,  1, '2026-10-26 15:31:00'),
+(2, 10, 2, '2026-10-26 15:31:00');

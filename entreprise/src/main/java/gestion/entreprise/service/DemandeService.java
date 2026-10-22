@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -38,7 +38,7 @@ public class DemandeService {
             throw new Exception("La date limite est obligatoire.");
         }
 
-        if (demande.getDateLimite().isBefore(LocalDate.now())) {
+        if (demande.getDateLimite().isBefore(LocalDateTime.now())) {
             throw new Exception("La date limite ne peut pas être dans le passé.");
         }
 
@@ -49,7 +49,7 @@ public class DemandeService {
         List<DetailDemande> detailDemandes = demande.getdetailDemandes();
 
         if (detailDemandes == null || detailDemandes.isEmpty()) {
-            throw new Exception("La demande doit contenir au moins un detail.");
+            throw new Exception("La demande doit contenir au moins un détail.");
         }
 
         for (DetailDemande detailDemande : detailDemandes) {
@@ -57,14 +57,13 @@ public class DemandeService {
                 throw new Exception("Le nombre de personnel doit être strictement positif.");
             }
             if (detailDemande.getAnneeExperience() < 0) {
-                throw new Exception("L'annee d'expérience ne peut pas être négative.");
+                throw new Exception("L'année d'expérience ne peut pas être négative.");
             }
             detailDemande.setDemande(saved);
             detailDemandeRepository.save(detailDemande);
         }
 
         Status status = statusRepository.findBySigle("CR");
-
         if (status == null) {
             throw new Exception("Status 'Creer' introuvable.");
         }
@@ -73,7 +72,7 @@ public class DemandeService {
         hist.setDemande(saved);
         hist.setEmployer(saved.getEmployer());
         hist.setStatus(status);
-        hist.setDate(LocalDate.now());
+        hist.setDate(LocalDateTime.now());
 
         historiqueRepository.save(hist);
 
@@ -96,11 +95,31 @@ public class DemandeService {
         return demandeRepository.findByCurrentStatus(idStatus);
     }
 
-    /*
-     * getMontant pour un detail: nbr_personnel * budget_max du poste pour ce poste
-     * La grille est cherchée à la date de création de la demande.
+    /**
+     * Vérifie que la demande n'est pas ABANDONNÉE (AN).
+     * Une demande annulée est définitivement clôturée : aucune transition possible.
+     *
+     * Les statuts VA (validée) et RF (refusée) ne bloquent PAS : le workflow
+     * multi-niveaux (RH → Finance → DG) peut encore faire évoluer la demande.
+     *
+     * @throws Exception si le dernier statut est AN
      */
-    public double getMontantDetailDemande(DetailDemande detail, LocalDate dateReference) throws Exception {
+    public void verifierNonCloturee(int idDemande) throws Exception {
+        HistoriqueDemandeStatus dernier = historiqueRepository.findLatestByDemande(idDemande);
+        if (dernier == null || dernier.getStatus() == null) {
+            return;
+        }
+
+        String sigle = dernier.getStatus().getSigle();
+        if ("AN".equalsIgnoreCase(sigle)) {
+            throw new Exception("Cette demande a été abandonnée. Aucune action n'est possible.");
+        }
+    }
+
+    /**
+     * Montant d'un détail : nbr_personnel × budget_max du poste à la date de référence.
+     */
+    public double getMontantDetailDemande(DetailDemande detail, LocalDateTime dateReference) throws Exception {
         if (detail.getNbrPersonnel() <= 0) {
             throw new Exception("Le nombre de personnel est invalide.");
         }
@@ -108,7 +127,7 @@ public class DemandeService {
         GrilleBudget grille = grilleBudgetRepository.findActiveByPosteAndDate(detail.getPoste().getId(), dateReference);
 
         if (grille == null) {
-            throw new Exception("Aucune grille budgétaire trouvée pour le poste: " + detail.getPoste().getLibelle());
+            throw new Exception("Aucune grille budgétaire trouvée pour le poste : " + detail.getPoste().getLibelle());
         }
 
         if (grille.getBudgetMax() < 0) {
@@ -118,15 +137,15 @@ public class DemandeService {
         return detail.getNbrPersonnel() * grille.getBudgetMax();
     }
 
-    /*
-     * getMontant pour une demande: somme de getMontantDetailDemande pour chaque detail
-     * La date de référence est la date de création (premier historique).
+    /**
+     * Montant total d'une demande calculé à sa DATE DE CRÉATION
+     * (première ligne d'historique), et non à la date du dernier changement.
      */
     public double getMontantDemande(Demande demande) throws Exception {
         List<DetailDemande> details = detailDemandeRepository.findByDemandeId(demande.getId());
 
-        HistoriqueDemandeStatus premier = historiqueRepository.findLatestByDemande(demande.getId());
-        LocalDate dateCreation = (premier != null) ? premier.getDate() : LocalDate.now();
+        HistoriqueDemandeStatus premiere = historiqueRepository.findFirstByDemande(demande.getId());
+        LocalDateTime dateCreation = (premiere != null) ? premiere.getDate() : LocalDateTime.now();
 
         double total = 0;
         for (DetailDemande detail : details) {
@@ -135,13 +154,13 @@ public class DemandeService {
         return total;
     }
 
-    /*
-     * respecteLeBudget: compare le montant de la demande avec le budget annuel actif
-     * à la date de création de la demande.
+    /**
+     * Compare le montant de la demande (calculé à sa date de création)
+     * au budget annuel actif à cette même date.
      */
     public boolean respecteLeBudget(Demande demande) throws Exception {
-        HistoriqueDemandeStatus premier = historiqueRepository.findLatestByDemande(demande.getId());
-        LocalDate dateCreation = (premier != null) ? premier.getDate() : LocalDate.now();
+        HistoriqueDemandeStatus premiere = historiqueRepository.findFirstByDemande(demande.getId());
+        LocalDateTime dateCreation = (premiere != null) ? premiere.getDate() : LocalDateTime.now();
 
         HistoriqueBudgetAnnuel budget = historiqueBudgetAnnuelRepository.findActiveAtDate(dateCreation);
 

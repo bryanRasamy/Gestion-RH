@@ -1,7 +1,7 @@
 package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "grille_budget")
@@ -22,7 +22,7 @@ public class GrilleBudget {
     private double budgetMax;
 
     @Column(name = "date_effective", nullable = false)
-    private LocalDate dateEffective;
+    private LocalDateTime dateEffective;
 
     /*Constructeur*/
     public GrilleBudget() {
@@ -46,7 +46,7 @@ public class GrilleBudget {
         this.budgetMax = budgetMax;
     }
 
-    public void setDateEffective(LocalDate dateEffective) {
+    public void setDateEffective(LocalDateTime dateEffective) {
         this.dateEffective = dateEffective;
     }
 
@@ -67,7 +67,7 @@ public class GrilleBudget {
         return budgetMax;
     }
 
-    public LocalDate getDateEffective() {
+    public LocalDateTime getDateEffective() {
         return dateEffective;
     }
 }

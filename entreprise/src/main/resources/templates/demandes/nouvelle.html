@@ -54,7 +54,7 @@
             <div class="req-form__deadline">
                 <label for="deadline" class="req-form__deadline-label">Date limite</label>
                 <div class="req-form__deadline-control">
-                    <input type="date" id="deadline" th:field="*{dateLimite}" required>
+                    <input type="datetime-local" id="deadline" th:field="*{dateLimite}" required>
                 </div>
                 <p th:if="${#fields.hasErrors('dateLimite')}" th:errors="*{dateLimite}"></p>
             </div>

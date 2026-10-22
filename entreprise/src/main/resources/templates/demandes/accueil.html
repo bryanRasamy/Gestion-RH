@@ -36,25 +36,23 @@
     <span th:text="${succes}"></span>
   </p>
 
-  <!-- Budget annuel pour Finance -->
   <div class="budget-card budget-card--ok" th:if="${budgetAnnuel != null}" style="margin-bottom: 24px;">
     <p class="budget-card__montant">
-      Budget annuel de l'entreprise:
+      Budget annuel de l'entreprise :
       <strong th:text="${#numbers.formatDecimal(budgetAnnuel, 0, 'COMMA', 0, 'POINT')} + ' Ar'">0 Ar</strong>
     </p>
   </div>
 
-  <!-- Filtres server-side -->
   <form class="dashboard__filters" method="get" th:action="@{'/' + ${roleSigle} + '/accueil'}">
     <div class="filter-group">
       <label for="status" class="filter-label">Statut</label>
       <select name="status" id="status" class="filter-input">
         <option value="">Tous</option>
-        <option value="CR" th:selected="${filterStatus == 'CR'}">Creer</option>
-        <option value="VA" th:selected="${filterStatus == 'VA'}">Valider</option>
-        <option value="RF" th:selected="${filterStatus == 'RF'}">Refuser</option>
-        <option value="AR" th:selected="${filterStatus == 'AR'}">A Revoir</option>
-        <option value="AN" th:selected="${filterStatus == 'AN'}">Annuler</option>
+        <option value="CR" th:selected="${filterStatus == 'CR'}">Créée</option>
+        <option value="VA" th:selected="${filterStatus == 'VA'}">Validée</option>
+        <option value="RF" th:selected="${filterStatus == 'RF'}">Refusée</option>
+        <option value="AR" th:selected="${filterStatus == 'AR'}">À revoir</option>
+        <option value="AN" th:selected="${filterStatus == 'AN'}">Annulée</option>
       </select>
     </div>
     <div class="filter-group">
@@ -84,10 +82,10 @@
                                demande.sigle == 'AR' ? ' badge--review' :
                                demande.sigle == 'AN' ? ' badge--refused' :
                                ' badge--pending'}"
-              th:text="${demande.libelle}">Creer</span>
+              th:text="${demande.libelleEnrichi}">Validé par RH</span>
       </div>
       <h3 class="req-card__ref" th:text="${demande.matricule}">DM001</h3>
-      <p class="req-card__meta" th:text="'Mis à jour le ' + ${#temporals.format(demande.date, 'dd MMMM yyyy')}">Date</p>
+      <p class="req-card__meta" th:text="'Mis à jour le ' + ${#temporals.format(demande.date, 'dd MMMM yyyy HH:mm')}">Date</p>
       <div class="req-card__foot">
         <a th:href="@{'/' + ${roleSigle} + '/demandes/' + ${demande.idDemande}}" class="req-card__link">
           Voir détail

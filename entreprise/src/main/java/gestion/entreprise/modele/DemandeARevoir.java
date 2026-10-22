@@ -1,7 +1,7 @@
 package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "demande_a_revoir")
@@ -23,7 +23,7 @@ public class DemandeARevoir {
     private int nbSouhaite;
 
     @Column(name = "id_date", nullable = false)
-    private LocalDate idDate = LocalDate.now();
+    private LocalDateTime idDate = LocalDateTime.now();
 
     /*Constructeur*/
     public DemandeARevoir() {
@@ -47,7 +47,7 @@ public class DemandeARevoir {
         this.nbSouhaite = nbSouhaite;
     }
 
-    public void setIdDate(LocalDate idDate) {
+    public void setIdDate(LocalDateTime idDate) {
         this.idDate = idDate;
     }
 
@@ -68,7 +68,7 @@ public class DemandeARevoir {
         return nbSouhaite;
     }
 
-    public LocalDate getIdDate() {
+    public LocalDateTime getIdDate() {
         return idDate;
     }
 }
