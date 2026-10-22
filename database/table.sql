@@ -92,3 +92,29 @@ FROM historique_demande_status h
 JOIN demande d ON d.id = h.id_demande
 JOIN status s ON s.id = h.id_status
 JOIN employer e ON e.id=h.id_employer;
+
+
+CREATE TABLE candidat(
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_utilisateur INT NOT NULL,
+    id_detail_demande INT NOT NULL,
+    cv BYTEA NOT NULL,
+    cv_nom VARCHAR(255) NOT NULL,
+    lm BYTEA,
+    lm_nom VARCHAR(255),
+    status VARCHAR(50) NOT NULL DEFAULT 'En attente',
+    date_postulation DATE NOT NULL DEFAULT CURRENT_DATE,
+    prenom VARCHAR(100) NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    telephone VARCHAR(20),
+    titre VARCHAR(100) NOT NULL,
+    resume TEXT,
+    dernier_poste VARCHAR(100),
+    entreprise VARCHAR(100),
+    diplome VARCHAR(100),
+    ecole VARCHAR(100),
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id),
+    FOREIGN KEY (id_detail_demande) REFERENCES detail_demande(id),
+    UNIQUE (id_utilisateur, id_detail_demande)
+);
