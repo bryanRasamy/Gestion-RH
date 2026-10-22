@@ -41,6 +41,16 @@ public class DemandeRestController {
 
             demandeService.verifierNonCloturee(id);
 
+            // BLOQUE la validation "normale" si la demande est en AR.
+            // Une demande AR doit passer par /valider-correction (MANAGER).
+            HistoriqueDemandeStatus dernier = historiqueDemandeStatusService
+                    .getDernierStatutHistorique(id);
+            if (dernier != null && dernier.getStatus() != null
+                    && "AR".equalsIgnoreCase(dernier.getStatus().getSigle())) {
+                throw new RuntimeException(
+                    "Cette demande est à revoir. Seul le manager peut valider la correction.");
+            }
+
             Demande demande = demandeService.getById(id);
 
             Status statusValider = statusRepository.findBySigle("VA");
@@ -61,11 +71,6 @@ public class DemandeRestController {
         }
     }
 
-    /**
-     * POST /api/demandes/{id}/valider-correction
-     * Réservé au MANAGER quand la demande est en statut AR.
-     * Insère les snapshots dans demande_a_revoir, puis pose le statut VA.
-     */
     @PostMapping("/{id}/valider-correction")
     public ResponseEntity<Map<String, Object>> validerCorrection(@PathVariable int id,
             @RequestBody(required = false) Map<String, String> body,

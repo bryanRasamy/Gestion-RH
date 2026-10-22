@@ -19,10 +19,10 @@ public class LoginController {
 
     @Autowired
     private UtilisateurService utilisateurService;
-    
+
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
+
     @GetMapping("/")
     public String index() {
         return "redirect:/login";
@@ -58,7 +58,8 @@ public class LoginController {
             Role role = utilisateur.getRole();
 
             if (role == null) {
-                return "redirect:/accueil";
+                // Candidat → espace offres
+                return "redirect:/offres";
             }
 
             return "redirect:/" + role.getSigle().toLowerCase() + "/accueil";
@@ -90,24 +91,24 @@ public class LoginController {
                 throw new RuntimeException("Le mot de passe trop court (8 caractères minimum)");
             }
 
-            try {
-                utilisateurService.findUtilisateur(utilisateur);
-            } catch (Exception e) {
-                if (utilisateur.getId() > 0) {
-                    throw new RuntimeException("L'utilisateur existe déjà");
-                }
-
-                utilisateur.setId(0);
-                utilisateur.setEmployer(null);
-                utilisateur.setRole(null);
-                utilisateur.setMdp(passwordEncoder.encode(utilisateur.getMdp()));
+            // Vérification d'unicité de l'email (sans dépendre d'une exception)
+            if (utilisateurService.emailExiste(utilisateur.getEmail())) {
+                throw new RuntimeException("Un compte existe déjà avec cet e-mail");
             }
+
+            // Forcer un nouvel utilisateur (pas d'id, pas d'employer, pas de rôle)
+            utilisateur.setId(0);
+            utilisateur.setEmployer(null);
+            utilisateur.setRole(null);
+            utilisateur.setMdp(passwordEncoder.encode(utilisateur.getMdp()));
 
             utilisateurService.saveUtilisateur(utilisateur);
 
             session.setAttribute("idUtilisateur", utilisateur.getId());
 
-            return "redirect:/accueil";
+            // Nouvel inscrit = candidat → espace offres
+            return "redirect:/offres";
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
             return "redirect:/inscription";

@@ -66,6 +66,13 @@ public class UtilisateurService {
     }
 
     /**
+ * Vérifie si un email existe déjà en base.
+ */
+public boolean emailExiste(String email) {
+    return utilisateurRepository.findByEmail(email) != null;
+}
+
+    /**
      * UNE seule méthode d'authentification.
      * Récupère l'utilisateur en session, ajoute les attributs au model si model != null.
      * Le contrôle de rôle se fait dans le controller appelant avec if/else.

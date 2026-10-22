@@ -146,8 +146,8 @@ CREATE TABLE candidat(
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_utilisateur INT NOT NULL,
     id_detail_demande INT NOT NULL,
-    cv_nom VARCHAR(255) NOT NULL UNIQUE,
-    lm_nom VARCHAR(255) NOT NULL UNIQUE,
+    cv_nom VARCHAR(255) NOT NULL,
+    lm_nom VARCHAR(255),
     status VARCHAR(50) NOT NULL DEFAULT 'En attente',
     date_postulation DATE NOT NULL DEFAULT CURRENT_DATE,
     prenom VARCHAR(100) NOT NULL,
@@ -189,3 +189,4 @@ FROM historique_demande_status h
 JOIN demande d ON d.id = h.id_demande
 JOIN status s ON s.id = h.id_status
 JOIN employer e ON e.id = h.id_employer;
+

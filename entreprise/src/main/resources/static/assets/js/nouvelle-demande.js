@@ -5,10 +5,8 @@
        État
        ============================================================ */
     let DEPARTEMENTS = [];
-    const postesParDept = {};   // cache : idDepartement -> liste de postes
+    const postesParDept = {};
     let nextId = 1;
-
-    // Liste des diplômes disponibles dans la liste déroulante
     let DIPLOMES = [];
 
     /* ============================================================
@@ -100,7 +98,7 @@
         const dept = document.getElementById("departementId");
         const sel  = row.querySelector('.poste');
         if (!dept || !sel) return;
-        
+
         const idDept = dept.value;
         sel.innerHTML = '<option value="">Sélectionner un poste…</option>';
         if (!idDept) return;
@@ -139,7 +137,7 @@
 
       <div class="req-row__field req-row__field--diplome">
         <label for="diplome-${n}" class="req-row__label-mobile">Diplôme</label>
-        <select id="diplome-${n}" name="detailDemandes[0].diplome"
+        <select id="diplome-${n}" name="detailDemandes[0].diplome.id"
                 class="diplome" required>
           <option value="">Sélectionner un diplôme…</option>
           ${optionsDiplomesHtml()}
@@ -301,7 +299,6 @@
         e.preventDefault();
         if (success) success.classList.remove('is-visible');
 
-        /* --- Validation date limite --- */
         let ok = true;
         const deadlineVal = deadline.value;
         const deadlineBlock = document.getElementById('deadlineBlock');
@@ -323,7 +320,6 @@
             ok = false;
         }
 
-        /* --- Validation des lignes --- */
         rowsEl.querySelectorAll('.req-row').forEach(row => {
             const dept    = row.querySelector('.departement');
             const sel     = row.querySelector('.poste');
@@ -347,7 +343,6 @@
             if (!motif || !motif.value.trim())      { if (motif) motif.classList.add('is-invalid');   ok = false; }
         });
 
-        /* --- Focus sur la première erreur --- */
         if (!ok) {
             if (deadline.classList.contains('is-invalid')) {
                 deadline.focus();
@@ -359,13 +354,12 @@
             return;
         }
 
-        /* --- Envoi réel --- */
-        updateState();                       // indices 0..n-1 sans trou
+        updateState();
         if (submitBtn) {
             submitBtn.classList.add('is-loading');
             submitBtn.disabled = true;
         }
-        form.submit();                       // ne redéclenche pas l'évènement "submit"
+        form.submit();
     });
 
     /* ============================================================
@@ -388,7 +382,7 @@
     }
 
     /* ============================================================
-       Démarrage : départements d'abord, puis la première ligne
+       Démarrage
        ============================================================ */
     Promise.all([chargerDepartements(), chargerDiplomes()])
     .then(() => addRow(false));

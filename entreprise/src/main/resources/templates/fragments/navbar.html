@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<body>
 
-<!-- Fragment: navbar -->
+<!-- Fragment: navbar (backoffice) -->
 <nav th:fragment="navbar" class="app-nav" id="appNav">
   <div class="app-nav__inner">
 
-    <a th:href="@{'/' + ${role != null ? role.sigle.toLowerCase() : ''} + '/accueil'}" class="logo" aria-label="Pivot — accueil">
+    <a th:href="@{'/' + ${role != null ? role.sigle.toLowerCase() : ''} + '/accueil'}"
+       class="logo" aria-label="Pivot — accueil">
       <span class="logo__mark" aria-hidden="true">
         <svg viewBox="0 0 32 32" width="17" height="17">
           <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
@@ -21,7 +23,6 @@
         <a th:href="@{'/' + ${role != null ? role.sigle.toLowerCase() : ''} + '/accueil'}"
            class="app-nav__link">Demandes</a>
       </li>
-      <!-- Nouvelle demande visible seulement pour MANAGER -->
       <li th:if="${role != null and role.sigle == 'MANAGER'}">
         <a th:href="@{'/' + ${role.sigle.toLowerCase()} + '/demandes/nouvelle'}"
            class="app-nav__link">Nouvelle demande</a>
@@ -53,4 +54,5 @@
   </div>
 </nav>
 
+</body>
 </html>

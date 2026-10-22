@@ -46,7 +46,7 @@ public class DemandeService {
 
         Demande saved = demandeRepository.save(demande);
 
-        List<DetailDemande> detailDemandes = demande.getdetailDemandes();
+        List<DetailDemande> detailDemandes = demande.getDetailDemandes();
 
         if (detailDemandes == null || detailDemandes.isEmpty()) {
             throw new Exception("La demande doit contenir au moins un détail.");

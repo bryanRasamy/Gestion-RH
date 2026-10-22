@@ -81,8 +81,8 @@
           <div class="field__control">
             <select id="idDiplome" name="idDiplome" required>
               <option value="" disabled th:selected="${candidat.idDiplome == null}">Sélectionnez un diplôme...</option>
-              <option th:each="d : ${diplomes}" th:value="${d.id}" th:text="${d.nomDiplome}"
-                      th:selected="${d.id == candidat.idDiplome}"></option>
+<option th:each="d : ${diplomes}" th:value="${d.id}" th:text="${d.nomDiplome}"
+        th:selected="${candidat.idDiplome != null and d.id == candidat.idDiplome}"></option>
             </select>
           </div>
         </div>

@@ -254,7 +254,8 @@ public class DemandeController {
                 throw new RuntimeException("Seuls les managers peuvent créer des demandes.");
             }
 
-            List<DetailDemande> detailDemandes = demande.getdetailDemandes();
+            List<DetailDemande> detailDemandes = demande.getDetailDemandes();
+
 
             if (detailDemandes == null || detailDemandes.isEmpty()) {
                 throw new RuntimeException("Vous devez ajouter au moins un poste.");
