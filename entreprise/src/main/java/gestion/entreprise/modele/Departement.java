@@ -19,6 +19,9 @@ public class Departement {
     @OneToMany(mappedBy = "departement")
     private List<Poste> postes;
 
+    @OneToMany(mappedBy = "departement")
+    private List<DetailDemande> detailDemandes;
+
     /*Constructeur*/
     public Departement() {
 
@@ -41,6 +44,10 @@ public class Departement {
         this.postes = postes;
     }
 
+    public void setDetailDemandes(List<DetailDemande> detailDemandes) {
+        this.detailDemandes = detailDemandes;
+    }
+
     /*Getters*/
     public int getId() {
         return id;
@@ -56,6 +63,10 @@ public class Departement {
 
     public List<Poste> getPostes() {
         return this.postes;
+    }
+
+    public List<DetailDemande> getdetailDemandes() {
+        return this.detailDemandes;
     }
     
 }

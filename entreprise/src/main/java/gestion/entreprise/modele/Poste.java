@@ -1,11 +1,11 @@
 package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "poste")
 public class Poste {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -22,6 +22,9 @@ public class Poste {
 
     @Column(name = "salaire", nullable = false)
     private Double salaire;
+
+    @OneToMany(mappedBy = "poste")
+    private List<DetailDemande> detailDemandes;
 
     /*Constructeur*/
     public Poste(){
@@ -49,6 +52,10 @@ public class Poste {
         this.salaire = salaire; 
     }
 
+    public void setDetailDemandes(List<DetailDemande> detailDemandes) {
+        this.detailDemandes = detailDemandes;
+    }
+
     /*Getters*/
     public int getId() {
         return id;
@@ -68,6 +75,10 @@ public class Poste {
     
     public Double getSalaire() {
         return salaire;
+    }
+
+    public List<DetailDemande> getdetailDemandes() {
+        return this.detailDemandes;
     }
     
 }
