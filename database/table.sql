@@ -76,18 +76,33 @@ CREATE TABLE historique_demande_status(
     FOREIGN KEY (id_employer) REFERENCES employer(id)
 );
 
+CREATE TABLE offre(
+    id SERIAL PRIMARY KEY,
+    id_detail_demande INT NOT NULL,
+    nb_pers_recrute INT,
+    date_limite DATE NOT NULL DEFAULT CURRENT_DATE,
+    FOREIGN KEY (id_detail_demande) REFERENCES detail_demande(id)
+);
+
+CREATE TABLE status_candidat(
+    id SERIAL PRIMARY KEY,
+    libelle VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE candidat(
     id SERIAL PRIMARY KEY,
+    id_offre INT NOT NULL,
     id_user INT NOT NULL,
-    id_detail_demande INT NOT NULL,
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
     telephone VARCHAR(20),
+    ---de champs hafa ilaina am cv -- 
     cv VARCHAR(100),
     lm VARCHAR(100),
-    status VARCHAR(50) NOT NULL DEFAULT 'En attente',
+    id_status INT NOT NULL 
+    FOREIGN KEY (id_status) REFERENCES status_candidat(id),
+    FOREIGN KEY (id_offre) REFERENCES offre(id),
     FOREIGN KEY (id_user) REFERENCES utilisateur(id)
-    FOREIGN KEY (id_detail_demande) REFERENCES detail_demande(id)
 );
 
 CREATE VIEW v_historique_demande_status AS
