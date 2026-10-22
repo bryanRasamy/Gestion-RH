@@ -9,17 +9,16 @@ INSERT INTO roles (roles) VALUES ('RH'), ('Manager'), ('Finance'), ('DG')
 ON CONFLICT (roles) DO NOTHING;
 
 ALTER TABLE utilisateur ADD COLUMN IF NOT EXISTS id_role INT;
-DO $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.columns
-               WHERE table_name = 'utilisateur' AND column_name = 'role') THEN
-        UPDATE utilisateur u SET id_role = r.id
-        FROM roles r
-        WHERE lower(u.role) = lower(r.roles) AND u.id_role IS NULL;
-        ALTER TABLE utilisateur DROP CONSTRAINT IF EXISTS utilisateur_role_fkey;
-        ALTER TABLE utilisateur DROP COLUMN role;
-    END IF;
-END $$;
+
+-- ⚠️ L'UPDATE ci-dessous ne fonctionne que si la colonne "role" existe encore.
+--    Sur une base déjà migrée, il échouera (colonne absente).
+UPDATE utilisateur u SET id_role = r.id
+FROM roles r
+WHERE lower(u.role) = lower(r.roles) AND u.id_role IS NULL;
+
+ALTER TABLE utilisateur DROP CONSTRAINT IF EXISTS utilisateur_role_fkey;
+ALTER TABLE utilisateur DROP COLUMN IF EXISTS role;
+
 ALTER TABLE utilisateur DROP CONSTRAINT IF EXISTS utilisateur_id_role_fkey;
 ALTER TABLE utilisateur ADD CONSTRAINT utilisateur_id_role_fkey
     FOREIGN KEY (id_role) REFERENCES roles(id);
@@ -68,15 +67,9 @@ ALTER TABLE demande ADD COLUMN IF NOT EXISTS commentaire TEXT;
 ALTER TABLE demande ADD COLUMN IF NOT EXISTS nbr_personnel_propose INT;
 ALTER TABLE demande ADD COLUMN IF NOT EXISTS traite BOOLEAN NOT NULL DEFAULT FALSE;
 
-DO $$
-BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.columns
-               WHERE table_name = 'detail_demande' AND column_name = 'motif')
-       AND NOT EXISTS (SELECT 1 FROM information_schema.columns
-                       WHERE table_name = 'detail_demande' AND column_name = 'description') THEN
-        ALTER TABLE detail_demande RENAME COLUMN motif TO description;
-    END IF;
-END $$;
+-- ⚠️ RENAME COLUMN n'a pas de IF EXISTS : échouera si "motif" n'existe pas
+--    (base déjà migrée). Sur une base vierge (schema initial), c'est OK.
+ALTER TABLE detail_demande RENAME COLUMN motif TO description;
 
 CREATE TABLE IF NOT EXISTS demande_statut (
     id SERIAL PRIMARY KEY,

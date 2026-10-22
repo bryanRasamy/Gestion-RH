@@ -1,12 +1,15 @@
 package gestion.entreprise.service;
 
+import gestion.entreprise.modele.DetailDemande;
 import gestion.entreprise.modele.GrilleBudget;
 import gestion.entreprise.modele.HistoriqueBudgetAnnuel;
 import gestion.entreprise.repository.DetailDemandeRepository;
 import gestion.entreprise.repository.GrilleBudgetRepository;
 import gestion.entreprise.repository.HistoriqueBudgetAnnuelRepository;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class BudgetService {
