@@ -7,7 +7,7 @@ import java.time.LocalDate;
 @Table(name = "historique_budget_annuel")
 public class HistoriqueBudgetAnnuel {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private int id;
-    @Column(nullable = false) private Double valeur;
+    @Column(nullable = false, columnDefinition = "numeric(10,2)") private Double valeur;
     @Column(name = "date_effective", nullable = false) private LocalDate dateEffective;
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

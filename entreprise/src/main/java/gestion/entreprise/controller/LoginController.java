@@ -10,9 +10,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.ui.Model;
 
 import gestion.entreprise.modele.*;
+import gestion.entreprise.repository.RoleRepository;
 import gestion.entreprise.service.*;
-// import gestion.entreprise.repository.*;
-// import gestion.entreprise.vue.*;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -22,6 +21,9 @@ public class LoginController {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RoleRepository roleRepository;
     
     @GetMapping("/")
     public String index() {
@@ -52,11 +54,27 @@ public class LoginController {
             }
 
             utilisateur.setMdp(null);
-
             session.setAttribute("idUtilisateur", utilisateur.getId());
+            session.setAttribute("idRole", utilisateur.getIdRole());
 
             if (utilisateur.getIdRole() > 0) {
-                return "redirect:/workflow/" + utilisateur.getIdRole();
+                Role role = roleRepository.findOneById(utilisateur.getIdRole());
+                if (role != null) {
+                    String libelle = role.getLibelle();
+                    if ("RH".equalsIgnoreCase(libelle)) {
+                        return "redirect:/rh/accueil";
+                    }
+                    if ("Finance".equalsIgnoreCase(libelle)) {
+                        return "redirect:/finance/accueil";
+                    }
+                    if ("DG".equalsIgnoreCase(libelle)) {
+                        return "redirect:/dg/accueil";
+                    }
+                    if ("Manager".equalsIgnoreCase(libelle)) {
+                        return "redirect:/manager/accueil";
+                    }
+                }
+                return "redirect:/login";
             }
 
             Employer employer = utilisateur.getEmployer();

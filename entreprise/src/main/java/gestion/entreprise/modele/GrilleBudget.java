@@ -9,8 +9,8 @@ public class GrilleBudget {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "id_poste", nullable = false) private int idPoste;
-    @Column(name = "budget_min", nullable = false) private Double budgetMin;
-    @Column(name = "budget_max", nullable = false) private Double budgetMax;
+    @Column(name = "budget_min", columnDefinition = "numeric(10,2)", nullable = false) private Double budgetMin;
+    @Column(name = "budget_max", columnDefinition = "numeric(10,2)", nullable = false) private Double budgetMax;
     @Column(name = "date_effective", nullable = false) private LocalDate dateEffective;
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

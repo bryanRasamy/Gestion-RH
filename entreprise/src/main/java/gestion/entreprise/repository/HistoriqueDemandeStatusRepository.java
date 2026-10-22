@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface HistoriqueDemandeStatusRepository extends JpaRepository<HistoriqueDemandeStatus, Integer> {
 	HistoriqueDemandeStatus findTopByIdDemandeOrderByIdDesc(int idDemande);
+	HistoriqueDemandeStatus findTopByIdDemandeOrderByDateDescIdDesc(int idDemande);
 	List<HistoriqueDemandeStatus> findByIdDemandeOrderByIdAsc(int idDemande);
 	List<HistoriqueDemandeStatus> findByLibelleOrderByDateAsc(String libelle);
 }

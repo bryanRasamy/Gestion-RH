@@ -3,6 +3,7 @@ package gestion.entreprise.service;
 import gestion.entreprise.modele.Demande;
 import gestion.entreprise.modele.DetailDemande;
 import gestion.entreprise.modele.HistoriqueDemandeStatus;
+import gestion.entreprise.modele.Status;
 import gestion.entreprise.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,13 +18,16 @@ public class DemandeService {
     private final DemandeRepository demandeRepository;
     private final DetailDemandeRepository detailDemandeRepository;
     private final HistoriqueDemandeStatusRepository historiqueRepository;
+    private final StatusRepository statusRepository;
 
     public DemandeService(DemandeRepository demandeRepository,
                           DetailDemandeRepository detailDemandeRepository,
-                          HistoriqueDemandeStatusRepository historiqueRepository) {
+                          HistoriqueDemandeStatusRepository historiqueRepository,
+                          StatusRepository statusRepository) {
         this.demandeRepository = demandeRepository;
         this.detailDemandeRepository = detailDemandeRepository;
         this.historiqueRepository = historiqueRepository;
+        this.statusRepository = statusRepository;
     }
 
     @Transactional
@@ -51,6 +55,22 @@ public class DemandeService {
             detail.setDescription(description != null ? description.toString() : (String) ligne.get("motif"));
             detailDemandeRepository.save(detail);
         }
+
+        // 3. Initialiser le workflow (Manager -> statut créé)
+        Status statutInitial = statusRepository.findByLibelleIgnoreCase("cree");
+        if (statutInitial == null) {
+            statutInitial = statusRepository.findByLibelleIgnoreCase("creer");
+        }
+        if (statutInitial == null) {
+            throw new IllegalStateException("Le statut 'cree' est absent de la base.");
+        }
+
+        HistoriqueDemandeStatus historique = new HistoriqueDemandeStatus();
+        historique.setIdDemande(saved.getId());
+        historique.setLibelle(statutInitial.getLibelle());
+        historique.setIdEmploye(idEmployer);
+        historique.setDate(LocalDate.now());
+        historiqueRepository.save(historique);
 
         return saved;
     }

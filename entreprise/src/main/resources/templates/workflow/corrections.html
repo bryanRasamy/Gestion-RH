@@ -16,11 +16,11 @@
             <p th:text="${correction.commentaire}">Commentaire</p>
             <p th:if="${correction.nbrPersonnelPropose != null}"
                th:text="'Personnel propose : ' + ${correction.nbrPersonnelPropose}">Personnel propose</p>
-            <form method="post" th:action="@{'/workflow/manager/corrections/' + ${correction.id} + '/decision'}">
+            <form method="post" th:action="@{'/validation/manager/corrections/' + ${correction.id} + '/decision'}">
                 <input type="hidden" name="accepter" value="true">
                 <button type="submit">Accepter la correction</button>
             </form>
-            <form method="post" th:action="@{'/workflow/manager/corrections/' + ${correction.id} + '/decision'}">
+            <form method="post" th:action="@{'/validation/manager/corrections/' + ${correction.id} + '/decision'}">
                 <input type="hidden" name="accepter" value="false">
                 <button type="submit">Abandonner</button>
             </form>

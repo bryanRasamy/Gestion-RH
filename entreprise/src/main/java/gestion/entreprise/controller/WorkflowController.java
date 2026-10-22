@@ -10,7 +10,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 
 @Controller
-@RequestMapping("/workflow")
+@RequestMapping({"/validation", "/workflow"})
 public class WorkflowController {
     private final StatutDemande statutService;
     private final CorrectionDemandeService correctionService;
@@ -49,6 +49,6 @@ public class WorkflowController {
         } catch (RuntimeException exception) {
             redirectAttributes.addFlashAttribute("erreur", exception.getMessage());
         }
-        return "redirect:/workflow/manager/corrections";
+        return "redirect:/validation/manager/corrections";
     }
 }

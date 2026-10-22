@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class StatutDemande {
@@ -53,8 +54,8 @@ public class StatutDemande {
         Status expire = statut("expire");
         for (Demande demande : demandes) {
             HistoriqueDemandeStatus courant = courant(demande.getId());
-            if (courant == null || estExpirable(courant)) {
-                ajouterStatut(demande, expire, demande.getIdEmployer(), null);
+            if (courant != null && estExpirable(courant)) {
+                ajouterStatut(demande, expire, null, "Expiration automatique");
                 demande.setTraite(true);
                 demandeRepository.save(demande);
             }
@@ -85,29 +86,42 @@ public class StatutDemande {
                         String motif, Integer propose) {
         Demande demande = demandeRepository.findOneById(idDemande);
         if (demande == null) throw new IllegalArgumentException("Demande introuvable.");
+
+        if (demande.getDateLimite() != null && demande.getDateLimite().isBefore(LocalDate.now())) {
+            expirerDemandes();
+            throw new IllegalStateException("La demande est expirée et ne peut plus être traitée.");
+        }
+
         HistoriqueDemandeStatus dernier = courant(idDemande);
+        if (dernier == null) {
+            throw new IllegalStateException("La demande n'a pas de statut courant.");
+        }
+        if (estFinal(dernier.getLibelle())) {
+            throw new IllegalStateException("La demande est déjà clôturée.");
+        }
         if (!estAccessible(dernier, idRole)) {
             throw new IllegalStateException("La demande a deja ete traitee par une autre etape.");
         }
         if (decision == null || decision.isBlank()) {
             throw new IllegalArgumentException("La decision est obligatoire.");
         }
-        String decisionNormalisee = decision.toLowerCase();
-        if ("refuse".equals(decisionNormalisee) && (motif == null || motif.isBlank())) {
+        String decisionNormalisee = normaliser(decision);
+        if (estRefus(decisionNormalisee) && (motif == null || motif.isBlank())) {
             throw new IllegalArgumentException("Le motif du refus est obligatoire.");
         }
-        if ("valider".equals(decisionNormalisee) && roleEst(idRole, "Finance")
+        if (estValider(decisionNormalisee) && roleEst(idRole, "Finance")
                 && !budgetService.estDansBudget(idDemande)) {
             throw new IllegalStateException("Le budget annuel ne permet pas cette validation.");
         }
-        if ("a revoir".equals(decisionNormalisee) || "a_revoir".equals(decisionNormalisee)) {
+        if (estARevoir(decisionNormalisee)) {
             demanderRevision(demande, idEmploye, motif, propose);
             return;
         }
-        Status statut = statut(decisionNormalisee);
+
+        Status statut = estRefus(decisionNormalisee) ? statut("refuser", "refuse") : statut("valider");
         if (statut == null) throw new IllegalArgumentException("Statut inconnu dans la base.");
         ajouterStatut(demande, statut, idEmploye, motif);
-        if ("refuse".equalsIgnoreCase(statut.getLibelle()) || roleEst(idRole, "DG")) {
+        if (estRefus(statut.getLibelle()) || roleEst(idRole, "DG")) {
             demande.setTraite(true);
             demandeRepository.save(demande);
         }
@@ -125,32 +139,39 @@ public class StatutDemande {
             retour.setNbrPersonnelPropose(propose);
             revoirRepository.save(retour);
         }
-        ajouterStatut(demande, statut("a revoir"), idEmploye, commentaire);
+        ajouterStatut(demande, statut("a revoir", "a_revoir"), idEmploye, commentaire);
     }
 
-    public Status statut(String libelle) {
-        return statusRepository.findByLibelleIgnoreCase(libelle);
+    public Status statut(String... libelles) {
+        if (libelles == null) return null;
+        for (String libelle : libelles) {
+            if (libelle == null || libelle.isBlank()) continue;
+            Status status = statusRepository.findByLibelleIgnoreCase(libelle);
+            if (status != null) return status;
+        }
+        return null;
     }
 
     private HistoriqueDemandeStatus courant(int idDemande) {
-        return historiqueRepository.findTopByIdDemandeOrderByIdDesc(idDemande);
+        return historiqueRepository.findTopByIdDemandeOrderByDateDescIdDesc(idDemande);
     }
 
     private boolean estExpirable(HistoriqueDemandeStatus historique) {
-        String libelle = historique.getLibelle();
-        Status valider = statut("valider");
-        Status revoir = statut("a revoir");
-        return (valider != null && valider.getLibelle().equalsIgnoreCase(libelle))
-            || (revoir != null && revoir.getLibelle().equalsIgnoreCase(libelle));
+        String libelle = normaliser(historique.getLibelle());
+        return estCree(libelle) || estValider(libelle) || estARevoir(libelle);
     }
 
     private boolean estAccessible(HistoriqueDemandeStatus historique, int idRole) {
-        if (historique == null) {
+        if (historique == null) return false;
+
+        String libelle = normaliser(historique.getLibelle());
+        if (estCree(libelle)) {
             return roleEst(idRole, "RH");
         }
-        Status valider = statut("valider");
-        if (valider == null || !valider.getLibelle().equalsIgnoreCase(historique.getLibelle())) return false;
-        return prochaineEtape(historique.getIdEmploye(), idRole);
+        if (estValider(libelle)) {
+            return prochaineEtape(historique.getIdEmploye(), idRole);
+        }
+        return false;
     }
 
     private boolean prochaineEtape(Integer idEmploye, int idRole) {
@@ -170,7 +191,7 @@ public class StatutDemande {
         return role != null && libelle.equalsIgnoreCase(role.getLibelle());
     }
 
-    private void ajouterStatut(Demande demande, Status statut, int idEmploye, String motif) {
+    private void ajouterStatut(Demande demande, Status statut, Integer idEmploye, String motif) {
         if (statut == null) throw new IllegalStateException("Le statut demande est absent de la base.");
         HistoriqueDemandeStatus historique = new HistoriqueDemandeStatus();
         historique.setIdDemande(demande.getId());
@@ -179,5 +200,37 @@ public class StatutDemande {
         historique.setDate(LocalDate.now());
         historique.setMotif(motif);
         historiqueRepository.save(historique);
+    }
+
+    private boolean estFinal(String libelle) {
+        String statut = normaliser(libelle);
+        return "expire".equals(statut)
+                || "abandone".equals(statut)
+                || estRefus(statut);
+    }
+
+    private String normaliser(String valeur) {
+        if (valeur == null) return "";
+        return valeur.trim().toLowerCase(Locale.ROOT)
+                .replace("à", "a")
+                .replace('_', ' ');
+    }
+
+    private boolean estValider(String libelle) {
+        return "valider".equals(normaliser(libelle)) || "valide".equals(normaliser(libelle));
+    }
+
+    private boolean estARevoir(String libelle) {
+        return "a revoir".equals(normaliser(libelle));
+    }
+
+    private boolean estRefus(String libelle) {
+        String statut = normaliser(libelle);
+        return "refuser".equals(statut) || "refuse".equals(statut);
+    }
+
+    private boolean estCree(String libelle) {
+        String statut = normaliser(libelle);
+        return "cree".equals(statut) || "creer".equals(statut) || "cree".equals(statut);
     }
 }

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/workflow")
+@RequestMapping({"/api/validation", "/api/workflow"})
 public class WorkflowRestController {
     private final StatutDemande statutService;
     private final BudgetService budgetService;

@@ -20,7 +20,7 @@ public class Poste {
     @Column(name = "sigle", nullable = false)
     private String sigle;
 
-    @Column(name = "salaire", nullable = false)
+    @Column(name = "salaire", nullable = false, columnDefinition = "numeric(10,2)")
     private Double salaire;
 
     /*Constructeur*/

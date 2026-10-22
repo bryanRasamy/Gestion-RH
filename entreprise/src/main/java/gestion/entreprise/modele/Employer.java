@@ -29,7 +29,7 @@ public class Employer {
     @JoinColumn(name = "id_poste")
     private Poste poste;
 
-    @Column(name = "salaire")
+    @Column(name = "salaire", columnDefinition = "numeric(10,2)")
     private Double salaire;
 
     /*Constructeur*/
