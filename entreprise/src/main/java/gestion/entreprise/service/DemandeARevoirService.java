@@ -28,14 +28,11 @@ public class DemandeARevoirService {
 
     @Transactional
     public void demanderRevision(int idDemande, int idEmployer, String etapeDemandeuse,
-                                 int[] details, String[] commentaires, int[] nombres) {
-        Demande demande = demandeRepository.getReferenceById(idDemande);
-        if (demande.getEmployer().getId() != idEmployer) {
-            throw new RuntimeException("Cette demande ne vous appartient pas");
-        }
-        if (details == null || commentaires == null || nombres == null || details.length == 0
-            || details.length != commentaires.length || details.length != nombres.length) {
-            throw new RuntimeException("Les détails de la révision sont incomplets");
+                                 int idDetail, String commentaire, int nombrePropose,
+                                 boolean annulerPoste) {
+        Demande demande = demandeRepository.findFirstById(idDemande);
+        if (demande == null) {
+            throw new RuntimeException("Demande introuvable");
         }
         String statut = statutService.statutCourant(idDemande);
         if (!"créé".equalsIgnoreCase(statut) && !"validé RH".equalsIgnoreCase(statut)
@@ -49,25 +46,32 @@ public class DemandeARevoirService {
             throw new RuntimeException("Le rôle ne correspond pas à l'étape actuelle");
         }
 
-        for (int index = 0; index < details.length; index++) {
-            String commentaire = commentaires[index];
-            if (commentaire == null || commentaire.trim().isEmpty()) {
-                throw new RuntimeException("Un commentaire est requis pour chaque ligne à revoir");
-            }
-            DemandeARevoir revision = new DemandeARevoir();
-            revision.setMpangataka(employerRepository.getReferenceById(idEmployer));
-            DetailDemande detail = detailRepository.findFirstById(details[index]);
-            if (detail == null || detail.getDemande().getId() != idDemande) {
-                throw new RuntimeException("Une ligne de révision ne correspond pas à la demande");
-            }
-            revision.setDetailDemande(detail);
-            revision.setEtapeDemandeuse(etapeDemandeuse);
-            revision.setDate(LocalDate.now());
-            revision.setCommentaire(commentaire);
-            revision.setNbrPersonnelPropose(nombres[index]);
-            revision.setTraite(false);
-            revisionRepository.save(revision);
+        if (commentaire == null || commentaire.trim().isEmpty()) {
+            throw new RuntimeException("Un commentaire est requis pour la ligne à revoir");
         }
+        if (nombrePropose < 0) {
+            throw new RuntimeException("Le nombre proposé ne peut pas être négatif");
+        }
+        if (annulerPoste) {
+            nombrePropose = 0;
+        }
+
+        DetailDemande detail = detailRepository.findFirstById(idDetail);
+        if (detail == null || detail.getDemande().getId() != idDemande) {
+            throw new RuntimeException("La ligne de révision ne correspond pas à la demande");
+        }
+
+        DemandeARevoir revision = new DemandeARevoir();
+        revision.setMpangataka(employerRepository.getReferenceById(idEmployer));
+        revision.setDetailDemande(detail);
+        revision.setEtapeDemandeuse(etapeDemandeuse);
+        revision.setDate(LocalDate.now());
+        revision.setCommentaire(commentaire);
+        revision.setNbrPersonnelPropose(nombrePropose);
+        revision.setAnnulerPoste(annulerPoste);
+        revision.setTraite(false);
+        revisionRepository.save(revision);
+
         statutService.changer(idDemande, "à revoir", idEmployer, null);
     }
 
@@ -82,9 +86,14 @@ public class DemandeARevoirService {
         return resultats;
     }
 
-    public List<DemandeARevoir> correctionsDemande(int idDemande, int idEmployer) {
+    public List<DemandeARevoir> correctionsToutes() {
+        return revisionRepository.findAllByTraiteFalse();
+    }
+
+    public List<DemandeARevoir> correctionsDemande(int idDemande, int idEmployer,
+                                                   boolean superAdmin) {
         Demande demande = demandeRepository.findFirstById(idDemande);
-        if (demande == null || demande.getEmployer().getId() != idEmployer) {
+        if (demande == null || (!superAdmin && demande.getEmployer().getId() != idEmployer)) {
             throw new RuntimeException("Cette demande ne vous appartient pas");
         }
         if (!"à revoir".equalsIgnoreCase(statutService.statutCourant(idDemande))) {
@@ -94,9 +103,9 @@ public class DemandeARevoirService {
     }
 
     @Transactional
-    public void accepterCorrection(int idDemande, int idEmployer) {
+    public void accepterCorrection(int idDemande, int idEmployer, boolean superAdmin) {
         Demande demande = demandeRepository.getReferenceById(idDemande);
-        if (demande.getEmployer().getId() != idEmployer) {
+        if (!superAdmin && demande.getEmployer().getId() != idEmployer) {
             throw new RuntimeException("Cette demande ne vous appartient pas");
         }
         List<DemandeARevoir> revisions = revisionRepository.findAllByDetailDemande_Demande_IdAndTraiteFalse(idDemande);
@@ -109,7 +118,10 @@ public class DemandeARevoirService {
             if (!etape.equalsIgnoreCase(revision.getEtapeDemandeuse())) {
                 throw new RuntimeException("Les corrections de plusieurs étapes doivent être traitées séparément");
             }
-            if (revision.getNbrPersonnelPropose() > 0) {
+            if (revision.isAnnulerPoste()) {
+                revision.getDetailDemande().setNbrPersonnel(0);
+                detailRepository.save(revision.getDetailDemande());
+            } else if (revision.getNbrPersonnelPropose() > 0) {
                 revision.getDetailDemande().setNbrPersonnel(revision.getNbrPersonnelPropose());
                 detailRepository.save(revision.getDetailDemande());
             }
@@ -120,9 +132,9 @@ public class DemandeARevoirService {
     }
 
     @Transactional
-    public void abandonner(int idDemande, int idEmployer) {
+    public void abandonner(int idDemande, int idEmployer, boolean superAdmin) {
         Demande demande = demandeRepository.getReferenceById(idDemande);
-        if (demande.getEmployer().getId() != idEmployer) {
+        if (!superAdmin && demande.getEmployer().getId() != idEmployer) {
             throw new RuntimeException("Cette demande ne vous appartient pas");
         }
         statutService.changer(idDemande, "abandonné", idEmployer, null);

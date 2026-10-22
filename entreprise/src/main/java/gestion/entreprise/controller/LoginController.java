@@ -58,7 +58,7 @@ public class LoginController {
                 return "redirect:/rh/accueil";
             }
             if ("DG".equals(role)) {
-                return "redirect:/dg/accueil";
+                return "redirect:/departements/accueil";
             }
             if ("FINANCE".equals(role)) {
                 return "redirect:/finance/accueil";

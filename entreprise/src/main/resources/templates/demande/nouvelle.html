@@ -21,8 +21,8 @@
 
     <header class="req-form__top">
         <div>
-            <p class="eyebrow">Espace manager</p>
-            <h1>Créer une demande</h1>
+            <p class="eyebrow" th:text="${superAdmin ? 'Super administrateur DG' : 'Espace manager'}"></p>
+            <h1 th:text="${superAdmin ? 'Créer une demande pour un département' : 'Créer une demande'}"></h1>
         </div>
         <p class="req-form__count">Circuit de validation</p>
     </header>

@@ -38,16 +38,19 @@ public class DemandeController {
                                  Model model, RedirectAttributes redirectAttributes) {
         try {
             int id = roleService.convertirId(idUtilisateur);
+            boolean superAdmin = roleService.estSuperAdmin(id);
             roleService.verifierRole(id, "MANAGER");
             int idEmployer = roleService.employerConnecte(id);
-            List<Demande> demandes = demandeService.demandesDuManager(idEmployer);
+            List<Demande> demandes = superAdmin ? demandeService.toutesLesDemandes()
+                : demandeService.demandesDuManager(idEmployer);
             List<String> statuts = new java.util.ArrayList<>();
             for (Demande demande : demandes) {
                 statuts.add(demandeService.statut(demande.getId()));
             }
             model.addAttribute("demandes", demandes);
             model.addAttribute("statuts", statuts);
-            model.addAttribute("role", "Manager");
+            model.addAttribute("superAdmin", superAdmin);
+            model.addAttribute("role", superAdmin ? "Super administrateur DG" : "Manager");
             return "demande/accueil";
         } catch (RuntimeException erreur) {
             redirectAttributes.addFlashAttribute("erreur", erreur.getMessage());
@@ -61,10 +64,11 @@ public class DemandeController {
                                 Model model, RedirectAttributes redirectAttributes) {
         try {
             int idUtilisateurConnecte = roleService.convertirId(idUtilisateur);
+            boolean superAdmin = roleService.estSuperAdmin(idUtilisateurConnecte);
             roleService.verifierRole(idUtilisateurConnecte, "MANAGER");
             int idEmployer = roleService.employerConnecte(idUtilisateurConnecte);
             Demande demande = demandeService.demande(id);
-            if (demande.getEmployer().getId() != idEmployer) {
+            if (!superAdmin && demande.getEmployer().getId() != idEmployer) {
                 throw new RuntimeException("Cette demande ne vous appartient pas");
             }
 
@@ -74,7 +78,7 @@ public class DemandeController {
             model.addAttribute("role", "MANAGER");
             model.addAttribute("retour", "/departements/accueil");
             if ("à revoir".equalsIgnoreCase(demandeService.statut(id))) {
-                model.addAttribute("corrections", revisionService.correctionsDemande(id, idEmployer));
+                model.addAttribute("corrections", revisionService.correctionsDemande(id, idEmployer, superAdmin));
                 model.addAttribute("modeCorrection", true);
             }
             return "demande/detail";
@@ -89,8 +93,10 @@ public class DemandeController {
                                   Model model, RedirectAttributes redirectAttributes) {
         try {
             int id = roleService.convertirId(idUtilisateur);
+            boolean superAdmin = roleService.estSuperAdmin(id);
             roleService.verifierRole(id, "MANAGER");
             chargerFormulaire(model);
+            model.addAttribute("superAdmin", superAdmin);
             return "demande/nouvelle";
         } catch (RuntimeException erreur) {
             redirectAttributes.addFlashAttribute("erreur", erreur.getMessage());
@@ -106,8 +112,10 @@ public class DemandeController {
                                @RequestParam(name = "nombres", required = false) int[] nombres,
                                @RequestParam(name = "descriptions", required = false) String[] descriptions,
                                Model model, RedirectAttributes redirectAttributes) {
+        boolean superAdmin = false;
         try {
             int id = roleService.convertirId(idUtilisateur);
+            superAdmin = roleService.estSuperAdmin(id);
             roleService.verifierRole(id, "MANAGER");
             LocalDate limite = dateLimite == null || dateLimite.isEmpty() ? null : LocalDate.parse(dateLimite);
             Demande demande = demandeService.creerDemande(roleService.employerConnecte(id), limite,
@@ -117,6 +125,7 @@ public class DemandeController {
         } catch (RuntimeException erreur) {
             model.addAttribute("erreur", erreur.getMessage());
             chargerFormulaire(model);
+            model.addAttribute("superAdmin", superAdmin);
             return "demande/nouvelle";
         }
     }

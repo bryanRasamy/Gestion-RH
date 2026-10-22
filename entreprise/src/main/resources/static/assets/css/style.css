@@ -584,6 +584,12 @@ body.dashboard-page{ display: block; }
 }
 .form__success.is-visible{ opacity: 1; transform: translateY(0); }
 .form__success svg{ flex: none; margin-top: 1px; color: var(--accent-ink); }
+.form__success.is-visible:not(.is-error){
+  border-left-color: var(--ok);
+  background: rgba(44,90,66,.08);
+  color: var(--ok);
+}
+.form__success.is-visible:not(.is-error) svg{ color: var(--ok); }
 .form__success.is-error{
   border-left-color: var(--no);
   background: rgba(138,46,35,.07);
@@ -1572,7 +1578,27 @@ body.dashboard-page{ display: block; }
   font-size: 14px;
 }
 .review-form textarea{ min-height: 76px; resize: vertical; }
+.review-form input:disabled{
+  opacity: .45;
+  cursor: not-allowed;
+}
 .review-form button{ justify-self: start; }
+.review-form .review-checkbox{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.review-form .review-checkbox input{
+  width: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  appearance: auto;
+  accent-color: var(--accent-ink);
+}
 .budget-summary{
   display: flex;
   align-items: center;

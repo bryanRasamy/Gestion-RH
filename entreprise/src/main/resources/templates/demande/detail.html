@@ -22,7 +22,7 @@
     </div>
 
     <header class="dashboard__head">
-        <p class="eyebrow" th:text="${role == 'MANAGER' ? 'Détail de ma demande' : 'Examen de la demande'}"></p>
+        <p class="eyebrow" th:text="${superAdmin ? 'Super administrateur DG' : role == 'MANAGER' ? 'Détail de ma demande' : 'Examen de la demande'}"></p>
         <h1 class="req-detail__title" th:text="${demande.matricule}"></h1>
         <p class="dashboard__count" th:text="${'Statut actuel : ' + statut}"></p>
     </header>
@@ -83,14 +83,18 @@
             <form class="review-form" th:if="${role != 'MANAGER'}"
                   th:action="@{'/' + ${role.toLowerCase()} + '/demande/' + ${demande.id} + '/revision'}"
                   method="post">
-                <input type="hidden" name="detailIds" th:value="${detail.id}">
+                <input type="hidden" name="detailId" th:value="${detail.id}">
                 <label>
                     Commentaire de révision
-                    <textarea name="commentaires" required></textarea>
+                    <textarea name="commentaire" required></textarea>
                 </label>
                 <label>
-                    Nombre proposé (0 = aucun changement)
-                    <input type="number" name="nombres" min="0" value="0">
+                    Effectif proposé (0 = conserver l’effectif demandé)
+                    <input type="number" name="nombrePropose" min="0" value="0">
+                </label>
+                <label class="review-checkbox">
+                    <input type="checkbox" name="annulerPoste" value="true">
+                    Ne pas recruter pour ce poste
                 </label>
                 <button class="button-link button-link--quiet" type="submit">Demander une révision</button>
             </form>
@@ -109,7 +113,7 @@
             <p class="req-status__text" th:text="${correction.commentaire}"></p>
             <p class="req-status__text">
                 Effectif proposé :
-                <span th:text="${correction.nbrPersonnelPropose == 0 ? 'Non précisé' : correction.nbrPersonnelPropose}"></span>
+                <span th:text="${correction.annulerPoste ? 'Aucun recrutement pour ce poste' : correction.nbrPersonnelPropose == 0 ? 'Effectif inchangé' : correction.nbrPersonnelPropose}"></span>
             </p>
         </div>
         <div class="detail-actions">
@@ -147,5 +151,15 @@
         </form>
     </div>
 </main>
+<script>
+document.querySelectorAll('.review-form').forEach(function (form) {
+    const annulerPoste = form.querySelector('[name="annulerPoste"]');
+    const nombrePropose = form.querySelector('[name="nombrePropose"]');
+
+    annulerPoste.addEventListener('change', function () {
+        nombrePropose.disabled = annulerPoste.checked;
+    });
+});
+</script>
 </body>
 </html>

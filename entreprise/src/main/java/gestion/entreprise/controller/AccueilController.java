@@ -15,8 +15,7 @@ public class AccueilController {
     private RoleService roleService;
 
     @GetMapping("/accueil")
-    public String accueil(@SessionAttribute(name = "idUtilisateur", required = false) String idUtilisateur,
-                          Model model, RedirectAttributes redirectAttributes) {
+    public String accueil(@SessionAttribute(name = "idUtilisateur", required = false) String idUtilisateur,Model model, RedirectAttributes redirectAttributes) {
         try {
             int id = roleService.convertirId(idUtilisateur);
             roleService.verifierRole(id, "NORMAL");

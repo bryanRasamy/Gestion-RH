@@ -31,6 +31,9 @@ public class DemandeARevoir {
     @Column(name = "nbr_personnel_propose", nullable = false)
     private int nbrPersonnelPropose;
 
+    @Column(name = "annuler_poste", nullable = false)
+    private boolean annulerPoste;
+
     @Column(name = "traite", nullable = false)
     private boolean traite;
 
@@ -87,6 +90,14 @@ public class DemandeARevoir {
 
     public void setNbrPersonnelPropose(int nbrPersonnelPropose) {
         this.nbrPersonnelPropose = nbrPersonnelPropose;
+    }
+
+    public boolean isAnnulerPoste() {
+        return annulerPoste;
+    }
+
+    public void setAnnulerPoste(boolean annulerPoste) {
+        this.annulerPoste = annulerPoste;
     }
 
     public boolean isTraite() {

@@ -73,6 +73,10 @@ public class DemandeService {
         return demandeRepository.findAllByEmployer_IdOrderByIdDesc(idEmployer);
     }
 
+    public List<Demande> toutesLesDemandes() {
+        return demandeRepository.findAllByOrderByIdDesc();
+    }
+
     public Demande demande(int idDemande) {
         Demande demande = demandeRepository.findFirstById(idDemande);
         if (demande == null) {

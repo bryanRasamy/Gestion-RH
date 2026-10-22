@@ -87,6 +87,7 @@ public class ValidationController {
             model.addAttribute("budgetGlobal", budgetGlobal);
             model.addAttribute("budgetConfigure", budgetConfigure);
             model.addAttribute("role", roleAttendu);
+            model.addAttribute("superAdmin", roleService.estSuperAdmin(id));
             model.addAttribute("statut", statut);
             return "demande/validation";
         } catch (RuntimeException erreur) {
@@ -115,6 +116,7 @@ public class ValidationController {
             model.addAttribute("details", demandeService.details(id));
             model.addAttribute("statut", statutAttendu);
             model.addAttribute("role", roleAttendu);
+            model.addAttribute("superAdmin", roleService.estSuperAdmin(idUtilisateurConnecte));
             model.addAttribute("retour", "/" + role.toLowerCase() + "/accueil");
             if ("FINANCE".equals(roleAttendu)) {
                 try {
@@ -179,16 +181,18 @@ public class ValidationController {
     @PostMapping("/{role}/demande/{id}/revision")
     public String demanderRevision(@PathVariable String role, @PathVariable int id,
                                    @SessionAttribute(name = "idUtilisateur", required = false) String idUtilisateur,
-                                   @RequestParam(name = "detailIds", required = false) int[] details,
-                                   @RequestParam(name = "commentaires", required = false) String[] commentaires,
-                                   @RequestParam(name = "nombres", required = false) int[] nombres,
+                                   @RequestParam(name = "detailId") int detailId,
+                                   @RequestParam(name = "commentaire", required = false) String commentaire,
+                                   @RequestParam(name = "nombrePropose", defaultValue = "0") int nombrePropose,
+                                   @RequestParam(name = "annulerPoste", defaultValue = "false") boolean annulerPoste,
                                    RedirectAttributes redirectAttributes) {
         try {
             int idUser = roleService.convertirId(idUtilisateur);
             String roleAttendu = role.toUpperCase();
             verifierRoleValidation(idUser, roleAttendu);
             String etape = "FINANCE".equals(roleAttendu) ? "Finance" : roleAttendu;
-            revisionService.demanderRevision(id, roleService.employerConnecte(idUser), etape, details, commentaires, nombres);
+            revisionService.demanderRevision(id, roleService.employerConnecte(idUser), etape,
+                detailId, commentaire, nombrePropose, annulerPoste);
             redirectAttributes.addFlashAttribute("succes", "La demande a été envoyée en révision");
         } catch (RuntimeException erreur) {
             redirectAttributes.addFlashAttribute("erreur", erreur.getMessage());

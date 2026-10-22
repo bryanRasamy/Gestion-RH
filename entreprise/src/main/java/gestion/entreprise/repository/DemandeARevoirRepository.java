@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DemandeARevoirRepository extends JpaRepository<DemandeARevoir, Integer> {
     List<DemandeARevoir> findAllByDetailDemande_Demande_IdAndTraiteFalse(int idDemande);
+    List<DemandeARevoir> findAllByTraiteFalse();
 }

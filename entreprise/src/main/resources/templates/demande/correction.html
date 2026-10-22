@@ -11,7 +11,7 @@
     <header class="page-header">
         <div>
             <a class="back-link" href="/departements/accueil">Retour aux demandes</a>
-            <p class="eyebrow">Espace manager</p>
+            <p class="eyebrow" th:text="${superAdmin ? 'Super administrateur DG' : 'Espace manager'}"></p>
             <h1>Corrections à traiter</h1>
         </div>
         <form action="/logout" method="post">
@@ -39,7 +39,7 @@
             <p class="card__meta" th:text="${revision.commentaire}"></p>
             <p class="card__meta">
                 Effectif proposé :
-                <span th:text="${revision.nbrPersonnelPropose == 0 ? 'Non précisé' : revision.nbrPersonnelPropose}"></span>
+                <span th:text="${revision.annulerPoste ? 'Aucun recrutement pour ce poste' : revision.nbrPersonnelPropose == 0 ? 'Effectif inchangé' : revision.nbrPersonnelPropose}"></span>
             </p>
             <div class="req-card__foot">
                 <span class="req-card__link">

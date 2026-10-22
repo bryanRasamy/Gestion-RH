@@ -1,5 +1,6 @@
 package gestion.entreprise.controller;
 
+import gestion.entreprise.modele.DemandeARevoir;
 import gestion.entreprise.service.DemandeARevoirService;
 import gestion.entreprise.service.DemandeService;
 import gestion.entreprise.service.RoleService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.List;
 
 @Controller
 public class CorrectionController {
@@ -29,8 +31,13 @@ public class CorrectionController {
                           Model model, RedirectAttributes redirectAttributes) {
         try {
             int id = roleService.convertirId(idUtilisateur);
+            boolean superAdmin = roleService.estSuperAdmin(id);
             roleService.verifierRole(id, "MANAGER");
-            model.addAttribute("corrections", revisionService.correctionsManager(roleService.employerConnecte(id)));
+            List<DemandeARevoir> corrections = superAdmin
+                ? revisionService.correctionsToutes()
+                : revisionService.correctionsManager(roleService.employerConnecte(id));
+            model.addAttribute("corrections", corrections);
+            model.addAttribute("superAdmin", superAdmin);
             return "demande/correction";
         } catch (RuntimeException erreur) {
             redirectAttributes.addFlashAttribute("erreur", erreur.getMessage());
@@ -44,13 +51,15 @@ public class CorrectionController {
                                    Model model, RedirectAttributes redirectAttributes) {
         try {
             int idUtilisateurConnecte = roleService.convertirId(idUtilisateur);
+            boolean superAdmin = roleService.estSuperAdmin(idUtilisateurConnecte);
             roleService.verifierRole(idUtilisateurConnecte, "MANAGER");
             int idEmployer = roleService.employerConnecte(idUtilisateurConnecte);
             model.addAttribute("demande", demandeService.demande(id));
             model.addAttribute("details", demandeService.details(id));
             model.addAttribute("statut", demandeService.statut(id));
-            model.addAttribute("corrections", revisionService.correctionsDemande(id, idEmployer));
+            model.addAttribute("corrections", revisionService.correctionsDemande(id, idEmployer, superAdmin));
             model.addAttribute("role", "MANAGER");
+            model.addAttribute("superAdmin", superAdmin);
             model.addAttribute("modeCorrection", true);
             model.addAttribute("retour", "/correction/accueil");
             return "demande/detail";
@@ -66,13 +75,14 @@ public class CorrectionController {
                            RedirectAttributes redirectAttributes) {
         try {
             int idUser = roleService.convertirId(idUtilisateur);
+            boolean superAdmin = roleService.estSuperAdmin(idUser);
             roleService.verifierRole(idUser, "MANAGER");
-            revisionService.accepterCorrection(id, roleService.employerConnecte(idUser));
+            revisionService.accepterCorrection(id, roleService.employerConnecte(idUser), superAdmin);
             redirectAttributes.addFlashAttribute("succes", "La correction a été appliquée");
         } catch (RuntimeException erreur) {
             redirectAttributes.addFlashAttribute("erreur", erreur.getMessage());
         }
-        return "redirect:/correction/accueil";
+        return "redirect:/departements/accueil";
     }
 
     @PostMapping("/correction/demande/{id}/abandonner")
@@ -81,8 +91,9 @@ public class CorrectionController {
                              RedirectAttributes redirectAttributes) {
         try {
             int idUser = roleService.convertirId(idUtilisateur);
+            boolean superAdmin = roleService.estSuperAdmin(idUser);
             roleService.verifierRole(idUser, "MANAGER");
-            revisionService.abandonner(id, roleService.employerConnecte(idUser));
+            revisionService.abandonner(id, roleService.employerConnecte(idUser), superAdmin);
             redirectAttributes.addFlashAttribute("succes", "La demande a été abandonnée");
         } catch (RuntimeException erreur) {
             redirectAttributes.addFlashAttribute("erreur", erreur.getMessage());

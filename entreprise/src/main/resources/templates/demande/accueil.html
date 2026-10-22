@@ -10,12 +10,15 @@
 <main class="wrap">
     <header class="head">
         <div class="head__title">
-            <p class="eyebrow">Espace manager</p>
-            <h1>Mes demandes</h1>
+            <p class="eyebrow" th:text="${role}"></p>
+            <h1 th:text="${superAdmin ? 'Toutes les demandes' : 'Mes demandes'}"></h1>
         </div>
         <nav class="page-actions" aria-label="Actions manager">
             <a class="button-link" href="/demandes/nouvelle">Nouvelle demande</a>
             <a class="button-link button-link--quiet" href="/correction/accueil">Corrections</a>
+            <a class="button-link button-link--quiet" href="/rh/accueil" th:if="${superAdmin}">File RH</a>
+            <a class="button-link button-link--quiet" href="/finance/accueil" th:if="${superAdmin}">File Finance</a>
+            <a class="button-link button-link--quiet" href="/dg/accueil" th:if="${superAdmin}">File DG</a>
             <form action="/logout" method="post">
                 <button class="logout-button" type="submit">Déconnexion</button>
             </form>

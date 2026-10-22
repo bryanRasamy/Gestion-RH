@@ -88,6 +88,7 @@ CREATE TABLE demande_a_revoir(
     date DATE NOT NULL DEFAULT CURRENT_DATE,
     commentaire TEXT NOT NULL,
     nbr_personnel_propose INT NOT NULL DEFAULT 0,
+    annuler_poste BOOLEAN NOT NULL DEFAULT FALSE,
     traite BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (id_mpangataka) REFERENCES employer(id),
     FOREIGN KEY (id_detail_demande) REFERENCES detail_demande(id)

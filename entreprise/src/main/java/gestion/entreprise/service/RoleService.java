@@ -60,8 +60,15 @@ public class RoleService {
     }
 
     public void verifierRole(int idUtilisateur, String roleAttendu) {
+        if ("DG".equals(roleUtilisateur(idUtilisateur))) {
+            return;
+        }
         if (!roleAttendu.equals(roleUtilisateur(idUtilisateur))) {
             throw new RuntimeException("Accès interdit pour votre rôle");
         }
+    }
+
+    public boolean estSuperAdmin(int idUtilisateur) {
+        return "DG".equals(roleUtilisateur(idUtilisateur));
     }
 }

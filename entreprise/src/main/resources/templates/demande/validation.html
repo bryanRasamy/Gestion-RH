@@ -10,7 +10,7 @@
 <main class="wrap">
     <header class="page-header">
         <div>
-            <a class="back-link" href="/login">Accueil</a>
+            <a class="back-link" th:href="${superAdmin ? '/departements/accueil' : '/login'}">Accueil</a>
             <p class="eyebrow" th:text="${role}"></p>
             <h1 th:text="${'Demandes ' + statut}"></h1>
         </div>
@@ -18,6 +18,13 @@
             <button class="logout-button" type="submit">Déconnexion</button>
         </form>
     </header>
+    <nav class="page-actions" th:if="${superAdmin}" aria-label="Navigation super administrateur">
+        <a class="button-link button-link--quiet" href="/departements/accueil">Toutes les demandes</a>
+        <a class="button-link button-link--quiet" href="/correction/accueil">Corrections</a>
+        <a class="button-link button-link--quiet" href="/rh/accueil">File RH</a>
+        <a class="button-link button-link--quiet" href="/finance/accueil">File Finance</a>
+        <a class="button-link button-link--quiet" href="/dg/accueil">File DG</a>
+    </nav>
     <p class="budget-note" th:if="${role == 'FINANCE' and budgetConfigure}">
         Budget global : <strong th:text="${budgetGlobal}"></strong>
     </p>
