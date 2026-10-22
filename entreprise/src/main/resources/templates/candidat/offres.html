@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Body de la page "Offres d'emploi" : inclus dans header.html -->
+<th:block th:fragment="contenu">
+
+  <header class="dashboard__head">
+    <p class="eyebrow">Espace candidat</p>
+    <h1>Offres d'emploi</h1>
+    <p class="dashboard__count">Découvrez les opportunités qui correspondent à votre profil.</p>
+  </header>
+
+  <p class="dashboard__count" th:if="${#lists.isEmpty(offres)}">
+    Aucune offre n'est ouverte pour le moment. Revenez bientôt.
+  </p>
+
+  <div class="dashboard__grid">
+
+    <article class="job-card" th:each="offre : ${offres}">
+      <div class="job-card__head">
+        <span class="badge badge--dept" th:text="${offre.departement.libelle}">Informatique</span>
+      </div>
+      <h3 class="job-card__title" th:text="${offre.poste.libelle}">Développeur Full-stack</h3>
+      <p class="job-card__meta"
+         th:text="|Date limite : ${#temporals.format(offre.demande.dateLimite, 'dd MMMM yyyy')}|">
+        Date limite : 30 juin 2026
+      </p>
+      <div class="job-card__foot">
+        <div class="job-card__counter">
+          <span class="job-card__counter-current" th:text="${#numbers.formatInteger(offre.nombrePourvus, 2)}">01</span>
+          <span class="job-card__counter-sep">/</span>
+          <span class="job-card__counter-total" th:text="${#numbers.formatInteger(offre.nbrPersonnel, 2)}">05</span>
+          <span class="job-card__counter-label" th:text="${offre.nbrPersonnel > 1} ? 'pourvus' : 'pourvu'">pourvus</span>
+        </div>
+
+        <a th:unless="${offre.cloturee}" th:href="@{/offres/{id}(id=${offre.id})}" class="req-card__link">
+          Voir l'offre
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+
+        <a th:if="${offre.cloturee}" href="#" class="req-card__link" style="opacity: 0.5; pointer-events: none;">
+          Clôturée
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+  </div>
+
+</th:block>
+
+</body>
+</html>

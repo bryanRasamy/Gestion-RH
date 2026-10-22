@@ -1,30 +1,32 @@
 package gestion.entreprise.modele;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "detail_demande")
 public class DetailDemande {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "id_demande")
+    @JoinColumn(name = "id_demande", nullable = false)
     private Demande demande;
 
     @ManyToOne
-    @JoinColumn(name = "id_poste")
+    @JoinColumn(name = "id_poste", nullable = false)
     private Poste poste;
 
     @ManyToOne
-    @JoinColumn(name = "id_departement")
+    @JoinColumn(name = "id_departement", nullable = false)
     private Departement departement;
 
     @Column(name = "nbr_personnel", nullable = false)
     private int nbrPersonnel;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "motif", columnDefinition = "TEXT")
     private String motif;
 
     @ManyToOne
@@ -34,9 +36,12 @@ public class DetailDemande {
     @Column(name = "annee_experience", nullable = false)
     private int anneeExperience;
 
-    /*Constructeur*/
-    public DetailDemande(){
+    // Frontoffice : candidatures liées à ce détail de demande
+    @OneToMany(mappedBy = "detailDemande")
+    private List<Candidat> candidats;
 
+    /*Constructeur*/
+    public DetailDemande() {
     }
 
     /*Setters*/
@@ -72,38 +77,70 @@ public class DetailDemande {
         this.anneeExperience = anneeExperience;
     }
 
+    public void setCandidats(List<Candidat> candidats) {
+        this.candidats = candidats;
+    }
 
     /*Getters*/
     public int getId() {
         return id;
     }
-    
+
     public Demande getDemande() {
-        return this.demande;
+        return demande;
     }
 
     public Poste getPoste() {
-        return this.poste;
+        return poste;
     }
 
     public Departement getDepartement() {
-        return this.departement;
+        return departement;
     }
 
     public int getNbrPersonnel() {
         return nbrPersonnel;
     }
-    
+
     public String getMotif() {
         return motif;
     }
 
     public Diplome getDiplome() {
-        return this.diplome;
+        return diplome;
     }
 
     public int getAnneeExperience() {
-        return this.anneeExperience;
+        return anneeExperience;
     }
-    
+
+    public List<Candidat> getCandidats() {
+        return candidats;
+    }
+
+    /**
+     * Frontoffice : nombre de postes pourvus pour ce détail.
+     * Un candidat compte comme pourvu s'il n'est ni refusé, ni annulé, ni à revoir.
+     */
+    public int getNombrePourvus() {
+        int total = 0;
+        if (candidats != null) {
+            for (Candidat c : candidats) {
+                if (c != null && c.getStatus() != null
+                        && !"Refuser".equalsIgnoreCase(c.getStatus())
+                        && !"Annuler".equalsIgnoreCase(c.getStatus())
+                        && !"A Revoir".equalsIgnoreCase(c.getStatus())) {
+                    total++;
+                }
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Frontoffice : indique si le poste est entièrement pourvu.
+     */
+    public boolean isCloturee() {
+        return getNombrePourvus() >= nbrPersonnel;
+    }
 }

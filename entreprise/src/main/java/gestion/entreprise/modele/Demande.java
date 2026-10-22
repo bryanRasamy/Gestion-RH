@@ -32,7 +32,6 @@ public class Demande {
 
     /*Constructeur*/
     public Demande() {
-
     }
 
     /*Setters*/
@@ -68,7 +67,7 @@ public class Demande {
     public String getMatricule() {
         return this.matricule;
     }
-    
+
     public Employer getEmployer() {
         return this.employer;
     }
@@ -76,12 +75,12 @@ public class Demande {
     public LocalDateTime getDateLimite() {
         return this.dateLimite;
     }
-    
+
     public List<HistoriqueDemandeStatus> getHistoriques() {
         return this.historiques;
     }
 
-    public List<DetailDemande> getdetailDemandes() {
+    public List<DetailDemande> getDetailDemandes() {
         return this.detailDemandes;
     }
 }

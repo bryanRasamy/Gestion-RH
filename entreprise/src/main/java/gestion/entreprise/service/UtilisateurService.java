@@ -12,12 +12,17 @@ import jakarta.servlet.http.HttpSession;
 @Service
 public class UtilisateurService {
 
-    @Autowired 
+    @Autowired
     private UtilisateurRepository utilisateurRepository;
 
-    @Autowired 
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Authentifie un utilisateur à partir de son email + mot de passe.
+     * Remplit les champs id, employer et role de l'objet passé en paramètre.
+     * (Utilisé par LoginController.seConnecter)
+     */
     public void findUtilisateur(Utilisateur utilisateur) throws Exception {
         Utilisateur user = utilisateurRepository.findByEmail(utilisateur.getEmail());
 
@@ -40,6 +45,24 @@ public class UtilisateurService {
 
     public Utilisateur getById(int id) throws Exception {
         return utilisateurRepository.findById(id).orElse(null);
+    }
+
+    /**
+     * Frontoffice : retourne l'utilisateur seulement s'il n'a pas d'employer
+     * (donc s'il est candidat, pas employé).
+     */
+    public Utilisateur getCandidatById(int id) throws Exception {
+        Utilisateur utilisateur = utilisateurRepository.findById(id).orElse(null);
+
+        if (utilisateur == null) {
+            throw new Exception("Utilisateur introuvable");
+        }
+
+        if (utilisateur.getEmployer() != null) {
+            throw new Exception("Cet espace est réservé aux candidats");
+        }
+
+        return utilisateur;
     }
 
     /**

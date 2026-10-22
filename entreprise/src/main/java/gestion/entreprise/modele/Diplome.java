@@ -6,6 +6,7 @@ import java.util.List;
 @Entity
 @Table(name = "diplome")
 public class Diplome {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -21,7 +22,6 @@ public class Diplome {
 
     /*Constructeur*/
     public Diplome() {
-
     }
 
     /*Setters*/
@@ -47,14 +47,14 @@ public class Diplome {
     }
 
     public int getAnneeEtude() {
-        return this.anneeEtude;
+        return anneeEtude;
     }
 
     public String getNomDiplome() {
-        return this.nomDiplome;
+        return nomDiplome;
     }
 
     public List<DetailDemande> getDetailDemandes() {
-        return this.detailDemandes;
+        return detailDemandes;
     }
 }
