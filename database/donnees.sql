@@ -84,7 +84,7 @@ INSERT INTO detail_demande (id_demande, id_poste, id_departement, nbr_personnel,
 (2, 4, 3, 1, 'Projet Akoho', 2, 3),
 (2, 6, 3, 4, 'Projet Akoho', 2, 1),
 (3, 5, 3, 3, 'Création de SaaS', 1, 2),
-(3, 6, 3, 4, 'Création de SaaS', 1, 2),
+(3, 6, 3, 4, 'Création de SaaS', 1, 2),y
 (4, 4, 4, 2, 'Création d''application mobile', 1, 3),
 (4, 6, 4, 3, 'Création d''application mobile', 1, 1),
 (5, 5, 4, 2, 'Création d''une application de gestion', 2, 5),
