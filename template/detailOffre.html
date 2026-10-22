@@ -1,126 +1,128 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pivot — Détail de l'offre</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pivot — Détail de l'offre</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="dashboard-page">
 
-<nav class="app-nav" id="appNav">
-  <div class="app-nav__inner">
+  <nav class="app-nav" id="appNav">
+    <div class="app-nav__inner">
 
-    <a href="#" class="logo" aria-label="Pivot — accueil">
-      <span class="logo__mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="17" height="17">
-          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
-                stroke="currentColor" stroke-width="2.4"
-                stroke-linecap="square" stroke-linejoin="miter"/>
-        </svg>
-      </span>
-      <span class="logo__word">Pivot</span>
+      <a href="#" class="logo" aria-label="Pivot — accueil">
+        <span class="logo__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="17" height="17">
+            <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="square" stroke-linejoin="miter" />
+          </svg>
+        </span>
+        <span class="logo__word">Pivot</span>
+      </a>
+
+      <ul class="app-nav__links" id="appNavLinks">
+        <li><a href="offres.html" class="app-nav__link is-active">Offres d'emploi</a></li>
+        <li><a th:href="@{/mes-candidatures}" class="app-nav__link"
+            th:classappend="${menu == 'mes-candidatures' ? ' is-active' : ''}">Mes candidatures</a></li>
+        <li><a href="#" class="app-nav__link">Mon profil</a></li>
+      </ul>
+
+      <div class="app-nav__user">
+        <div class="avatar" aria-hidden="true">J</div>
+        <span class="app-nav__user-name">Jean C.</span>
+      </div>
+
+      <button class="app-nav__toggle" id="appNavToggle" aria-label="Ouvrir le menu" aria-expanded="false"
+        aria-controls="appNavLinks">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+  </nav>
+
+  <main class="dashboard">
+
+    <a href="offres.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 12H5M11 6l-6 6 6 6" />
+      </svg>
+      Retour aux offres
     </a>
 
-    <ul class="app-nav__links" id="appNavLinks">
-      <li><a href="offres.html" class="app-nav__link is-active">Offres d'emploi</a></li>
-      <li><a href="#" class="app-nav__link">Mes candidatures</a></li>
-      <li><a href="#" class="app-nav__link">Mon profil</a></li>
-    </ul>
+    <header class="dashboard__head">
+      <p class="eyebrow">Département Informatique</p>
+      <h1 class="req-detail__title">Développeur Full-stack</h1>
+      <p class="dashboard__count">Date limite : 30 juin 2026</p>
+    </header>
 
-    <div class="app-nav__user">
-      <div class="avatar" aria-hidden="true">J</div>
-      <span class="app-nav__user-name">Jean C.</span>
-    </div>
+    <!-- BLOC DE DESCRIPTION (TEXTE BRUT SQL) -->
+    <div class="job-description">
+      <h2>À propos du poste</h2>
 
-    <button class="app-nav__toggle" id="appNavToggle"
-            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
-      <span></span><span></span><span></span>
-    </button>
-
-  </div>
-</nav>
-
-<main class="dashboard">
-
-  <a href="offres.html" class="back-link">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="1.8"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M19 12H5M11 6l-6 6 6 6"/>
-    </svg>
-    Retour aux offres
-  </a>
-
-  <header class="dashboard__head">
-    <p class="eyebrow">Département Informatique</p>
-    <h1 class="req-detail__title">Développeur Full-stack</h1>
-    <p class="dashboard__count">Date limite : 30 juin 2026</p>
-  </header>
-
-  <!-- BLOC DE DESCRIPTION (TEXTE BRUT SQL) -->
-  <div class="job-description">
-    <h2>À propos du poste</h2>
-    
-    <!-- 
+      <!-- 
       Le contenu ci-dessous simule ce que renverra ta base de données.
       Les sauts de ligne sont gérés par le CSS (white-space: pre-wrap).
     -->
-    <div class="job-description__content">Nous recherchons un(e) Développeur(se) Full-stack passionné(e) pour rejoindre notre équipe technique. Vous interviendrez sur l'ensemble du cycle de développement de nos applications, de la conception à la mise en production.
+      <div class="job-description__content">Nous recherchons un(e) Développeur(se) Full-stack passionné(e) pour
+        rejoindre notre équipe technique. Vous interviendrez sur l'ensemble du cycle de développement de nos
+        applications, de la conception à la mise en production.
 
-Vos missions principales :
-- Concevoir et développer de nouvelles fonctionnalités (Front & Back)
-- Participer aux revues de code et garantir la qualité
-- Collaborer avec les équipes Produit et Design
-- Assurer la maintenance et l'évolution des applications existantes
+        Vos missions principales :
+        - Concevoir et développer de nouvelles fonctionnalités (Front & Back)
+        - Participer aux revues de code et garantir la qualité
+        - Collaborer avec les équipes Produit et Design
+        - Assurer la maintenance et l'évolution des applications existantes
 
-Profil recherché :
-- Bac+5 en informatique ou équivalent
-- 3 ans d'expérience minimum sur un poste similaire
-- Maîtrise de JavaScript / TypeScript (React ou Vue)
-- Maîtrise de Node.js ou Python (Django/FastAPI)
-- Connaissance des bases de données SQL et NoSQL
-- Autonomie, rigueur et esprit d'équipe</div>
-  </div>
+        Profil recherché :
+        - Bac+5 en informatique ou équivalent
+        - 3 ans d'expérience minimum sur un poste similaire
+        - Maîtrise de JavaScript / TypeScript (React ou Vue)
+        - Maîtrise de Node.js ou Python (Django/FastAPI)
+        - Connaissance des bases de données SQL et NoSQL
+        - Autonomie, rigueur et esprit d'équipe</div>
+    </div>
 
-  <!-- BOUTON POSTULER -->
-  <div class="job-apply-box">
-    <p>Prêt à rejoindre l'équipe ?</p>
-    <button type="button" class="submit" onclick="alert('Redirection vers le formulaire de candidature...');">
-      <span class="submit__label">Postuler à cette offre</span>
-      <span class="submit__icon">
-        <svg class="submit__arrow" width="18" height="18" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="1.6"
-             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 12h15M13 6l6 6-6 6"/>
-        </svg>
-      </span>
-    </button>
-  </div>
+    <!-- BOUTON POSTULER -->
+    <div class="job-apply-box">
+      <p>Prêt à rejoindre l'équipe ?</p>
+      <button type="button" class="submit" onclick="alert('Redirection vers le formulaire de candidature...');">
+        <span class="submit__label">Postuler à cette offre</span>
+        <span class="submit__icon">
+          <svg class="submit__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12h15M13 6l6 6-6 6" />
+          </svg>
+        </span>
+      </button>
+    </div>
 
-</main>
+  </main>
 
-<script>
-(function () {
-  'use strict';
-  const nav    = document.getElementById('appNav');
-  const toggle = document.getElementById('appNavToggle');
-  
-  toggle.addEventListener('click', () => {
-    const open = nav.classList.toggle('is-open');
-    toggle.setAttribute('aria-expanded', open);
-    toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
-  });
-  
-  document.querySelectorAll('.app-nav__link').forEach(link => {
-    link.addEventListener('click', () => {
-      nav.classList.remove('is-open');
-      toggle.setAttribute('aria-expanded', 'false');
-    });
-  });
-})();
-</script>
+  <script>
+    (function () {
+      'use strict';
+      const nav = document.getElementById('appNav');
+      const toggle = document.getElementById('appNavToggle');
+
+      toggle.addEventListener('click', () => {
+        const open = nav.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', open);
+        toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+      });
+
+      document.querySelectorAll('.app-nav__link').forEach(link => {
+        link.addEventListener('click', () => {
+          nav.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
+    })();
+  </script>
 
 </body>
+
 </html>

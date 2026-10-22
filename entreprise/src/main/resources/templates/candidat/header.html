@@ -1,101 +1,103 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title th:text="|Pivot — ${titre}|">Pivot</title>
-<link rel="stylesheet" th:href="@{/assets/css/style.css}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="|Pivot — ${titre}|">Pivot</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
 </head>
 
 <body class="dashboard-page">
 
-<!-- ============ HEADER UNIQUE (commun à toutes les pages candidat) ============ -->
-<nav class="app-nav" id="appNav">
-  <div class="app-nav__inner">
+  <!-- ============ HEADER UNIQUE (commun à toutes les pages candidat) ============ -->
+  <nav class="app-nav" id="appNav">
+    <div class="app-nav__inner">
 
-    <a th:href="@{/offres}" class="logo" aria-label="Pivot — accueil">
-      <span class="logo__mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="17" height="17">
-          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
-                stroke="currentColor" stroke-width="2.4"
-                stroke-linecap="square" stroke-linejoin="miter"/>
-        </svg>
-      </span>
-      <span class="logo__word">Pivot</span>
-    </a>
+      <a th:href="@{/offres}" class="logo" aria-label="Pivot — accueil">
+        <span class="logo__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="17" height="17">
+            <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="square" stroke-linejoin="miter" />
+          </svg>
+        </span>
+        <span class="logo__word">Pivot</span>
+      </a>
 
-    <ul class="app-nav__links" id="appNavLinks">
-      <li><a th:href="@{/offres}" class="app-nav__link"
-             th:classappend="${menu == 'offres'} ? ' is-active'">Offres d'emploi</a></li>
-      <li><a href="#" class="app-nav__link">Mes candidatures</a></li>
-      <li><a th:href="@{/cv}" class="app-nav__link"
-             th:classappend="${menu == 'cv'} ? ' is-active'">Mon profil</a></li>
-    </ul>
+      <ul class="app-nav__links" id="appNavLinks">
+        <li><a th:href="@{/offres}" class="app-nav__link" th:classappend="${menu == 'offres'} ? ' is-active'">Offres
+            d'emploi</a></li>
+        <li><a th:href="@{/mes-candidatures}" class="app-nav__link"
+            th:classappend="${menu == 'mes-candidatures' ? ' is-active' : ''}">Mes candidatures</a></li>
+        <li><a th:href="@{/cv}" class="app-nav__link" th:classappend="${menu == 'cv'} ? ' is-active'">Mon profil</a>
+        </li>
+      </ul>
 
-    <div class="app-nav__user">
-      <div class="avatar" aria-hidden="true"
-           th:text="${#strings.toUpperCase(#strings.substring(utilisateur.email, 0, 1))}">J</div>
-      <span class="app-nav__user-name"
-            th:text="${#strings.substringBefore(utilisateur.email, '@')}">Jean</span>
+      <div class="app-nav__user">
+        <div class="avatar" aria-hidden="true"
+          th:text="${#strings.toUpperCase(#strings.substring(utilisateur.email, 0, 1))}">J</div>
+        <span class="app-nav__user-name" th:text="${#strings.substringBefore(utilisateur.email, '@')}">Jean</span>
+      </div>
+
+      <button class="app-nav__toggle" id="appNavToggle" aria-label="Ouvrir le menu" aria-expanded="false"
+        aria-controls="appNavLinks">
+        <span></span><span></span><span></span>
+      </button>
+
     </div>
+  </nav>
 
-    <button class="app-nav__toggle" id="appNavToggle"
-            aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="appNavLinks">
-      <span></span><span></span><span></span>
-    </button>
+  <main class="dashboard">
 
-  </div>
-</nav>
+    <p class="form__success is-visible is-error" role="alert" style="margin-bottom: 24px;" th:if="${erreur}">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 8v4M12 16h.01" />
+      </svg>
+      <span th:text="${erreur}"></span>
+    </p>
+    <p class="form__success is-visible" role="status" style="margin-bottom: 24px;" th:if="${succes}">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 6L9 17l-5-5" />
+      </svg>
+      <span th:text="${succes}"></span>
+    </p>
+    <p class="form__success is-visible" role="status" style="margin-bottom: 24px;" th:if="${info}">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 6L9 17l-5-5" />
+      </svg>
+      <span th:text="${info}"></span>
+    </p>
 
-<main class="dashboard">
+    <!-- ============ CONTENU de la page (fragment "contenu" du body inclus) ============ -->
+    <th:block th:replace="~{${page} :: contenu}"></th:block>
 
-  <p class="form__success is-visible is-error" role="alert" style="margin-bottom: 24px;" th:if="${erreur}">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
-    </svg>
-    <span th:text="${erreur}"></span>
-  </p>
-  <p class="form__success is-visible" role="status" style="margin-bottom: 24px;" th:if="${succes}">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M20 6L9 17l-5-5"/>
-    </svg>
-    <span th:text="${succes}"></span>
-  </p>
-  <p class="form__success is-visible" role="status" style="margin-bottom: 24px;" th:if="${info}">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M20 6L9 17l-5-5"/>
-    </svg>
-    <span th:text="${info}"></span>
-  </p>
+  </main>
 
-  <!-- ============ CONTENU de la page (fragment "contenu" du body inclus) ============ -->
-  <th:block th:replace="~{${page} :: contenu}"></th:block>
+  <script>
+    (function () {
+      'use strict';
+      const nav = document.getElementById('appNav');
+      const toggle = document.getElementById('appNavToggle');
 
-</main>
+      toggle.addEventListener('click', () => {
+        const open = nav.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', open);
+        toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+      });
 
-<script>
-(function () {
-  'use strict';
-  const nav    = document.getElementById('appNav');
-  const toggle = document.getElementById('appNavToggle');
-
-  toggle.addEventListener('click', () => {
-    const open = nav.classList.toggle('is-open');
-    toggle.setAttribute('aria-expanded', open);
-    toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
-  });
-
-  document.querySelectorAll('.app-nav__link').forEach(link => {
-    link.addEventListener('click', () => {
-      nav.classList.remove('is-open');
-      toggle.setAttribute('aria-expanded', 'false');
-    });
-  });
-})();
-</script>
+      document.querySelectorAll('.app-nav__link').forEach(link => {
+        link.addEventListener('click', () => {
+          nav.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
+    })();
+  </script>
 
 </body>
+
 </html>

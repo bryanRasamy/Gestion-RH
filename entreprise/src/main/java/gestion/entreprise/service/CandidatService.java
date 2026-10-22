@@ -25,6 +25,10 @@ public class CandidatService {
     @Autowired
     private UtilisateurService utilisateurService;
 
+    @Autowired 
+    private HistoriqueCandidatStatutRepository historiqueCandidatStatutRepository;
+
+
     public boolean aDejaPostule(int idUtilisateur, int idDetail) {
         return candidatRepository.existsByUtilisateurIdAndDetailDemandeId(idUtilisateur, idDetail);
     }
@@ -98,7 +102,7 @@ public class CandidatService {
         Candidat candidat = new Candidat();
         candidat.setUtilisateur(utilisateur);
         candidat.setDetailDemande(offre);
-        candidat.setStatus("En attente");
+        candidat.setStatus("EN_ATTENTE");
 
         String cvNomFichier = enregistrerFichier(fichierCv, "src/main/resources/static/assets/cv");
         candidat.setCvNom(cvNomFichier);
@@ -120,6 +124,14 @@ public class CandidatService {
         candidat.setEcole(formulaire.getEcole());
 
         candidatRepository.save(candidat);
+        HistoriqueCandidatStatut h = new HistoriqueCandidatStatut();
+        h.setCandidat(candidat);
+        h.setAncienStatut(null);
+        h.setNouveauStatut("EN_ATTENTE");
+        h.setUtilisateur(utilisateur);
+        h.setMotif("Candidature soumise");
+        h.setDateChangement(java.time.LocalDateTime.now());
+        historiqueCandidatStatutRepository.save(h);
     }
 
     private String enregistrerFichier(MultipartFile fichier, String dossierCible) throws IOException {

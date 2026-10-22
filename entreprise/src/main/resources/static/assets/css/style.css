@@ -3469,3 +3469,148 @@ body.dashboard-page {
 .field__control select:focus {
   border-bottom-color: var(--accent-ink);
 }
+
+/* Textarea dans un modal */
+.modal .field__control textarea {
+  width: 100%;
+  padding: 10px 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--text-1);
+  outline: none;
+  border-radius: 0;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color .3s var(--ease);
+}
+
+.modal .field__control textarea:focus {
+  border-bottom-color: var(--accent-ink);
+}
+
+.modal .field__control textarea.is-invalid {
+  border-bottom-color: var(--no);
+}
+
+.modal .field__control textarea::placeholder {
+  color: rgba(20, 18, 16, .32);
+  font-weight: 300;
+}
+
+/* ============================================================
+   16. QCM — Test technique
+   ============================================================ */
+.qcm-block {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 24px 26px 18px;
+  margin-bottom: 22px;
+}
+
+.qcm-block__title {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 0 0 20px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-1);
+}
+
+.qcm-block__num {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+/* Une option de réponse */
+.qcm-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color .25s var(--ease), background .25s var(--ease),
+              box-shadow .25s var(--ease);
+}
+
+/* Radio natif caché */
+.qcm-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+
+/* Lettre A/B/C/D */
+.qcm-option__letter {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  transition: border-color .25s var(--ease), background .25s var(--ease),
+              color .25s var(--ease);
+}
+
+.qcm-option__text {
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--text-1);
+  flex: 1;
+}
+
+/* Hover : feedback subtil */
+.qcm-option:hover {
+  border-color: var(--line-strong);
+  background: rgba(20, 18, 16, .02);
+}
+
+/* Sélectionné : highlight */
+.qcm-option:has(input[type="radio"]:checked) {
+  border-color: var(--accent-ink);
+  background: rgba(166, 58, 21, .06);
+  box-shadow: inset 3px 0 0 var(--accent-ink);
+}
+
+.qcm-option:has(input[type="radio"]:checked) .qcm-option__letter {
+  border-color: var(--accent-ink);
+  background: var(--accent-ink);
+  color: var(--cream);
+}
+
+.qcm-option:has(input[type="radio"]:checked) .qcm-option__text {
+  color: var(--text-1);
+  font-weight: 500;
+}
+
+/* Focus clavier (accessibilité) */
+.qcm-option:has(input[type="radio"]:focus-visible) {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+}

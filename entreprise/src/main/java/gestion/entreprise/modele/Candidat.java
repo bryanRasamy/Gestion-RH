@@ -65,6 +65,17 @@ public class Candidat implements Serializable {
     @Column(name = "ecole", length = 100)
     private String ecole;
 
+    @Transient
+private int prochainNiveau;
+
+    public int getProchainNiveau() {
+        return prochainNiveau;
+    }
+
+    public void setProchainNiveau(int prochainNiveau) {
+        this.prochainNiveau = prochainNiveau;
+    }
+
     public Candidat() {
     }
 

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Candidature</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="dashboard">
+
+  <a th:href="@{/rh/candidatures}" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M11 6l-6 6 6 6"/>
+    </svg>
+    Retour aux candidatures
+  </a>
+
+  <header class="dashboard__head">
+    <p class="eyebrow" th:text="|Candidature — ${candidat.detailDemande.poste.libelle}|">Poste</p>
+    <h1 th:text="${candidat.prenom + ' ' + candidat.nom}">Candidat</h1>
+    <p class="dashboard__count">
+      <span class="badge"
+            th:classappend="${candidat.status == 'ACCEPTE' ? ' badge--accepted' :
+                            candidat.status == 'REFUSE' || candidat.status == 'TEST_ECHOUE' ? ' badge--refused' :
+                            candidat.status == 'TESTS_REUSSIS' ? ' badge--accepted' :
+                            ' badge--pending'}"
+            th:text="${T(gestion.entreprise.service.CandidatureWorkflowService).libelleStatut(candidat.status)}">Statut</span>
+    </p>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    <span th:text="${erreur}"></span>
+  </p>
+  <p class="form__success is-visible" role="status" th:if="${succes}">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20 6L9 17l-5-5"/>
+    </svg>
+    <span th:text="${succes}"></span>
+  </p>
+
+  <!-- =========================================================
+       CV complet — même style que cv.html (frontoffice)
+       ========================================================= -->
+  <section class="detail-section">
+    <h2 class="detail-section__title">CV du candidat</h2>
+
+    <div class="cv-form" style="max-width:100%;">
+
+      <!-- 01 Identité -->
+      <section class="cv-section">
+        <h3 class="cv-section__title"><span>01</span> Identité</h3>
+        <div class="form-grid">
+          <div class="field">
+            <div class="field__top"><label>Prénom</label></div>
+            <div class="field__control">
+              <input type="text" th:value="${candidat.prenom}" disabled>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field__top"><label>Nom</label></div>
+            <div class="field__control">
+              <input type="text" th:value="${candidat.nom}" disabled>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field__top"><label>E-mail</label></div>
+            <div class="field__control">
+              <input type="email" th:value="${candidat.email}" disabled>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field__top"><label>Téléphone</label></div>
+            <div class="field__control">
+              <input type="tel" th:value="${candidat.telephone}" disabled>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 02 Profil -->
+      <section class="cv-section">
+        <h3 class="cv-section__title"><span>02</span> Profil</h3>
+        <div class="form-grid form-grid--full">
+          <div class="field">
+            <div class="field__top"><label>Poste visé</label></div>
+            <div class="field__control">
+              <input type="text" th:value="${candidat.titre}" disabled>
+            </div>
+          </div>
+          <div class="field" style="margin-top: 12px;">
+            <div class="field__top"><label>Résumé de parcours</label></div>
+            <textarea class="field__textarea" th:text="${candidat.resume}" disabled
+                      placeholder="(aucun résumé fourni)"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- 03 Expérience -->
+      <section class="cv-section">
+        <h3 class="cv-section__title"><span>03</span> Expérience professionnelle</h3>
+        <div class="form-grid">
+          <div class="field">
+            <div class="field__top"><label>Dernier poste occupé</label></div>
+            <div class="field__control">
+              <input type="text" th:value="${candidat.dernierPoste}" disabled>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field__top"><label>Entreprise</label></div>
+            <div class="field__control">
+              <input type="text" th:value="${candidat.entreprise}" disabled>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field__top"><label>Années d'expérience</label></div>
+            <div class="field__control">
+              <input type="number" th:value="${candidat.anneeExperienceProf}" disabled>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 04 Formation -->
+      <section class="cv-section">
+        <h3 class="cv-section__title"><span>04</span> Formation</h3>
+        <div class="form-grid">
+          <div class="field">
+            <div class="field__top"><label>Diplôme</label></div>
+            <div class="field__control">
+              <input type="text"
+                     th:value="${diplome != null ? diplome.nomDiplome : '(non renseigné)'}" disabled>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field__top"><label>Établissement</label></div>
+            <div class="field__control">
+              <input type="text" th:value="${candidat.ecole}" disabled>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 Document CV -->
+      <section class="cv-section">
+        <h3 class="cv-section__title"><span>05</span> Fichier CV</h3>
+        <div th:if="${candidat.cvNom != null}">
+          <a th:href="@{'/assets/cv/' + ${candidat.cvNom}}"
+             target="_blank" class="btn btn--ghost" style="text-decoration:none;">
+            📄 Télécharger le CV (PDF)
+          </a>
+        </div>
+        <p th:if="${candidat.cvNom == null}" class="req-form__hint">
+          Aucun fichier CV n'a été uploadé — le candidat a rempli uniquement le formulaire.
+        </p>
+      </section>
+
+    </div>
+  </section>
+
+  <!-- =========================================================
+       Résultats des tests
+       ========================================================= -->
+  <section class="detail-section">
+    <h2 class="detail-section__title">Résultats des tests techniques</h2>
+    <p th:if="${#lists.isEmpty(passages)}" class="req-form__hint">
+      Aucun test passé pour le moment.
+    </p>
+    <div th:each="p : ${passages}" class="detail-card" style="margin-bottom:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div>
+          <strong th:text="'Niveau ' + ${p.testTechnique.niveau.niveau} + ' — ' + ${p.testTechnique.niveau.libelle}"></strong>
+          <br>
+          <small th:text="'Passé le ' + ${#temporals.format(p.dateDebut, 'dd/MM/yyyy HH:mm')}"></small>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:22px; font-weight:600;"
+               th:text="${p.score} + '%'">0%</div>
+          <span class="badge"
+                th:classappend="${p.statut == 'VALIDE' ? ' badge--accepted' : ' badge--refused'}"
+                th:text="${p.statut == 'VALIDE' ? 'Réussi' : 'Échoué'}"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       Historique
+       ========================================================= -->
+  <section class="detail-section">
+    <h2 class="detail-section__title">Historique des changements</h2>
+    <div class="timeline">
+      <div class="timeline-item" th:each="h : ${historique}">
+        <div class="timeline-item__dot"></div>
+        <div class="timeline-item__body">
+          <span class="timeline-item__date"
+                th:text="${#temporals.format(h.dateChangement, 'dd/MM/yyyy HH:mm')}"></span>
+          <span th:text="${T(gestion.entreprise.service.CandidatureWorkflowService).libelleStatut(h.nouveauStatut)}"></span>
+          <small th:if="${h.motif != null}" th:text="'— ' + ${h.motif}"></small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       Actions RH — boutons selon statut
+       ========================================================= -->
+  <section class="detail-section" th:if="${candidat.status != 'ACCEPTE' and candidat.status != 'REFUSE'}">
+    <h2 class="detail-section__title">Actions</h2>
+
+    <!-- EN_ATTENTE : Démarrer le test OU Recaler -->
+    <div class="action-bar" th:if="${candidat.status == 'EN_ATTENTE'}">
+      <form th:action="@{'/rh/candidatures/' + ${candidat.id} + '/demarrer-test'}"
+            method="post" style="display:inline;">
+        <button type="submit" class="btn btn--accept">▶ Démarrer le test</button>
+      </form>
+      <button type="button" class="btn btn--danger"
+              th:attr="data-id=${candidat.id},data-name=${candidat.prenom + ' ' + candidat.nom}"
+              onclick="ouvrirRecale(this)">✗ Recaler</button>
+    </div>
+
+    <!-- EN_TEST : Passer à l'entretien (si 3 niveaux réussis) OU Recaler -->
+    <div class="action-bar" th:if="${candidat.status == 'EN_TEST'}">
+      <form th:action="@{'/rh/candidatures/' + ${candidat.id} + '/passer-entretien'}"
+            method="post" style="display:inline;">
+        <button type="submit" class="btn btn--accept" th:disabled="${niveauMax < 3}">
+          → Passer à l'entretien
+        </button>
+      </form>
+      <button type="button" class="btn btn--danger"
+              th:attr="data-id=${candidat.id},data-name=${candidat.prenom + ' ' + candidat.nom}"
+              onclick="ouvrirRecale(this)">✗ Recaler</button>
+    </div>
+
+    <!-- TESTS_REUSSIS : Passer à l'entretien OU Recaler -->
+    <div class="action-bar" th:if="${candidat.status == 'TESTS_REUSSIS'}">
+      <form th:action="@{'/rh/candidatures/' + ${candidat.id} + '/passer-entretien'}"
+            method="post" style="display:inline;">
+        <button type="submit" class="btn btn--accept">→ Passer à l'entretien</button>
+      </form>
+      <button type="button" class="btn btn--danger"
+              th:attr="data-id=${candidat.id},data-name=${candidat.prenom + ' ' + candidat.nom}"
+              onclick="ouvrirRecale(this)">✗ Recaler</button>
+    </div>
+
+    <!-- EN_ENTRETIEN : Accepter OU Recaler -->
+    <div class="action-bar" th:if="${candidat.status == 'EN_ENTRETIEN'}">
+      <form th:action="@{'/rh/candidatures/' + ${candidat.id} + '/accepter'}"
+            method="post" style="display:inline;">
+        <button type="submit" class="btn btn--accept">✓ Accepter</button>
+      </form>
+      <button type="button" class="btn btn--danger"
+              th:attr="data-id=${candidat.id},data-name=${candidat.prenom + ' ' + candidat.nom}"
+              onclick="ouvrirRecale(this)">✗ Recaler</button>
+    </div>
+
+    <!-- TEST_ECHOUE : Recaler uniquement -->
+    <div class="action-bar" th:if="${candidat.status == 'TEST_ECHOUE'}">
+      <p class="req-form__hint" style="color:var(--no);">
+        Le candidat a échoué à un test technique.
+      </p>
+      <button type="button" class="btn btn--danger"
+              th:attr="data-id=${candidat.id},data-name=${candidat.prenom + ' ' + candidat.nom}"
+              onclick="ouvrirRecale(this)">✗ Recaler</button>
+    </div>
+
+  </section>
+
+  <!-- Candidature clôturée -->
+  <section class="detail-section" th:if="${candidat.status == 'ACCEPTE' or candidat.status == 'REFUSE'}">
+    <h2 class="detail-section__title">Candidature clôturée</h2>
+    <p class="req-form__hint">
+      Cette candidature est
+      <strong th:text="${candidat.status == 'ACCEPTE' ? 'acceptée' : 'refusée'}"></strong>.
+      Aucune action n'est possible.
+    </p>
+  </section>
+
+</main>
+
+<!-- =========================================================
+     Modal de recale
+     ========================================================= -->
+<div class="modal-overlay" id="modalRecale" style="display:none;">
+  <div class="modal">
+    <h3 class="modal__title">Recaler la candidature</h3>
+    <p id="modalRecaleIntro">
+      Vous êtes sur le point de recaler cette candidature. Cette action est définitive.
+    </p>
+
+    <form th:action="@{/rh/candidatures/0/recaler}" method="post" id="formRecale">
+      <div class="field">
+        <div class="field__top">
+          <label for="motifRecale">Motif du recale</label>
+          <span class="field__error" id="motifRecaleError" aria-live="polite"></span>
+        </div>
+        <div class="field__control">
+          <textarea id="motifRecale" name="motif" rows="3"
+                    placeholder="Expliquez pourquoi la candidature est recalée…"
+                    required></textarea>
+        </div>
+      </div>
+
+      <div class="modal__actions">
+        <button type="button" class="btn btn--ghost" onclick="fermerRecale()">Annuler</button>
+        <button type="submit" class="btn btn--danger">Confirmer le recale</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------
+     Navbar mobile
+     ------------------------------------------------------------ */
+  var nav = document.getElementById('appNav');
+  var toggle = document.getElementById('appNavToggle');
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+  }
+
+  /* ------------------------------------------------------------
+     Modal de recale
+     ------------------------------------------------------------ */
+  var modal      = document.getElementById('modalRecale');
+  var form       = document.getElementById('formRecale');
+  var motifInput = document.getElementById('motifRecale');
+  var motifError = document.getElementById('motifRecaleError');
+  var intro      = document.getElementById('modalRecaleIntro');
+
+  window.ouvrirRecale = function (btn) {
+    var id   = btn.getAttribute('data-id');
+    var name = btn.getAttribute('data-name') || 'ce candidat';
+
+    form.action = '/rh/candidatures/' + id + '/recaler';
+
+    intro.textContent = 'Vous êtes sur le point de recaler la candidature de '
+        + name + '. Cette action est définitive.';
+
+    motifInput.value = '';
+    motifInput.classList.remove('is-invalid');
+    motifError.textContent = '';
+
+    modal.style.display = 'flex';
+    setTimeout(function () { motifInput.focus(); }, 50);
+  };
+
+  window.fermerRecale = function () {
+    modal.style.display = 'none';
+  };
+
+  // Fermer en cliquant sur le fond
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) fermerRecale();
+  });
+
+  // Fermer avec Échap
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.style.display === 'flex') {
+      fermerRecale();
+    }
+  });
+
+  // Nettoyer l'erreur dès la saisie
+  motifInput.addEventListener('input', function () {
+    if (motifInput.value.trim()) {
+      motifInput.classList.remove('is-invalid');
+      motifError.textContent = '';
+    }
+  });
+
+  // Validation côté client avant envoi
+  form.addEventListener('submit', function (e) {
+    if (!motifInput.value.trim()) {
+      motifInput.classList.add('is-invalid');
+      motifError.textContent = 'Le motif est obligatoire';
+      motifInput.focus();
+      e.preventDefault();
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>

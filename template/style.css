@@ -2107,3 +2107,33 @@ body.dashboard-page{ display: block; }
 .field__control select:focus {
   border-bottom-color: var(--accent-ink);
 }
+
+/* Textarea dans un modal */
+.modal .field__control textarea {
+  width: 100%;
+  padding: 10px 0 12px;
+  border: 0;
+  border-bottom: 1px solid var(--line-strong);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--text-1);
+  outline: none;
+  border-radius: 0;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color .3s var(--ease);
+}
+
+.modal .field__control textarea:focus {
+  border-bottom-color: var(--accent-ink);
+}
+
+.modal .field__control textarea.is-invalid {
+  border-bottom-color: var(--no);
+}
+
+.modal .field__control textarea::placeholder {
+  color: rgba(20, 18, 16, .32);
+  font-weight: 300;
+}

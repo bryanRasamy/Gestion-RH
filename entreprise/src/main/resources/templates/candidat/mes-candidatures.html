@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="contenu">
+
+  <header class="dashboard__head">
+    <p class="eyebrow">Espace candidat</p>
+    <h1>Mes candidatures</h1>
+    <p class="dashboard__count" th:text="${#lists.size(candidatures)} + ' candidature(s)'">0</p>
+  </header>
+
+  <p class="dashboard__count" th:if="${#lists.isEmpty(candidatures)}">
+    Vous n'avez encore postulé à aucune offre.
+    <a th:href="@{/offres}" class="link">Voir les offres</a>
+  </p>
+
+  <div class="dashboard__grid">
+    <article class="req-card" th:each="c : ${candidatures}">
+      <div class="req-card__head">
+        <span class="badge"
+              th:classappend="${c.status == 'ACCEPTE' ? ' badge--accepted' :
+                              c.status == 'REFUSE' || c.status == 'TEST_ECHOUE' ? ' badge--refused' :
+                              c.status == 'TESTS_REUSSIS' ? ' badge--accepted' :
+                              ' badge--pending'}"
+              th:text="${T(gestion.entreprise.service.CandidatureWorkflowService).libelleStatut(c.status)}">Statut</span>
+      </div>
+      <h3 class="req-card__ref" th:text="${c.detailDemande.poste.libelle}">Poste</h3>
+      <p class="req-card__meta">
+        <span th:text="${c.detailDemande.departement.libelle}"></span> ·
+        <span th:text="'Postulé le ' + ${#temporals.format(c.datePostulation, 'dd/MM/yyyy')}"></span>
+      </p>
+
+      <!-- EN_TEST : bouton pour passer le prochain niveau -->
+      <div class="req-card__foot" th:if="${c.status == 'EN_TEST'}">
+        <a th:if="${c.prochainNiveau > 0}"
+           th:href="@{/mes-candidatures/{id}/test/{n}(id=${c.id},n=${c.prochainNiveau})}"
+           class="req-card__link">
+          Passer le test niveau <span th:text="${c.prochainNiveau}"></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+        <span th:if="${c.prochainNiveau == 0}" class="req-form__hint">
+          Tests terminés — en attente de la RH.
+        </span>
+      </div>
+
+      <div class="req-card__foot" th:if="${c.status == 'EN_ATTENTE'}">
+        <span class="req-form__hint">CV reçu — en attente de validation par la RH.</span>
+      </div>
+      <div class="req-card__foot" th:if="${c.status == 'TESTS_REUSSIS'}">
+        <span class="req-form__hint">Tests réussis — en attente de l'entretien.</span>
+      </div>
+      <div class="req-card__foot" th:if="${c.status == 'EN_ENTRETIEN'}">
+        <span class="req-form__hint">Entretien en cours avec la RH.</span>
+      </div>
+      <div class="req-card__foot" th:if="${c.status == 'TEST_ECHOUE'}">
+        <span class="req-form__hint" style="color:var(--no);">Un test n'a pas été réussi.</span>
+      </div>
+      <div class="req-card__foot" th:if="${c.status == 'ACCEPTE'}">
+        <span class="req-form__hint" style="color:var(--ok);">Félicitations, candidature acceptée.</span>
+      </div>
+      <div class="req-card__foot" th:if="${c.status == 'REFUSE'}">
+        <span class="req-form__hint" style="color:var(--no);">Candidature refusée.</span>
+      </div>
+    </article>
+  </div>
+
+</th:block>
+</body>
+</html>
