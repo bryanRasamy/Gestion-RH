@@ -29,15 +29,15 @@ public class DetailDemande {
     @Column(name = "motif", columnDefinition = "TEXT")
     private String motif;
 
+    @Column(name = "annee_experience", nullable = false)
+    private int anneeExperience;
+
     @OneToMany(mappedBy = "detailDemande")
     private List<Candidat> candidats;
 
-    /*Constructeur*/
     public DetailDemande() {
-
     }
 
-    /*Setters*/
     public void setId(int id) {
         this.id = id;
     }
@@ -62,11 +62,14 @@ public class DetailDemande {
         this.motif = motif;
     }
 
+    public void setAnneeExperience(int anneeExperience) {
+        this.anneeExperience = anneeExperience;
+    }
+
     public void setCandidats(List<Candidat> candidats) {
         this.candidats = candidats;
     }
 
-    /*Getters*/
     public int getId() {
         return id;
     }
@@ -91,16 +94,22 @@ public class DetailDemande {
         return motif;
     }
 
+    public int getAnneeExperience() {
+        return anneeExperience;
+    }
+
     public List<Candidat> getCandidats() {
         return candidats;
     }
 
-    /*Nombre de candidats retenus pour cette offre*/
     public int getNombrePourvus() {
         int total = 0;
         if (candidats != null) {
             for (Candidat c : candidats) {
-                if ("Retenu".equals(c.getStatus())) {
+                if (c != null && c.getStatus() != null
+                        && !"Refuser".equalsIgnoreCase(c.getStatus())
+                        && !"Annuler".equalsIgnoreCase(c.getStatus())
+                        && !"A Revoir".equalsIgnoreCase(c.getStatus())) {
                     total++;
                 }
             }
@@ -108,7 +117,6 @@ public class DetailDemande {
         return total;
     }
 
-    /*L'offre est cloturée quand tous les postes sont pourvus*/
     public boolean isCloturee() {
         return getNombrePourvus() >= nbrPersonnel;
     }

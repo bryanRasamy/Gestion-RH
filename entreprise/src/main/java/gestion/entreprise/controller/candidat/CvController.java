@@ -29,10 +29,12 @@ public class CvController {
     @Autowired
     private PosteService posteService;
 
-    // Formulaire de CV : on y arrive en cliquant sur "Postuler" d'une offre
+    @Autowired
+    private DiplomeService diplomeService;
+
     @GetMapping("/cv")
     public String afficherCv(@RequestParam(value = "idDetail", defaultValue = "0") int idDetail,
-                             Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+            Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Utilisateur utilisateur = null;
 
         try {
@@ -50,7 +52,8 @@ public class CvController {
 
         try {
             if (idDetail == 0) {
-                redirectAttributes.addFlashAttribute("info", "Choisissez d'abord l'offre à laquelle vous voulez postuler.");
+                redirectAttributes.addFlashAttribute("info",
+                        "Choisissez d'abord l'offre à laquelle vous voulez postuler.");
                 return "redirect:/offres";
             }
 
@@ -60,7 +63,6 @@ public class CvController {
                 throw new RuntimeException("Vous avez déjà postulé à cette offre");
             }
 
-            // Après une erreur, le formulaire saisi revient dans "candidat" (flash)
             if (!model.containsAttribute("candidat")) {
                 model.addAttribute("candidat", candidatService.preparerFormulaire(utilisateur, offre));
             }
@@ -68,6 +70,7 @@ public class CvController {
             model.addAttribute("utilisateur", utilisateur);
             model.addAttribute("offre", offre);
             model.addAttribute("postes", posteService.getAllPoste());
+            model.addAttribute("diplomes", diplomeService.getAllDiplomes());
             model.addAttribute("titre", "Mon CV en ligne");
             model.addAttribute("menu", "cv");
             model.addAttribute("page", "candidat/cv");
@@ -81,10 +84,10 @@ public class CvController {
 
     @PostMapping("/cv")
     public String postuler(@ModelAttribute Candidat candidat,
-                           @RequestParam("idDetail") int idDetail,
-                           @RequestParam("fichierCv") MultipartFile fichierCv,
-                           @RequestParam(value = "fichierLm", required = false) MultipartFile fichierLm,
-                           HttpSession session, RedirectAttributes redirectAttributes) {
+            @RequestParam("idDetail") int idDetail,
+            @RequestParam("fichierCv") MultipartFile fichierCv,
+            @RequestParam(value = "fichierLm", required = false) MultipartFile fichierLm,
+            HttpSession session, RedirectAttributes redirectAttributes) {
         try {
             Object idUtilisateur = session.getAttribute("idUtilisateur");
 

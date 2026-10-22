@@ -20,14 +20,8 @@ public class Candidat implements Serializable {
     @JoinColumn(name = "id_detail_demande", nullable = false)
     private DetailDemande detailDemande;
 
-    @Column(name = "cv", nullable = false, columnDefinition = "bytea")
-    private byte[] cv;
-
     @Column(name = "cv_nom", nullable = false, length = 255)
     private String cvNom;
-
-    @Column(name = "lm", columnDefinition = "bytea")
-    private byte[] lm;
 
     @Column(name = "lm_nom", length = 255)
     private String lmNom;
@@ -62,18 +56,18 @@ public class Candidat implements Serializable {
     @Column(name = "entreprise", length = 100)
     private String entreprise;
 
-    @Column(name = "diplome", length = 100)
-    private String diplome;
+    @Column(name = "id_diplome")
+    private Integer idDiplome;
+
+    @Column(name = "annee_experience_prof")
+    private Integer anneeExperienceProf;
 
     @Column(name = "ecole", length = 100)
     private String ecole;
 
-    /*Constructeur*/
     public Candidat() {
-
     }
 
-    /*Setters*/
     public void setId(int id) {
         this.id = id;
     }
@@ -86,16 +80,8 @@ public class Candidat implements Serializable {
         this.detailDemande = detailDemande;
     }
 
-    public void setCv(byte[] cv) {
-        this.cv = cv;
-    }
-
     public void setCvNom(String cvNom) {
         this.cvNom = cvNom;
-    }
-
-    public void setLm(byte[] lm) {
-        this.lm = lm;
     }
 
     public void setLmNom(String lmNom) {
@@ -142,15 +128,18 @@ public class Candidat implements Serializable {
         this.entreprise = entreprise;
     }
 
-    public void setDiplome(String diplome) {
-        this.diplome = diplome;
+    public void setIdDiplome(Integer idDiplome) {
+        this.idDiplome = idDiplome;
+    }
+
+    public void setAnneeExperienceProf(Integer anneeExperienceProf) {
+        this.anneeExperienceProf = anneeExperienceProf;
     }
 
     public void setEcole(String ecole) {
         this.ecole = ecole;
     }
 
-    /*Getters*/
     public int getId() {
         return id;
     }
@@ -163,16 +152,8 @@ public class Candidat implements Serializable {
         return detailDemande;
     }
 
-    public byte[] getCv() {
-        return cv;
-    }
-
     public String getCvNom() {
         return cvNom;
-    }
-
-    public byte[] getLm() {
-        return lm;
     }
 
     public String getLmNom() {
@@ -219,8 +200,12 @@ public class Candidat implements Serializable {
         return entreprise;
     }
 
-    public String getDiplome() {
-        return diplome;
+    public Integer getIdDiplome() {
+        return idDiplome;
+    }
+
+    public Integer getAnneeExperienceProf() {
+        return anneeExperienceProf;
     }
 
     public String getEcole() {

@@ -1,5 +1,11 @@
 package gestion.entreprise.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +29,6 @@ public class CandidatService {
         return candidatRepository.existsByUtilisateurIdAndDetailDemandeId(idUtilisateur, idDetail);
     }
 
-    // Formulaire pré-rempli avec la dernière candidature de l'utilisateur (s'il y en a une)
     public Candidat preparerFormulaire(Utilisateur utilisateur, DetailDemande offre) {
         Candidat formulaire = new Candidat();
         Candidat dernier = candidatRepository.findFirstByUtilisateurIdOrderByIdDesc(utilisateur.getId());
@@ -36,21 +41,20 @@ public class CandidatService {
             formulaire.setResume(dernier.getResume());
             formulaire.setDernierPoste(dernier.getDernierPoste());
             formulaire.setEntreprise(dernier.getEntreprise());
-            formulaire.setDiplome(dernier.getDiplome());
+            formulaire.setIdDiplome(dernier.getIdDiplome());
+            formulaire.setAnneeExperienceProf(dernier.getAnneeExperienceProf());
             formulaire.setEcole(dernier.getEcole());
         } else {
             formulaire.setEmail(utilisateur.getEmail());
         }
 
-        // Le poste visé est celui de l'offre
         formulaire.setTitre(offre.getPoste().getLibelle());
         return formulaire;
     }
 
     public void postuler(Candidat formulaire, int idUtilisateur, int idDetail,
-                         MultipartFile fichierCv, MultipartFile fichierLm) throws Exception {
+            MultipartFile fichierCv, MultipartFile fichierLm) throws Exception {
 
-        // 1. Vérifications du formulaire
         if (estVide(formulaire.getPrenom())) {
             throw new Exception("Le prénom est obligatoire");
         }
@@ -59,6 +63,9 @@ public class CandidatService {
         }
         if (estVide(formulaire.getEmail()) || !formulaire.getEmail().contains("@")) {
             throw new Exception("L'e-mail est invalide");
+        }
+        if (formulaire.getIdDiplome() == null) {
+            throw new Exception("Le diplôme est obligatoire");
         }
         if (estVide(formulaire.getTitre())) {
             throw new Exception("Le poste visé est obligatoire");
@@ -73,7 +80,6 @@ public class CandidatService {
             verifierFichier(fichierLm, "Lettre de motivation");
         }
 
-        // 2. Vérifications de l'offre et de l'utilisateur
         DetailDemande offre = offreService.getOffreActive(idDetail);
 
         if (offre.isCloturee()) {
@@ -89,18 +95,16 @@ public class CandidatService {
             throw new Exception("Utilisateur introuvable");
         }
 
-        // 3. Création de la candidature (on copie seulement ce qui vient du formulaire)
         Candidat candidat = new Candidat();
         candidat.setUtilisateur(utilisateur);
         candidat.setDetailDemande(offre);
         candidat.setStatus("En attente");
 
-        // Les fichiers sont enregistrés dans la base (octets + nom d'origine)
-        candidat.setCv(fichierCv.getBytes());
-        candidat.setCvNom(fichierCv.getOriginalFilename());
+        String cvNomFichier = enregistrerFichier(fichierCv, "src/main/resources/static/assets/cv");
+        candidat.setCvNom(cvNomFichier);
         if (aLettre) {
-            candidat.setLm(fichierLm.getBytes());
-            candidat.setLmNom(fichierLm.getOriginalFilename());
+            String lmNomFichier = enregistrerFichier(fichierLm, "src/main/resources/static/assets/lm");
+            candidat.setLmNom(lmNomFichier);
         }
 
         candidat.setPrenom(formulaire.getPrenom().trim());
@@ -111,10 +115,29 @@ public class CandidatService {
         candidat.setResume(formulaire.getResume());
         candidat.setDernierPoste(formulaire.getDernierPoste());
         candidat.setEntreprise(formulaire.getEntreprise());
-        candidat.setDiplome(formulaire.getDiplome());
+        candidat.setIdDiplome(formulaire.getIdDiplome());
+        candidat.setAnneeExperienceProf(formulaire.getAnneeExperienceProf());
         candidat.setEcole(formulaire.getEcole());
 
         candidatRepository.save(candidat);
+    }
+
+    private String enregistrerFichier(MultipartFile fichier, String dossierCible) throws IOException {
+        Path dossier = Paths.get(dossierCible);
+        if (!Files.exists(dossier)) {
+            Files.createDirectories(dossier);
+        }
+
+        String nomOriginal = fichier.getOriginalFilename();
+        String extension = "";
+        if (nomOriginal != null && nomOriginal.contains(".")) {
+            extension = nomOriginal.substring(nomOriginal.lastIndexOf("."));
+        }
+
+        String nomUnique = UUID.randomUUID() + extension;
+        Path fichierCible = dossier.resolve(nomUnique);
+        Files.write(fichierCible, fichier.getBytes());
+        return nomUnique;
     }
 
     private boolean estVide(String texte) {
