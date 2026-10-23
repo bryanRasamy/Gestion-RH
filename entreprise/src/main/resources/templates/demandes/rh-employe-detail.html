@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Détail employé</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="dashboard">
+  <header class="dashboard__head">
+    <p class="eyebrow">Espace RH</p>
+    <h1 th:text="${employer.nom + ' ' + employer.prenom}">Employé</h1>
+    <a th:href="@{/rh/employes}" class="btn btn--ghost" style="text-decoration:none;">← Retour</a>
+  </header>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Informations</h2>
+    <div class="prop-list">
+      <div class="prop-list__row"><span class="prop-list__label">Matricule</span><span class="prop-list__value" th:text="${employer.matricule}"></span></div>
+      <div class="prop-list__row"><span class="prop-list__label">Email</span><span class="prop-list__value" th:text="${employer.compte != null ? employer.compte : '—'}"></span></div>
+      <div class="prop-list__row"><span class="prop-list__label">Téléphone</span><span class="prop-list__value" th:text="${employer.telephone != null ? employer.telephone : '—'}"></span></div>
+      <div class="prop-list__row"><span class="prop-list__label">Poste</span><span class="prop-list__value" th:text="${employer.poste != null ? employer.poste.libelle : '—'}"></span></div>
+      <div class="prop-list__row"><span class="prop-list__label">Salaire</span><span class="prop-list__value" th:text="${employer.salaire != null ? #numbers.formatDecimal(employer.salaire, 0, 'COMMA', 0, 'POINT') + ' Ar' : '—'}"></span></div>
+      <div class="prop-list__row"><span class="prop-list__label">Période active</span><span class="prop-list__value" th:text="${periodeActive != null ? #temporals.format(periodeActive.dateDebut, 'dd/MM/yyyy') : 'Aucune'}"></span></div>
+    </div>
+  </section>
+
+  <section class="detail-section" th:if="${contratActuel != null}">
+    <h2 class="detail-section__title">Contrat actuel</h2>
+    <div class="prop-list">
+      <div class="prop-list__row"><span class="prop-list__label">Type</span><span class="prop-list__value" th:text="${contratActuel.contratType.libelle}"></span></div>
+      <div class="prop-list__row"><span class="prop-list__label">Début</span><span class="prop-list__value" th:text="${#temporals.format(contratActuel.dateDebut, 'dd/MM/yyyy')}"></span></div>
+      <div class="prop-list__row" th:if="${contratActuel.dateFin != null}"><span class="prop-list__label">Fin</span><span class="prop-list__value" th:text="${#temporals.format(contratActuel.dateFin, 'dd/MM/yyyy')}"></span></div>
+      <div class="prop-list__row"><span class="prop-list__label">Statut</span><span class="prop-list__value" th:text="${contratActuel.statut.libelle}"></span></div>
+      <div class="prop-list__row"><span class="prop-list__label">Salaire</span><span class="prop-list__value" th:text="${#numbers.formatDecimal(contratActuel.salaire, 0, 'COMMA', 0, 'POINT') + ' Ar'}"></span></div>
+    </div>
+  </section>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Historique des contrats</h2>
+    <div class="dashboard__grid" th:if="${!#lists.isEmpty(contrats)}">
+      <article class="req-card" th:each="c : ${contrats}">
+        <div class="req-card__head">
+          <span class="badge badge--accepted" th:if="${c.statut.libelle == 'VALIDE_PAR_DG'}" th:text="${c.statut.libelle}"></span>
+          <span class="badge badge--pending" th:unless="${c.statut.libelle == 'VALIDE_PAR_DG'}" th:text="${c.statut.libelle}"></span>
+        </div>
+        <h3 class="req-card__ref" th:text="${c.contratType.libelle}">Contrat</h3>
+        <p class="req-card__meta">
+          <span th:text="${#temporals.format(c.dateDebut, 'dd/MM/yyyy')}"></span>
+          <span th:if="${c.dateFin != null}" th:text="${' → ' + #temporals.format(c.dateFin, 'dd/MM/yyyy')}"></span>
+        </p>
+        <p class="req-card__meta" th:text="${#numbers.formatDecimal(c.salaire, 0, 'COMMA', 0, 'POINT') + ' Ar'}"></p>
+      </article>
+    </div>
+    <p th:if="${#lists.isEmpty(contrats)}" class="req-form__hint">Aucun contrat enregistré.</p>
+  </section>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Historique de paie</h2>
+    <div class="dashboard__grid" th:if="${!#lists.isEmpty(paies)}">
+      <article class="req-card" th:each="p : ${paies}">
+        <h3 class="req-card__ref" th:text="${p.annee + '/' + p.mois}">2026/10</h3>
+        <p class="req-card__meta" th:text="${#numbers.formatDecimal(p.montant, 0, 'COMMA', 0, 'POINT') + ' Ar'}"></p>
+        <p class="req-card__meta" th:text="${p.datePaiement != null ? #temporals.format(p.datePaiement, 'dd/MM/yyyy') : 'Non payée'}"></p>
+      </article>
+    </div>
+    <p th:if="${#lists.isEmpty(paies)}" class="req-form__hint">Aucune paie périodique enregistrée.</p>
+  </section>
+</main>
+
+</body>
+</html>

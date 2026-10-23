@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — État de paie</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="dashboard">
+  <header class="dashboard__head">
+    <p class="eyebrow">Espace RH</p>
+    <h1>État de paie périodique</h1>
+    <p class="dashboard__count" th:text="${#lists.size(lines)} + ' employé(s)'">0</p>
+  </header>
+
+  <section class="detail-section">
+    <div class="dashboard__grid" th:if="${!#lists.isEmpty(lines)}">
+      <article class="req-card" th:each="ligne : ${lines}">
+        <div class="req-card__head">
+          <span class="badge" th:classappend="${ligne.estPaye ? ' badge--accepted' : ' badge--pending'}"
+                th:text="${ligne.estPaye ? 'Payé' : 'Non payé'}">Statut</span>
+        </div>
+
+        <h3 class="req-card__ref" th:text="${ligne.employer.nom + ' ' + ligne.employer.prenom}">Nom</h3>
+        <p class="req-card__meta" th:text="${ligne.employer.matricule}"></p>
+        <p class="req-card__meta" th:text="${ligne.employer.poste != null ? ligne.employer.poste.libelle : 'Poste non renseigné'}"></p>
+
+        <div class="req-card__foot">
+          <span class="req-card__meta" th:if="${ligne.paie != null}"
+                th:text="${'Montant: ' + #numbers.formatDecimal(ligne.paie.montant, 0, 'COMMA', 0, 'POINT') + ' Ar'}"></span>
+          <span class="req-card__meta" th:unless="${ligne.paie != null}">Montant: —</span>
+        </div>
+      </article>
+    </div>
+
+    <p th:if="${#lists.isEmpty(lines)}" class="req-form__hint">Aucune donnée de paie pour cette période.</p>
+  </section>
+</main>
+
+</body>
+</html>

@@ -5,6 +5,11 @@ import gestion.entreprise.repository.*;
 import gestion.entreprise.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +27,7 @@ public class EmployeController {
     @Autowired private ContratWorkflowService contratWorkflow;
     @Autowired private ContratRepository contratRepo;
     @Autowired private ContratTypeRepository contratTypeRepo;
+    @Autowired private ContratPdfService contratPdfService;
 
     /* ---------- Accueil employé ---------- */
     @GetMapping("/employe/accueil")
@@ -55,11 +61,12 @@ public class EmployeController {
             verifierEmploye(u);
 
             PeriodeEmploi periode = employeService.getPeriodeActive(u);
-            List<Contrat> contrats = employeService.getContrats(periode);
-            Contrat contratCourant = employeService.getContratCourant(periode);
+            Contrat contratActuel = employeService.getContratActuel(periode);
+            List<Contrat> historique = contratRepo.findAllByEmployerOrderByDateDebutDesc(u.getEmployer().getId());
 
-            model.addAttribute("contrats", contrats);
-            model.addAttribute("contratCourant", contratCourant);
+            model.addAttribute("historique", historique);
+            model.addAttribute("contratActuel", contratActuel);
+            model.addAttribute("contrats", historique); // compatibilité ancienne vue
             model.addAttribute("titre", "Mes contrats");
             model.addAttribute("menu", "contrats");
             return "employe/contrats";
@@ -156,6 +163,33 @@ public class EmployeController {
             ra.addFlashAttribute("erreur", e.getMessage());
         }
         return "redirect:/employe/contrats/" + id;
+    }
+
+    /* ---------- Téléchargement PDF ---------- */
+    @GetMapping("/employe/contrats/{id}/pdf")
+    public ResponseEntity<byte[]> telechargerPdf(@PathVariable int id, HttpSession session) {
+        try {
+            Utilisateur u = utilisateurService.authentifierUtilisateur(session, null);
+            verifierEmploye(u);
+
+            Contrat c = contratRepo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Contrat introuvable."));
+
+            if (c.getProposition() == null || c.getProposition().getCandidat() == null
+                    || c.getProposition().getCandidat().getUtilisateur() == null
+                    || c.getProposition().getCandidat().getUtilisateur().getId() != u.getId()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            byte[] bytes = contratPdfService.genererPdf(c.getProposition().getId());
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(ContentDisposition.attachment()
+                    .filename("contrat_employe_" + id + ".pdf").build());
+            return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /* ---------- Guards ---------- */

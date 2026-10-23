@@ -39,6 +39,14 @@
         <a th:href="@{/dg/contrats}" class="app-nav__link">Contrats</a>
       </li>
 
+      <li th:if="${role != null and role.sigle == 'RH'}">
+  <a th:href="@{/rh/employes}" class="app-nav__link">Employés</a>
+</li>
+
+<li th:if="${role != null and role.sigle == 'RH'}">
+  <a th:href="@{/rh/paie}" class="app-nav__link">Paie</a>
+</li>
+
     </ul>
 
     <div class="app-nav__user">

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Employés</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="dashboard">
+  <header class="dashboard__head">
+    <p class="eyebrow">Espace RH</p>
+    <h1>Employés de l'entreprise</h1>
+    <p class="dashboard__count" th:text="${#lists.size(employes)} + ' employé(s)'">0</p>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}">
+    <span th:text="${erreur}"></span>
+  </p>
+
+  <div class="dashboard__grid" th:if="${!#lists.isEmpty(employes)}">
+    <article class="req-card" th:each="ligne : ${employes}">
+      <div class="req-card__head">
+        <span class="badge badge--accepted" th:if="${ligne.periodeActive != null}">Actif</span>
+        <span class="badge badge--refused" th:if="${ligne.periodeActive == null}">Inactif</span>
+      </div>
+
+      <h3 class="req-card__ref" th:text="${ligne.employer.nom + ' ' + ligne.employer.prenom}">Nom</h3>
+
+      <p class="req-card__meta">
+        <span th:text="${ligne.employer.matricule}"></span>
+      </p>
+      <p class="req-card__meta">
+        <span th:text="${ligne.employer.poste != null ? ligne.employer.poste.libelle : 'Poste non renseigné'}"></span>
+      </p>
+      <p class="req-card__meta" th:text="${ligne.employer.telephone != null ? ligne.employer.telephone : 'Téléphone non renseigné'}"></p>
+
+      <div class="req-card__foot">
+        <a th:href="@{/rh/employes/{id}(id=${ligne.employer.id})}" class="req-card__link">
+          Voir le détail
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+  </div>
+
+  <p th:if="${#lists.isEmpty(employes)}" class="req-form__hint">Aucun employé trouvé.</p>
+</main>
+
+</body>
+</html>

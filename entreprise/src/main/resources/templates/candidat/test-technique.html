@@ -14,10 +14,6 @@
   <header class="dashboard__head">
     <p class="eyebrow" th:text="|Test — ${candidat.detailDemande.poste.libelle}|">Poste</p>
     <h1 th:text="|Niveau ${niveau}|">Niveau</h1>
-    <p class="dashboard__count">
-      3 questions · Seuil de réussite :
-      <strong th:text="${test.seuilReussite} + '%'">60%</strong>
-    </p>
   </header>
 
   <form th:action="@{'/mes-candidatures/' + ${candidat.id} + '/test/' + ${niveau}}"

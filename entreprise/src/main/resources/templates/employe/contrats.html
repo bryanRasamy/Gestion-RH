@@ -93,6 +93,10 @@
          class="btn btn--ghost" style="text-decoration:none;">
         Voir le détail
       </a>
+      <a th:href="@{/employe/contrats/{id}/pdf(id=${contratActuel.id})}"
+         class="btn btn--ghost" style="text-decoration:none;">
+        📄 Télécharger PDF
+      </a>
     </div>
   </section>
 
