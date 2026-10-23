@@ -36,6 +36,10 @@ public class PropositionEmbaucheService {
     @Autowired
     private ContratRepository contratRepo;
     @Autowired
+    private ContratStatutRepository contratStatutRepo;
+    @Autowired
+    private HistoriqueContratStatutRepository historiqueContratStatutRepo;
+    @Autowired
     private CandidatRepository candidatRepo;
 
     @Transactional
@@ -277,12 +281,20 @@ public class PropositionEmbaucheService {
         c.setContratType(p.getContratType());
         c.setDateDebut(p.getDateDebut());
         c.setSalaire(p.getSalaire());
+        c.setStatut(contratStatutRepo.findByLibelle("CREE"));
 
         Integer dureeMois = p.getContratType().getDureeMaxMois();
         if (dureeMois != null) {
             c.setDateFin(p.getDateDebut().plusMonths(dureeMois));
         }
-        contratRepo.save(c);
+        Contrat saved = contratRepo.save(c);
+
+        HistoriqueContratStatut h = new HistoriqueContratStatut();
+        h.setContrat(saved);
+        h.setStatut(contratStatutRepo.findByLibelle("CREE"));
+        h.setMotif("Contrat généré automatiquement à l'acceptation");
+        h.setDateChangement(LocalDateTime.now());
+        historiqueContratStatutRepo.save(h);
     }
 
     @Transactional

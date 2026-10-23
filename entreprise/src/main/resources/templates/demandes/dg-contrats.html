@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Contrats à valider</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="dashboard">
+  <header class="dashboard__head">
+    <p class="eyebrow">Espace DG</p>
+    <h1>Contrats à valider</h1>
+    <p class="dashboard__count"
+       th:text="${#lists.size(contrats)} + ' contrat(s)'">0</p>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}"><span th:text="${erreur}"></span></p>
+  <p class="form__success is-visible" role="status" th:if="${succes}"><span th:text="${succes}"></span></p>
+
+  <p class="dashboard__count" th:if="${#lists.isEmpty(contrats)}">
+    Aucun contrat en attente de validation.
+  </p>
+
+  <div class="dashboard__grid">
+    <article class="req-card" th:each="c : ${contrats}">
+      <div class="req-card__head">
+        <span class="badge badge--pending" th:text="${c.statut.libelle}">SIGNE</span>
+      </div>
+      <h3 class="req-card__ref"
+          th:text="${c.proposition.candidat.prenom + ' ' + c.proposition.candidat.nom}">
+        Candidat
+      </h3>
+      <p class="req-card__meta">
+        <span th:text="${c.proposition.candidat.detailDemande.poste.libelle}"></span> ·
+        <span th:text="${c.contratType.libelle}"></span> ·
+        <span th:text="${#numbers.formatDecimal(c.salaire, 0, 'COMMA', 0, 'POINT')} + ' Ar'"></span>
+      </p>
+      <div class="req-card__foot">
+        <a th:href="@{/dg/contrats/{id}(id=${c.id})}" class="req-card__link">
+          Voir et valider
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+  </div>
+</main>
+<script>
+(function () {
+  var nav = document.getElementById('appNav');
+  var toggle = document.getElementById('appNavToggle');
+  if (toggle) toggle.addEventListener('click', function () {
+    var open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+})();
+</script>
+</body>
+</html>

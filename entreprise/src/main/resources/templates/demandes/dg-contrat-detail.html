@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Validation du contrat</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="dashboard">
+
+  <a th:href="@{/dg/contrats}" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M11 6l-6 6 6 6"/>
+    </svg>
+    Retour aux contrats
+  </a>
+
+  <header class="dashboard__head">
+    <p class="eyebrow" th:text="|Contrat #${contratId}|">Contrat</p>
+    <h1>Validation du contrat</h1>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}"><span th:text="${erreur}"></span></p>
+  <p class="form__success is-visible" role="status" th:if="${succes}"><span th:text="${succes}"></span></p>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Historique</h2>
+    <div class="timeline">
+      <div class="timeline-item" th:each="h : ${historique}">
+        <div class="timeline-item__dot"></div>
+        <div class="timeline-item__body">
+          <span class="timeline-item__date"
+                th:text="${#temporals.format(h.dateChangement, 'dd/MM/yyyy HH:mm')}"></span>
+          <span th:text="${h.statut.libelle}"></span>
+          <small th:if="${h.motif != null}" th:text="${'— ' + h.motif}"></small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Décision</h2>
+    <form th:action="@{'/dg/contrats/' + ${contratId} + '/valider'}" method="post"
+          onsubmit="return confirm('Valider ce contrat et embaucher officiellement le candidat ?');">
+      <div class="action-bar">
+        <button type="submit" class="btn btn--accept">✓ Valider le contrat</button>
+      </div>
+    </form>
+  </section>
+
+</main>
+<script>
+(function () {
+  var nav = document.getElementById('appNav');
+  var toggle = document.getElementById('appNavToggle');
+  if (toggle) toggle.addEventListener('click', function () {
+    var open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+})();
+</script>
+</body>
+</html>

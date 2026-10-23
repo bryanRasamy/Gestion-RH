@@ -14,3 +14,7 @@ le candidat doit pouvoir voir ses resultat poru cahque niveau
 Bloc 3 horaire endropwndloa list
 
 grille de salaire
+
+    
+Minimum:
+quand on confirm l asingitaure de contrat c est un modal et non un confirm() js direct

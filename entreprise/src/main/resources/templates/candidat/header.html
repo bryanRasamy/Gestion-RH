@@ -37,6 +37,13 @@
         <div class="avatar" aria-hidden="true"
           th:text="${#strings.toUpperCase(#strings.substring(utilisateur.email, 0, 1))}">J</div>
         <span class="app-nav__user-name" th:text="${#strings.substringBefore(utilisateur.email, '@')}">Jean</span>
+        <a href="/logout" class="app-nav__link app-nav__logout" title="Déconnexion" aria-label="Déconnexion">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+          </svg>
+        </a>
       </div>
 
       <button class="app-nav__toggle" id="appNavToggle" aria-label="Ouvrir le menu" aria-expanded="false"
