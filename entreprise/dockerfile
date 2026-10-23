@@ -1,0 +1,25 @@
+# ---------- Build ----------
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+# ---------- Runtime ----------
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Utilisateur non-root
+RUN addgroup -S app && adduser -S app -G app
+
+# Dossier uploads (sera monté en volume plus tard, ou laissé en éphémère)
+RUN mkdir -p /app/uploads && chown -R app:app /app
+
+COPY --from=build /app/target/*.jar app.jar
+RUN chown app:app app.jar
+USER app
+
+EXPOSE 8080
+ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseSerialGC"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dspring.profiles.active=prod -jar app.jar"]
