@@ -145,3 +145,4 @@ CREATE TABLE onboarding_tache (
     FOREIGN KEY (id_onboarding_tache_type) REFERENCES onboarding_tache_type(id),
     FOREIGN KEY (id_onboarding_tache_statut) REFERENCES onboarding_tache_statut(id)
 );
+

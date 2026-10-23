@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Mon espace</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+
+<nav class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+    <a th:href="@{/employe/accueil}" class="logo">
+      <span class="logo__mark"><svg viewBox="0 0 32 32" width="17" height="17"><path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg></span>
+      <span class="logo__word">Pivot</span>
+    </a>
+    <ul class="app-nav__links">
+      <li><a th:href="@{/employe/accueil}" class="app-nav__link">Accueil</a></li>
+      <li><a th:href="@{/employe/contrats}" class="app-nav__link">Mon contrat</a></li>
+    </ul>
+    <div class="app-nav__user">
+      <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(utilisateur.email,0,1))}">U</div>
+      <span class="app-nav__user-name" th:text="${#strings.substringBefore(utilisateur.email,'@')}"></span>
+      <a href="/logout" class="app-nav__link" title="Déconnexion">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main class="dashboard">
+  <header class="dashboard__head">
+    <p class="eyebrow">Mon espace employé</p>
+    <h1 th:text="${'Bonjour ' + employeur.prenom}">Bonjour</h1>
+    <p class="dashboard__count" th:text="${employeur.matricule}">Matricule</p>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}"><span th:text="${erreur}"></span></p>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Informations</h2>
+    <div class="prop-list">
+      <div class="prop-list__row">
+        <span class="prop-list__label">Matricule</span>
+        <span class="prop-list__value" th:text="${employeur.matricule}"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Nom complet</span>
+        <span class="prop-list__value" th:text="${employeur.prenom + ' ' + employeur.nom}"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Téléphone</span>
+        <span class="prop-list__value" th:text="${employeur.telephone}"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail-section" th:if="${affectation != null}">
+    <h2 class="detail-section__title">Affectation</h2>
+    <div class="prop-list">
+      <div class="prop-list__row">
+        <span class="prop-list__label">Poste</span>
+        <span class="prop-list__value" th:text="${affectation.poste.libelle}"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Département</span>
+        <span class="prop-list__value" th:text="${affectation.poste.departement.libelle}"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Statut</span>
+        <span class="prop-list__value" th:text="${affectation.statut.libelle}"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Depuis le</span>
+        <span class="prop-list__value"
+              th:text="${#temporals.format(affectation.dateDebut, 'dd MMMM yyyy')}"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail-section" th:if="${contratCourant != null}">
+    <h2 class="detail-section__title">Contrat en cours</h2>
+    <div class="prop-list">
+      <div class="prop-list__row">
+        <span class="prop-list__label">Type</span>
+        <span class="prop-list__value" th:text="${contratCourant.contratType.libelle}"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Salaire</span>
+        <span class="prop-list__value"
+              th:text="${#numbers.formatDecimal(contratCourant.salaire, 0, 'COMMA', 0, 'POINT')} + ' Ar'"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Début</span>
+        <span class="prop-list__value"
+              th:text="${#temporals.format(contratCourant.dateDebut, 'dd MMMM yyyy')}"></span>
+      </div>
+      <div class="prop-list__row" th:if="${contratCourant.dateFin != null}">
+        <span class="prop-list__label">Fin</span>
+        <span class="prop-list__value"
+              th:text="${#temporals.format(contratCourant.dateFin, 'dd MMMM yyyy')}"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Statut</span>
+        <span class="prop-list__value" th:text="${contratCourant.statut.libelle}"></span>
+      </div>
+    </div>
+    <div class="action-bar" style="margin-top:20px;">
+      <a th:href="@{/employe/contrats}" class="btn btn--ghost" style="text-decoration:none;">
+        Voir mes contrats
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  var nav = document.getElementById('appNav');
+  if (!nav) return;
+  // Menu mobile si tu veux ajouter
+})();
+</script>
+</body>
+</html>

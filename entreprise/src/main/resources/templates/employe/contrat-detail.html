@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Contrat</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+
+<nav class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+    <a th:href="@{/employe/accueil}" class="logo">
+      <span class="logo__mark"><svg viewBox="0 0 32 32" width="17" height="17"><path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg></span>
+      <span class="logo__word">Pivot</span>
+    </a>
+    <ul class="app-nav__links">
+      <li><a th:href="@{/employe/accueil}" class="app-nav__link">Accueil</a></li>
+      <li><a th:href="@{/employe/contrats}" class="app-nav__link is-active">Mon contrat</a></li>
+    </ul>
+    <div class="app-nav__user">
+      <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(utilisateur.email,0,1))}">U</div>
+      <a href="/logout" class="app-nav__link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></a>
+    </div>
+  </div>
+</nav>
+
+<main class="dashboard">
+
+  <a th:href="@{/employe/contrats}" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M11 6l-6 6 6 6"/>
+    </svg>
+    Retour aux contrats
+  </a>
+
+  <header class="dashboard__head">
+    <p class="eyebrow" th:text="|Contrat #${contrat.id}|">Contrat</p>
+    <h1 th:text="${contrat.contratType.libelle}">Type</h1>
+    <p class="dashboard__count">
+      <span class="badge"
+            th:classappend="${contrat.statut.libelle == 'VALIDE_PAR_DG' ? ' badge--accepted' :
+                            contrat.statut.libelle == 'ANNULE' ? ' badge--refused' :
+                            ' badge--pending'}"
+            th:text="${contrat.statut.libelle}"></span>
+    </p>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}"><span th:text="${erreur}"></span></p>
+  <p class="form__success is-visible" role="status" th:if="${succes}"><span th:text="${succes}"></span></p>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Détails</h2>
+    <div class="prop-list">
+      <div class="prop-list__row">
+        <span class="prop-list__label">Type</span>
+        <span class="prop-list__value" th:text="${contrat.contratType.libelle}"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Salaire</span>
+        <span class="prop-list__value"
+              th:text="${#numbers.formatDecimal(contrat.salaire, 0, 'COMMA', 0, 'POINT')} + ' Ar'"></span>
+      </div>
+      <div class="prop-list__row">
+        <span class="prop-list__label">Début</span>
+        <span class="prop-list__value"
+              th:text="${#temporals.format(contrat.dateDebut, 'dd MMMM yyyy')}"></span>
+      </div>
+      <div class="prop-list__row" th:if="${contrat.dateFin != null}">
+        <span class="prop-list__label">Fin</span>
+        <span class="prop-list__value"
+              th:text="${#temporals.format(contrat.dateFin, 'dd MMMM yyyy')}"></span>
+      </div>
+    </div>
+
+    <div class="action-bar" style="margin-top:20px;">
+      <form th:if="${contrat.statut.libelle == 'CREE'}"
+            th:action="@{'/employe/contrats/' + ${contrat.id} + '/signer'}"
+            method="post"
+            onsubmit="return confirm('Confirmer la signature de ce contrat ?');">
+        <button type="submit" class="btn btn--accept">Signer ce contrat</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Historique</h2>
+    <div class="timeline">
+      <div class="timeline-item" th:each="h : ${historique}">
+        <div class="timeline-item__dot"></div>
+        <div class="timeline-item__body">
+          <span class="timeline-item__date"
+                th:text="${#temporals.format(h.dateChangement, 'dd/MM/yyyy HH:mm')}"></span>
+          <span th:text="${h.statut.libelle}"></span>
+          <small th:if="${h.motif != null}" th:text="${'— ' + h.motif}"></small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

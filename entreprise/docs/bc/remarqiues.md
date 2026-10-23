@@ -15,6 +15,11 @@ Bloc 3 horaire endropwndloa list
 
 grille de salaire
 
-    
+
 Minimum:
-quand on confirm l asingitaure de contrat c est un modal et non un confirm() js direct
+quand on confirm l asingitaure de contrat c est un modal et non un confirm() js 
+
+
+seuil de reussite en dur
+
+voir mon contrat enlever

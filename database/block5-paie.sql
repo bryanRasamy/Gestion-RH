@@ -17,3 +17,4 @@ CREATE TABLE paie_periode (
 
 CREATE INDEX idx_paie_periode_employer ON paie_periode(id_employer);
 CREATE INDEX idx_paie_periode_periode ON paie_periode(annee, mois);
+

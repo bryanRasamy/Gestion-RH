@@ -1,7 +1,6 @@
 package gestion.entreprise.controller.dept;
 
 import gestion.entreprise.modele.*;
-import gestion.entreprise.repository.*;
 import gestion.entreprise.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,11 +53,10 @@ public class DgContratController {
             verifierDg(u);
             workflow.validerParDg(id, u.getId());
             ra.addFlashAttribute("succes", "Contrat validé. L'employé est officiellement embauché.");
-            return "redirect:/dg/contrats";
         } catch (Exception e) {
             ra.addFlashAttribute("erreur", e.getMessage());
-            return "redirect:/dg/contrats/" + id;
         }
+        return "redirect:/dg/contrats";
     }
 
     private void verifierDg(Utilisateur u) throws Exception {

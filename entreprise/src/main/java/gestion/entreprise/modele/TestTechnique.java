@@ -10,7 +10,7 @@ public class TestTechnique {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
+    
     @ManyToOne
     @JoinColumn(name = "id_poste", nullable = false)
     private Poste poste;

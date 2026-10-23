@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Mes contrats</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+
+<nav class="app-nav" id="appNav">
+  <div class="app-nav__inner">
+    <a th:href="@{/employe/accueil}" class="logo">
+      <span class="logo__mark">
+        <svg viewBox="0 0 32 32" width="17" height="17">
+          <path d="M8 27V5h7.5a6 6 0 0 1 0 12H8" fill="none"
+                stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+        </svg>
+      </span>
+      <span class="logo__word">Pivot</span>
+    </a>
+    <ul class="app-nav__links">
+      <li><a th:href="@{/employe/accueil}" class="app-nav__link">Accueil</a></li>
+      <li><a th:href="@{/employe/contrats}" class="app-nav__link is-active">Mon contrat</a></li>
+    </ul>
+    <div class="app-nav__user">
+      <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(utilisateur.email,0,1))}">U</div>
+      <a href="/logout" class="app-nav__link" title="Déconnexion">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main class="dashboard">
+
+  <header class="dashboard__head">
+    <p class="eyebrow">Mon espace employé</p>
+    <h1>Mes contrats</h1>
+    <p class="dashboard__count" th:text="${#lists.size(historique)} + ' contrat(s) au total'">0</p>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}">
+    <span th:text="${erreur}"></span>
+  </p>
+  <p class="form__success is-visible" role="status" th:if="${succes}">
+    <span th:text="${succes}"></span>
+  </p>
+
+  <!-- CONTRAT ACTUEL -->
+  <section class="detail-section" th:if="${contratActuel != null}">
+    <h2 class="detail-section__title">Contrat actuel</h2>
+
+    <div class="prop-list">
+      <div class="prop-list__row">
+        <span class="prop-list__label">Type</span>
+        <span class="prop-list__value" th:text="${contratActuel.contratType.libelle}"></span>
+      </div>
+
+      <div class="prop-list__row">
+        <span class="prop-list__label">Salaire</span>
+        <span class="prop-list__value"
+              th:text="${#numbers.formatDecimal(contratActuel.salaire, 0, 'COMMA', 0, 'POINT') + ' Ar'}"></span>
+      </div>
+
+      <div class="prop-list__row">
+        <span class="prop-list__label">Début</span>
+        <span class="prop-list__value"
+              th:text="${#temporals.format(contratActuel.dateDebut, 'dd MMMM yyyy')}"></span>
+      </div>
+
+      <div class="prop-list__row" th:if="${contratActuel.dateFin != null}">
+        <span class="prop-list__label">Fin</span>
+        <span class="prop-list__value"
+              th:text="${#temporals.format(contratActuel.dateFin, 'dd MMMM yyyy')}"></span>
+      </div>
+
+      <div class="prop-list__row">
+        <span class="prop-list__label">Statut</span>
+        <span class="prop-list__value" th:text="${contratActuel.statut.libelle}"></span>
+      </div>
+    </div>
+
+    <div class="action-bar" style="margin-top:20px;">
+      <a th:href="@{/employe/contrats/renouveler}"
+         class="btn btn--accept" style="text-decoration:none;">
+        ↻ Demander un renouvellement
+      </a>
+      <a th:href="@{/employe/contrats/{id}(id=${contratActuel.id})}"
+         class="btn btn--ghost" style="text-decoration:none;">
+        Voir le détail
+      </a>
+    </div>
+  </section>
+
+  <!-- HISTORIQUE -->
+  <section class="detail-section">
+    <h2 class="detail-section__title">Historique des contrats</h2>
+
+    <p th:if="${#lists.isEmpty(historique)}" class="req-form__hint">
+      Aucun contrat.
+    </p>
+
+    <div class="dashboard__grid" th:if="${!#lists.isEmpty(historique)}">
+      <article class="req-card" th:each="c : ${historique}">
+
+        <div class="req-card__head">
+          <!-- Badge statut : 3 cas séparés, pas de ternaire -->
+          <span th:if="${c.statut.libelle == 'VALIDE_PAR_DG'}"
+                class="badge badge--accepted"
+                th:text="${c.statut.libelle}">VALIDE</span>
+          <span th:if="${c.statut.libelle == 'ANNULE'}"
+                class="badge badge--refused"
+                th:text="${c.statut.libelle}">ANNULE</span>
+          <span th:if="${c.statut.libelle != 'VALIDE_PAR_DG' and c.statut.libelle != 'ANNULE'}"
+                class="badge badge--pending"
+                th:text="${c.statut.libelle}">PENDING</span>
+        </div>
+
+        <h3 class="req-card__ref" th:text="${c.contratType.libelle}">Contrat</h3>
+
+        <p class="req-card__meta">
+          <span th:text="${#temporals.format(c.dateDebut, 'dd/MM/yyyy')}"></span>
+          <span th:if="${c.dateFin != null}"
+                th:text="${' → ' + #temporals.format(c.dateFin, 'dd/MM/yyyy')}"></span>
+        </p>
+
+        <p class="req-card__meta"
+           th:text="${#numbers.formatDecimal(c.salaire, 0, 'COMMA', 0, 'POINT') + ' Ar'}"></p>
+
+        <div class="req-card__foot">
+          <a th:href="@{/employe/contrats/{id}(id=${c.id})}" class="req-card__link">
+            Voir le détail
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  var nav = document.getElementById('appNav');
+  var toggle = document.getElementById('appNavToggle');
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -21,6 +21,9 @@ public class LoginController {
     private UtilisateurService utilisateurService;
 
     @Autowired
+    private EmployeService employeService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/")
@@ -51,18 +54,28 @@ public class LoginController {
                 throw new RuntimeException("L'utilisateur est introuvable");
             }
 
+            Utilisateur full = utilisateurService.getById(utilisateur.getId());
             utilisateur.setMdp(null);
 
             session.setAttribute("idUtilisateur", utilisateur.getId());
 
-            Role role = utilisateur.getRole();
+            Role role = full.getRole();
 
             if (role == null) {
-                // Candidat → espace offres
+                if (employeService.estEmploye(full)) {
+                    return "redirect:/employe/accueil";
+                }
                 return "redirect:/offres";
             }
 
-            return "redirect:/" + role.getSigle().toLowerCase() + "/accueil";
+            if ("DG".equalsIgnoreCase(role.getSigle())
+                    || "RH".equalsIgnoreCase(role.getSigle())
+                    || "FINANCE".equalsIgnoreCase(role.getSigle())
+                    || "MANAGER".equalsIgnoreCase(role.getSigle())) {
+                return "redirect:/" + role.getSigle().toLowerCase() + "/accueil";
+            }
+
+            return "redirect:/employe/accueil";
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erreur", e.getMessage());
