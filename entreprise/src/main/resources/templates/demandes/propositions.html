@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Propositions</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="dashboard">
+  <header class="dashboard__head">
+    <p class="eyebrow">Espace RH</p>
+    <h1>Propositions d'embauche</h1>
+    <p class="dashboard__count" th:text="${#lists.size(propositions)} + ' proposition(s)'">0</p>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}"><span th:text="${erreur}"></span></p>
+  <p class="form__success is-visible" role="status" th:if="${succes}"><span th:text="${succes}"></span></p>
+
+  <div class="dashboard__grid">
+    <article class="req-card" th:each="p : ${propositions}">
+      <div class="req-card__head">
+        <span class="badge"
+              th:classappend="${p.statut.libelle == 'ACCEPTEE' ? ' badge--accepted' :
+                              p.statut.libelle == 'REFUSEE' || p.statut.libelle == 'EXPIREE' ? ' badge--refused' :
+                              ' badge--pending'}"
+              th:text="${p.statut.libelle}">Statut</span>
+      </div>
+      <h3 class="req-card__ref" th:text="${p.candidat.prenom + ' ' + p.candidat.nom}">Candidat</h3>
+      <p class="req-card__meta">
+        <span th:text="${p.candidat.detailDemande.poste.libelle}"></span> ·
+        <span th:text="${p.contratType.libelle}"></span> ·
+        <span th:text="${#numbers.formatDecimal(p.salaire, 0, 'COMMA', 0, 'POINT')} + ' Ar'"></span>
+      </p>
+      <div class="req-card__foot">
+        <a th:href="@{/rh/propositions/{id}(id=${p.id})}" class="req-card__link">
+          Voir la proposition
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+  </div>
+</main>
+<script>
+(function () {
+  var nav = document.getElementById('appNav');
+  var toggle = document.getElementById('appNavToggle');
+  if (toggle) toggle.addEventListener('click', function() {
+    var open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+})();
+</script>
+</body>
+</html>

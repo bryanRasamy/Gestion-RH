@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pivot — Proposition</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+<body class="dashboard-page">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="dashboard">
+  <a th:href="@{/rh/propositions}" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5M11 6l-6 6 6 6"/>
+    </svg>
+    Retour aux propositions
+  </a>
+
+  <header class="dashboard__head">
+    <p class="eyebrow"
+       th:text="|Proposition — ${proposition.candidat.prenom + ' ' + proposition.candidat.nom}|"></p>
+    <h1>Détail de la proposition</h1>
+    <p class="dashboard__count">
+      <span class="badge"
+            th:classappend="${proposition.statut.libelle == 'ACCEPTEE' ? ' badge--accepted' :
+                            proposition.statut.libelle == 'REFUSEE' || proposition.statut.libelle == 'EXPIREE' ? ' badge--refused' :
+                            ' badge--pending'}"
+            th:text="${proposition.statut.libelle}"></span>
+    </p>
+  </header>
+
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}"><span th:text="${erreur}"></span></p>
+  <p class="form__success is-visible" role="status" th:if="${succes}"><span th:text="${succes}"></span></p>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Conditions</h2>
+    <div class="detail-meta">
+      <span><strong>Salaire :</strong> <span th:text="${#numbers.formatDecimal(proposition.salaire, 0, 'COMMA', 0, 'POINT')} + ' Ar'"></span></span>
+      <span><strong>Type de contrat :</strong> <span th:text="${proposition.contratType.libelle}"></span></span>
+      <span><strong>Date de début :</strong> <span th:text="${#temporals.format(proposition.dateDebut, 'dd MMMM yyyy')}"></span></span>
+      <span><strong>Lieu :</strong> <span th:text="${proposition.lieuTravail}"></span></span>
+      <span><strong>Horaires :</strong> <span th:text="${proposition.horaires}"></span></span>
+      <span><strong>Période d'essai :</strong> <span th:text="${proposition.dureeEssaiMois} + ' mois'"></span></span>
+    </div>
+  </section>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Réponses du candidat</h2>
+    <div th:each="q : ${questions}" class="detail-card" style="margin-bottom:8px;">
+      <p><strong th:text="${q.question}"></strong></p>
+      <p th:if="${q.reponse != null}">
+        Réponse : <strong th:text="${q.reponse.libelle}"></strong>
+      </p>
+      <p th:if="${q.remarque != null}" th:text="'Remarque : ' + ${q.remarque}"></p>
+    </div>
+  </section>
+
+  <section class="detail-section" th:if="${proposition.statut.libelle == 'EN_NEGOCIATION' or proposition.statut.libelle == 'EN_VALIDATION_RH'}">
+    <h2 class="detail-section__title">Décision RH</h2>
+    <form th:action="@{'/rh/propositions/' + ${proposition.id} + '/valider'}" method="post" class="req-form">
+      <div class="field">
+        <div class="field__control">
+          <textarea name="reponseRh" rows="3"
+                    placeholder="Réponse / motif de validation ou refus"></textarea>
+        </div>
+      </div>
+      <div class="action-bar">
+        <button type="submit" name="accepte" value="true" class="btn btn--accept">✓ Valider</button>
+        <button type="submit" name="accepte" value="false" class="btn btn--danger">✗ Refuser</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="detail-section" th:if="${proposition.statut.libelle == 'ACCEPTEE'}">
+    <h2 class="detail-section__title">Contrat</h2>
+    <a th:href="@{'/rh/propositions/' + ${proposition.id} + '/contrat.pdf'}"
+       class="btn btn--accept" style="text-decoration:none;">
+      📄 Télécharger le contrat PDF
+    </a>
+  </section>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Historique</h2>
+    <div class="timeline">
+      <div class="timeline-item" th:each="h : ${historique}">
+        <div class="timeline-item__dot"></div>
+        <div class="timeline-item__body">
+          <span class="timeline-item__date"
+                th:text="${#temporals.format(h.dateChangement, 'dd/MM/yyyy HH:mm')}"></span>
+          <span th:text="${h.statut.libelle}"></span>
+          <small th:if="${h.motif != null}" th:text="'— ' + ${h.motif}"></small>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+(function () {
+  var nav = document.getElementById('appNav');
+  var toggle = document.getElementById('appNavToggle');
+  if (toggle) toggle.addEventListener('click', function() {
+    var open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+})();
+</script>
+</body>
+</html>

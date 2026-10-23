@@ -30,6 +30,11 @@
       <li th:if="${role != null and role.sigle == 'RH'}">
   <a th:href="@{/rh/candidatures}" class="app-nav__link">Candidatures</a>
 </li>
+
+<li th:if="${role != null and role.sigle == 'RH'}">
+  <a th:href="@{/rh/propositions}" class="app-nav__link">Propositions</a>
+</li>
+
     </ul>
 
     <div class="app-nav__user">

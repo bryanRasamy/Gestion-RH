@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+    <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="|Pivot — ${titre}|">Pivot</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body>
+
+<th:block th:fragment="contenu">
+
+  <header class="dashboard__head">
+    <p class="eyebrow">Proposition d'embauche</p>
+    <h1>Répondez aux conditions</h1>
+    <p class="dashboard__count">
+      Proposition valable jusqu'au
+      <strong th:text="${#temporals.format(proposition.dateExpiration, 'dd MMMM yyyy à HH:mm')}"></strong>
+    </p>
+  </header>
+
+  <form th:action="@{'/mes-candidatures/' + ${proposition.candidat.id} + '/proposition'}"
+        method="post" class="req-form">
+
+    <div th:each="q, iter : ${questions}" class="qcm-block">
+  <p class="qcm-block__title">
+    <span class="qcm-block__num" th:text="${iter.count}"></span>
+    <span th:text="${q.question}"></span>
+  </p>
+
+  <!-- Ordre de l'input caché : un par question, tous nommés "questionIds" -->
+  <input type="hidden" name="questionIds" th:value="${q.id}">
+
+  <label class="qcm-option">
+    <input type="radio" name="reponses" value="OUI" required>
+    <span class="qcm-option__letter">OUI</span>
+    <span class="qcm-option__text">J'accepte</span>
+  </label>
+  <label class="qcm-option">
+    <input type="radio" name="reponses" value="NON">
+    <span class="qcm-option__letter">NON</span>
+    <span class="qcm-option__text">Je refuse</span>
+  </label>
+  <label class="qcm-option">
+    <input type="radio" name="reponses" value="AUTRE">
+    <span class="qcm-option__letter">?</span>
+    <span class="qcm-option__text">Autre (précisez en remarque)</span>
+  </label>
+
+  <div class="field" style="margin-top:8px;">
+    <div class="field__control">
+      <textarea name="remarques" rows="2"
+                placeholder="Remarque (si NON ou AUTRE)"></textarea>
+    </div>
+  </div>
+</div>
+
+    <div class="qcm-block">
+      <p class="qcm-block__title">
+        <span class="qcm-block__num">7</span>
+        <span>Type de contrat</span>
+      </p>
+      <p class="req-form__hint" style="margin-bottom:12px;">
+        Par défaut : <strong>CE (Contrat d'Essai)</strong>. Si vous choisissez un autre type, la RH devra valider.
+      </p>
+      <label class="qcm-option">
+        <input type="radio" name="contratChoisi" value="CE" checked required>
+        <span class="qcm-option__letter">CE</span>
+        <span class="qcm-option__text">Contrat d'Essai (6 mois, renouvelable 1 fois) — défaut</span>
+      </label>
+      <label class="qcm-option">
+        <input type="radio" name="contratChoisi" value="CDD">
+        <span class="qcm-option__letter">CDD</span>
+        <span class="qcm-option__text">Contrat à Durée Déterminée (24 mois max)</span>
+      </label>
+      <label class="qcm-option">
+        <input type="radio" name="contratChoisi" value="CDI">
+        <span class="qcm-option__letter">CDI</span>
+        <span class="qcm-option__text">Contrat à Durée Indéterminée</span>
+      </label>
+    </div>
+
+    <div class="req-form__foot">
+      <p class="req-form__hint">
+        Vous avez <strong>un seul round de négociation</strong>.
+      </p>
+      <button type="submit" class="submit">
+        <span class="submit__label">Envoyer ma réponse</span>
+      </button>
+    </div>
+  </form>
+
+  <form th:action="@{'/mes-candidatures/' + ${proposition.candidat.id} + '/proposition/abandonner'}"
+        method="post" style="margin-top:24px;">
+    <button type="submit" class="btn btn--ghost">Abandonner la proposition</button>
+  </form>
+
+</th:block>
+
+</body>
+</html>

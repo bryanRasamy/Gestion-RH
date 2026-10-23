@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="|Pivot — ${titre}|">Pivot</title>
+  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
+</head>
+
+<body>
+
+<th:block th:fragment="contenu">
+
+  <header class="dashboard__head">
+    <p class="eyebrow">Proposition d'embauche</p>
+    <h1>Statut de votre proposition</h1>
+  </header>
+
+  <div class="detail-card" style="margin-bottom:24px;">
+    <p>
+      <strong>Statut :</strong>
+      <span class="badge"
+            th:classappend="${proposition.statut.libelle == 'ACCEPTEE' ? ' badge--accepted' :
+                            proposition.statut.libelle == 'REFUSEE' || proposition.statut.libelle == 'EXPIREE' ? ' badge--refused' :
+                            ' badge--pending'}"
+            th:text="${proposition.statut.libelle}"></span>
+    </p>
+    <p th:if="${proposition.statut.libelle == 'EN_NEGOCIATION'}">
+      Votre demande de négociation a été transmise à la RH.
+    </p>
+    <p th:if="${proposition.statut.libelle == 'EN_VALIDATION_RH'}">
+      Votre choix de contrat a été transmis à la RH.
+    </p>
+    <p th:if="${proposition.statut.libelle == 'ACCEPTEE'}">
+      Félicitations ! Votre proposition est acceptée. Vous pouvez télécharger votre contrat.
+    </p>
+    <p th:if="${proposition.statut.libelle == 'REFUSEE'}">
+      Votre proposition a été refusée ou vous l'avez abandonnée.
+    </p>
+
+    <a th:if="${proposition.statut.libelle == 'ACCEPTEE'}"
+       th:href="@{'/mes-candidatures/' + ${proposition.candidat.id} + '/proposition/contrat.pdf'}"
+       class="btn btn--accept" style="text-decoration:none;">
+      📄 Télécharger mon contrat
+    </a>
+  </div>
+
+  <h2 class="detail-section__title">Historique</h2>
+  <div class="timeline">
+    <div class="timeline-item" th:each="h : ${historique}">
+      <div class="timeline-item__dot"></div>
+      <div class="timeline-item__body">
+        <span class="timeline-item__date"
+              th:text="${#temporals.format(h.dateChangement, 'dd/MM/yyyy HH:mm')}"></span>
+        <span th:text="${h.statut.libelle}"></span>
+        <small th:if="${h.motif != null}" th:text="'— ' + ${h.motif}"></small>
+      </div>
+    </div>
+  </div>
+
+  <a th:href="@{/mes-candidatures}" class="back-link">Retour à mes candidatures</a>
+
+</th:block>
+
+</body>
+</html>

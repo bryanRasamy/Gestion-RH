@@ -8,3 +8,7 @@ dg doit pouvior tout faire
 les donnees ?
 
 etablissement dropdownlist ? 
+
+le candidat doit pouvoir voir ses resultat poru cahque niveau
+
+Bloc 3 horaire endropwndloa list

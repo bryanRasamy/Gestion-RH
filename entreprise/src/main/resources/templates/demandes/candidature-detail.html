@@ -276,13 +276,29 @@
   </section>
 
   <!-- Candidature clôturée -->
-  <section class="detail-section" th:if="${candidat.status == 'ACCEPTE' or candidat.status == 'REFUSE'}">
+    <!-- Candidature clôturée -->
+  <section class="detail-section" th:if="${candidat.status == 'REFUSE'}">
     <h2 class="detail-section__title">Candidature clôturée</h2>
     <p class="req-form__hint">
-      Cette candidature est
-      <strong th:text="${candidat.status == 'ACCEPTE' ? 'acceptée' : 'refusée'}"></strong>.
-      Aucune action n'est possible.
+      Cette candidature est <strong>refusée</strong>. Aucune action n'est possible.
     </p>
+  </section>
+
+  <!-- Proposition d'embauche — uniquement si ACCEPTE -->
+  <section class="detail-section" th:if="${candidat.status == 'ACCEPTE'}">
+    <h2 class="detail-section__title">Proposition d'embauche</h2>
+    <div class="action-bar">
+      <a th:if="${propositionExistante == null}"
+         th:href="@{'/rh/candidatures/' + ${candidat.id} + '/proposition'}"
+         class="btn btn--accept" style="text-decoration:none;">
+        ✚ Créer une proposition d'embauche
+      </a>
+      <a th:if="${propositionExistante != null}"
+         th:href="@{'/rh/propositions/' + ${propositionExistante.id}}"
+         class="btn btn--ghost" style="text-decoration:none;">
+        📄 Voir la proposition
+      </a>
+    </div>
   </section>
 
 </main>
