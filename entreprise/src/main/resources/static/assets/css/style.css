@@ -3556,7 +3556,6 @@ body.dashboard-page {
 .qcm-option input[type="radio"] {
   position: absolute;
   opacity: 0;
-  pointer-events: none;
   width: 1px;
   height: 1px;
 }
@@ -3613,4 +3612,776 @@ body.dashboard-page {
 .qcm-option:has(input[type="radio"]:focus-visible) {
   outline: 2px solid var(--accent-ink);
   outline-offset: 2px;
+}
+
+/* ============================================================
+   Boutons désactivés — apparence clairement grisée
+   ============================================================ */
+.btn:disabled,
+.btn[disabled],
+button.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(40%);
+}
+
+/* Neutraliser le hover quand le bouton est disabled */
+.btn:disabled:hover,
+.btn[disabled]:hover {
+  background: inherit;
+  border-color: inherit;
+  color: inherit;
+}
+
+/* Spécifique : bouton Accepter désactivé doit rester vert mais atténué */
+.btn--accept:disabled {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #fff;
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(40%);
+}
+
+.btn--accept:disabled:hover {
+  background: var(--ok);
+  border-color: var(--ok);
+  cursor: not-allowed;
+}
+
+/* Même chose pour .btn--warning et .btn--danger si un jour ils sont disabled */
+.btn--warning:disabled,
+.btn--danger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(40%);
+}
+
+/* ============================================================
+   Textarea de remarque dans un QCM block
+   ============================================================ */
+.qcm-remarque {
+  margin-top: 14px;
+}
+
+.qcm-remarque__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.qcm-remarque__label small {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-4);
+}
+
+.qcm-remarque textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--cream);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-1);
+  resize: vertical;
+  min-height: 60px;
+  transition: border-color .25s var(--ease), background .25s var(--ease);
+}
+
+.qcm-remarque textarea:focus {
+  border-color: var(--accent-ink);
+  background: var(--card-bg);
+  outline: none;
+}
+
+.qcm-remarque textarea:disabled {
+  background: var(--cream-2);
+  color: var(--text-4);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.qcm-remarque textarea::placeholder {
+  color: rgba(20, 18, 16, .35);
+  font-weight: 300;
+}
+
+/* ============================================================
+   17. Proposition d'embauche — cards RH
+   ============================================================ */
+
+/* Conditions proposées */
+.prop-conditions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.prop-cond {
+  background: var(--card-bg);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.prop-cond__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.prop-cond__value {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--text-1);
+  letter-spacing: -.01em;
+}
+
+.prop-cond__hint {
+  font-size: 11.5px;
+  color: var(--text-3);
+  letter-spacing: .02em;
+}
+
+/* Réponses du candidat */
+.prop-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prop-answer {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: 2px;
+  padding: 16px 20px 18px;
+}
+
+.prop-answer__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.prop-answer__num {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.prop-answer__question {
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--text-1);
+  font-weight: 500;
+}
+
+.prop-answer__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 34px;
+}
+
+.prop-answer__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  align-self: flex-start;
+  border: 1px solid currentColor;
+}
+
+.prop-answer__badge--ok {
+  color: var(--ok);
+  background: rgba(44, 90, 66, .09);
+  border-color: rgba(44, 90, 66, .24);
+}
+
+.prop-answer__badge--no {
+  color: var(--no);
+  background: rgba(138, 46, 35, .09);
+  border-color: rgba(138, 46, 35, .24);
+}
+
+.prop-answer__badge--warn {
+  color: var(--review);
+  background: rgba(166, 58, 21, .09);
+  border-color: rgba(166, 58, 21, .24);
+}
+
+.prop-answer__badge--empty {
+  color: var(--text-3);
+  background: transparent;
+  border-color: var(--line-strong);
+}
+
+.prop-answer__remarque {
+  margin: 0;
+  padding: 10px 12px;
+  background: rgba(20, 18, 16, .03);
+  border-left: 2px solid var(--line-strong);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.prop-answer__remarque strong {
+  color: var(--text-1);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+/* Textarea de décision RH — cohérent avec .qcm-remarque */
+#rhDecisionForm textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--cream);
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-1);
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color .25s var(--ease), background .25s var(--ease);
+}
+
+#rhDecisionForm textarea:focus {
+  border-color: var(--accent-ink);
+  background: var(--card-bg);
+  outline: none;
+}
+
+#rhDecisionForm textarea::placeholder {
+  color: rgba(20, 18, 16, .35);
+  font-weight: 300;
+}
+
+/* =========================================================
+   DÉCISION RH — formulaire de validation
+   ========================================================= */
+/* =========================================================
+   DÉCISION RH — formulaire de validation
+   ========================================================= */
+
+.rh-decision {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.rh-decision__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rh-decision__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: .01em;
+}
+
+.rh-decision__optional {
+  font-weight: 400;
+  color: var(--text-3);
+}
+
+/* --- Textarea : wrapper focus-ring, pas de bordure brute --- */
+.rh-decision__textarea-wrap {
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--cream);
+  transition: border-color .25s var(--ease), background .25s var(--ease),
+              box-shadow .25s var(--ease);
+}
+
+.rh-decision__textarea-wrap:focus-within {
+  border-color: var(--accent-ink);
+  background: var(--card-bg);
+  box-shadow: 0 0 0 3px rgba(20, 18, 16, .06);
+}
+
+.rh-decision__textarea {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 14px;
+  border: none;
+  outline: none;
+  resize: vertical;
+  background: transparent;
+  color: var(--text-1);
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.6;
+  border-radius: inherit;
+}
+
+.rh-decision__textarea::placeholder {
+  color: rgba(20, 18, 16, .35);
+  font-weight: 300;
+}
+
+/* --- Actions : 2 cards OUI / NON --- */
+.rh-decision__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .rh-decision__actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rh-decision__card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  text-align: left;
+  background: var(--card-bg);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: border-color .2s var(--ease), background .2s var(--ease),
+              transform .12s var(--ease), box-shadow .2s var(--ease);
+}
+
+.rh-decision__card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(20, 18, 16, .07);
+}
+
+.rh-decision__card:active {
+  transform: translateY(0);
+}
+
+.rh-decision__card:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+
+.rh-decision__card-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+}
+
+.rh-decision__card-title {
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--text-1);
+}
+
+/* --- Card NON : highlight rouge --- */
+.rh-decision__card--no {
+  border-color: rgba(138, 46, 35, .35);
+  background: rgba(138, 46, 35, .05);
+}
+.rh-decision__card--no .rh-decision__card-icon {
+  background: rgba(138, 46, 35, .12);
+  color: var(--no);
+}
+.rh-decision__card--no .rh-decision__card-title {
+  color: var(--no);
+}
+.rh-decision__card--no:hover {
+  border-color: var(--no);
+  background: rgba(138, 46, 35, .09);
+}
+
+/* --- Card OUI : highlight vert (accent-ink) --- */
+.rh-decision__card--yes {
+  border-color: rgba(26, 92, 60, .35);      /* adapte au token vert de ton DS */
+  background: rgba(26, 92, 60, .05);
+}
+.rh-decision__card--yes .rh-decision__card-icon {
+  background: rgba(26, 92, 60, .12);
+  color: var(--accent-ink);                  /* ton vert d'accent */
+}
+.rh-decision__card--yes .rh-decision__card-title {
+  color: var(--accent-ink);
+}
+.rh-decision__card--yes:hover {
+  border-color: var(--accent-ink);
+  background: rgba(26, 92, 60, .09);
+}
+
+/* ============================================================
+   17. Proposition RH — liste conditions
+   ============================================================ */
+
+.prop-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.prop-list__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.prop-list__label {
+  flex-shrink: 0;
+  min-width: 160px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.prop-list__value {
+  text-align: right;
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--text-1);
+  letter-spacing: -.005em;
+}
+
+.prop-list__meta {
+  display: inline-block;
+  margin-left: 8px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text-3);
+  letter-spacing: .02em;
+}
+
+@media (max-width: 640px) {
+  .prop-list__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .prop-list__value { text-align: left; }
+}
+
+/* ============================================================
+   Réponses candidat
+   ============================================================ */
+
+.prop-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prop-answer {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 16px 20px 18px;
+}
+
+.prop-answer__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.prop-answer__num {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.prop-answer__question {
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--text-1);
+  font-weight: 500;
+}
+
+.prop-answer__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 34px;
+}
+
+.prop-answer__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  align-self: flex-start;
+  border: 1px solid currentColor;
+}
+
+.prop-answer__badge--ok {
+  color: var(--ok);
+  background: rgba(44, 90, 66, .09);
+  border-color: rgba(44, 90, 66, .28);
+}
+
+.prop-answer__badge--no {
+  color: var(--no);
+  background: rgba(138, 46, 35, .09);
+  border-color: rgba(138, 46, 35, .28);
+}
+
+.prop-answer__badge--warn {
+  color: var(--review);
+  background: rgba(166, 58, 21, .09);
+  border-color: rgba(166, 58, 21, .28);
+}
+
+.prop-answer__badge--empty {
+  color: var(--text-3);
+  background: transparent;
+  border-color: var(--line-strong);
+}
+
+.prop-answer__remarque {
+  margin: 0;
+  padding: 10px 12px;
+  background: rgba(20, 18, 16, .03);
+  border-left: 2px solid var(--line-strong);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.prop-answer__remarque strong {
+  color: var(--text-1);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+/* ============================================================
+   DÉCISION RH — textarea + cards OUI/NON
+   ============================================================ */
+
+.rh-decision {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.rh-decision__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rh-decision__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: .01em;
+}
+
+.rh-decision__optional {
+  font-weight: 400;
+  color: var(--text-3);
+}
+
+/* Textarea — pas de bordure brute, wrapper avec focus-ring */
+.rh-decision__textarea-wrap {
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--cream);
+  transition: border-color .25s var(--ease),
+              background .25s var(--ease),
+              box-shadow .25s var(--ease);
+}
+
+.rh-decision__textarea-wrap:focus-within {
+  border-color: var(--accent-ink);
+  background: var(--card-bg);
+  box-shadow: 0 0 0 3px rgba(20, 18, 16, .06);
+}
+
+.rh-decision__textarea {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 14px;
+  border: none;
+  outline: none;
+  resize: vertical;
+  background: transparent;
+  color: var(--text-1);
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.6;
+  border-radius: inherit;
+}
+
+.rh-decision__textarea::placeholder {
+  color: rgba(20, 18, 16, .35);
+  font-weight: 300;
+}
+
+/* Actions : 2 cards côte à côte */
+.rh-decision__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .rh-decision__actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rh-decision__card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  text-align: left;
+  background: var(--card-bg);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: border-color .2s var(--ease),
+              background .2s var(--ease),
+              transform .12s var(--ease),
+              box-shadow .2s var(--ease);
+}
+
+.rh-decision__card:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+
+.rh-decision__card:active {
+  transform: translateY(0);
+}
+
+.rh-decision__card-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+}
+
+.rh-decision__card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.rh-decision__card-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.rh-decision__card-desc {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--text-3);
+}
+
+/* --- Card NON : rouge (var(--no)) --- */
+.rh-decision__card--no {
+  border-color: rgba(138, 46, 35, .35);
+  background: rgba(138, 46, 35, .05);
+}
+.rh-decision__card--no .rh-decision__card-icon {
+  background: rgba(138, 46, 35, .14);
+  color: var(--no);
+}
+.rh-decision__card--no .rh-decision__card-title {
+  color: var(--no);
+}
+.rh-decision__card--no:hover {
+  border-color: var(--no);
+  background: rgba(138, 46, 35, .10);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -8px rgba(138, 46, 35, .35);
+}
+
+/* --- Card OUI : vert (var(--ok)) --- */
+.rh-decision__card--yes {
+  border-color: rgba(44, 90, 66, .35);
+  background: rgba(44, 90, 66, .05);
+}
+.rh-decision__card--yes .rh-decision__card-icon {
+  background: rgba(44, 90, 66, .14);
+  color: var(--ok);
+}
+.rh-decision__card--yes .rh-decision__card-title {
+  color: var(--ok);
+}
+.rh-decision__card--yes:hover {
+  border-color: var(--ok);
+  background: rgba(44, 90, 66, .10);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -8px rgba(44, 90, 66, .35);
 }

@@ -25,21 +25,23 @@ public class PropositionController {
     public String afficher(@PathVariable int idCandidat, Model model,
                             HttpSession session, RedirectAttributes ra) {
         try {
-            verifierAcces(idCandidat, session);
+            Utilisateur u = verifierAcces(idCandidat, session);
             PropositionEmbauche p = propositionService.getProposition(idCandidat);
             if (p == null) throw new RuntimeException("Aucune proposition pour ce candidat");
 
+            model.addAttribute("utilisateur", u);
+            model.addAttribute("titre", "Proposition d'embauche");
+            model.addAttribute("menu", "mes-candidatures");
+            model.addAttribute("proposition", p);
+
             if ("EN_ATTENTE_CANDIDAT".equals(p.getStatut().getLibelle())) {
-                model.addAttribute("proposition", p);
                 model.addAttribute("questions", propositionService.getQuestions(p.getId()));
-                model.addAttribute("titre", "Proposition d'embauche");
-                return "candidat/proposition";
+                model.addAttribute("page", "candidat/proposition");
             } else {
-                model.addAttribute("proposition", p);
                 model.addAttribute("historique", propositionService.getHistorique(p.getId()));
-                model.addAttribute("titre", "Proposition d'embauche");
-                return "candidat/proposition-statut";
+                model.addAttribute("page", "candidat/proposition-statut");
             }
+            return "candidat/header";
         } catch (Exception e) {
             ra.addFlashAttribute("erreur", e.getMessage());
             return "redirect:/mes-candidatures";
@@ -48,27 +50,30 @@ public class PropositionController {
 
     @PostMapping("/mes-candidatures/{idCandidat}/proposition")
     public String repondre(@PathVariable int idCandidat,
+                           @RequestParam String action,
                            @RequestParam List<Integer> questionIds,
                            @RequestParam List<String> reponses,
-                           @RequestParam List<String> remarques,
-                           @RequestParam String contratChoisi,
+                           @RequestParam(required = false) List<String> remarques,
+                           @RequestParam(required = false, defaultValue = "CE") String contratChoisi,
+                           @RequestParam(required = false) String motifAction,
                            HttpSession session, RedirectAttributes ra) {
         try {
             verifierAcces(idCandidat, session);
             PropositionEmbauche p = propositionService.getProposition(idCandidat);
             if (p == null) throw new RuntimeException("Aucune proposition");
 
-            PropositionEmbauche updated = propositionService.repondre(p.getId(), questionIds,
-                    reponses, remarques, contratChoisi);
+            PropositionEmbauche updated = propositionService.repondre(
+                    p.getId(), action, questionIds, reponses, remarques, contratChoisi, motifAction);
 
             String statut = updated.getStatut().getLibelle();
             if ("ACCEPTEE".equals(statut)) {
-                ra.addFlashAttribute("succes", "Félicitations ! Votre proposition est acceptée. "
-                        + "Vous pouvez télécharger votre contrat.");
+                ra.addFlashAttribute("succes", "Félicitations ! Proposition acceptée.");
             } else if ("EN_VALIDATION_RH".equals(statut)) {
                 ra.addFlashAttribute("succes", "Votre choix de contrat a été transmis à la RH.");
-            } else {
+            } else if ("EN_NEGOCIATION".equals(statut)) {
                 ra.addFlashAttribute("succes", "Votre demande de négociation a été transmise à la RH.");
+            } else if ("REFUSEE".equals(statut)) {
+                ra.addFlashAttribute("info", "Vous avez refusé la proposition.");
             }
             return "redirect:/mes-candidatures/" + idCandidat + "/proposition";
         } catch (Exception e) {
@@ -77,18 +82,22 @@ public class PropositionController {
         }
     }
 
-    @PostMapping("/mes-candidatures/{idCandidat}/proposition/abandonner")
-    public String abandonner(@PathVariable int idCandidat, HttpSession session, RedirectAttributes ra) {
+    @PostMapping("/mes-candidatures/{idCandidat}/proposition/confirmer")
+    public String confirmerFinal(@PathVariable int idCandidat,
+                                 @RequestParam String action,
+                                 HttpSession session, RedirectAttributes ra) {
         try {
             verifierAcces(idCandidat, session);
             PropositionEmbauche p = propositionService.getProposition(idCandidat);
             if (p == null) throw new RuntimeException("Aucune proposition");
-            propositionService.abandonnerCandidat(p.getId());
-            ra.addFlashAttribute("succes", "Vous avez abandonné la proposition.");
-            return "redirect:/mes-candidatures";
+
+            propositionService.confirmerFinal(p.getId(), action);
+            ra.addFlashAttribute("succes",
+                    "ACCEPTER".equalsIgnoreCase(action) ? "Proposition acceptée !" : "Vous avez abandonné.");
+            return "redirect:/mes-candidatures/" + idCandidat + "/proposition";
         } catch (Exception e) {
             ra.addFlashAttribute("erreur", e.getMessage());
-            return "redirect:/mes-candidatures";
+            return "redirect:/mes-candidatures/" + idCandidat + "/proposition";
         }
     }
 
@@ -111,12 +120,13 @@ public class PropositionController {
         }
     }
 
-    private void verifierAcces(int idCandidat, HttpSession session) throws Exception {
+    private Utilisateur verifierAcces(int idCandidat, HttpSession session) throws Exception {
         Object idU = session.getAttribute("idUtilisateur");
         if (idU == null) throw new RuntimeException("Veuillez vous connecter");
         Candidat c = candidatRepository.findById(idCandidat).orElseThrow();
         if (c.getUtilisateur() == null || c.getUtilisateur().getId() != (int) idU) {
             throw new RuntimeException("Accès non autorisé");
         }
+        return utilisateurService.getById((int) idU);
     }
 }

@@ -1,13 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title th:text="|Pivot — ${titre}|">Pivot</title>
-  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
-</head>
-
 <body>
 
 <th:block th:fragment="contenu">
@@ -23,14 +15,18 @@
       <span class="badge"
             th:classappend="${proposition.statut.libelle == 'ACCEPTEE' ? ' badge--accepted' :
                             proposition.statut.libelle == 'REFUSEE' || proposition.statut.libelle == 'EXPIREE' ? ' badge--refused' :
+                            proposition.statut.libelle == 'EN_NEGOCIATION' || proposition.statut.libelle == 'EN_VALIDATION_RH' || proposition.statut.libelle == 'EN_ATTENTE_FINAL' ? ' badge--review' :
                             ' badge--pending'}"
             th:text="${proposition.statut.libelle}"></span>
     </p>
     <p th:if="${proposition.statut.libelle == 'EN_NEGOCIATION'}">
-      Votre demande de négociation a été transmise à la RH.
+      Votre demande de négociation a été transmise à la RH. Vous recevrez une réponse.
     </p>
     <p th:if="${proposition.statut.libelle == 'EN_VALIDATION_RH'}">
-      Votre choix de contrat a été transmis à la RH.
+      Votre choix de contrat (CDD/CDI) est en attente de validation par la RH.
+    </p>
+    <p th:if="${proposition.statut.libelle == 'EN_ATTENTE_FINAL'}">
+      La RH a accepté votre négociation. Vous devez maintenant confirmer votre décision finale.
     </p>
     <p th:if="${proposition.statut.libelle == 'ACCEPTEE'}">
       Félicitations ! Votre proposition est acceptée. Vous pouvez télécharger votre contrat.
@@ -46,18 +42,38 @@
     </a>
   </div>
 
-  <h2 class="detail-section__title">Historique</h2>
-  <div class="timeline">
-    <div class="timeline-item" th:each="h : ${historique}">
-      <div class="timeline-item__dot"></div>
-      <div class="timeline-item__body">
-        <span class="timeline-item__date"
-              th:text="${#temporals.format(h.dateChangement, 'dd/MM/yyyy HH:mm')}"></span>
-        <span th:text="${h.statut.libelle}"></span>
-        <small th:if="${h.motif != null}" th:text="'— ' + ${h.motif}"></small>
+  <!-- Actions finales quand EN_ATTENTE_FINAL -->
+  <section class="detail-section" th:if="${proposition.statut.libelle == 'EN_ATTENTE_FINAL'}">
+    <h2 class="detail-section__title">Décision finale</h2>
+    <div class="action-bar">
+      <form th:action="@{'/mes-candidatures/' + ${proposition.candidat.id} + '/proposition/confirmer'}"
+            method="post" style="display:inline;">
+        <input type="hidden" name="action" value="ACCEPTER">
+        <button type="submit" class="btn btn--accept">✓ Accepter définitivement</button>
+      </form>
+      <form th:action="@{'/mes-candidatures/' + ${proposition.candidat.id} + '/proposition/confirmer'}"
+            method="post" style="display:inline;"
+            onsubmit="return confirm('Confirmer l\'abandon ? Cette action est définitive.');">
+        <input type="hidden" name="action" value="REFUSER">
+        <button type="submit" class="btn btn--danger">✗ Abandonner</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="detail-section">
+    <h2 class="detail-section__title">Historique</h2>
+    <div class="timeline">
+      <div class="timeline-item" th:each="h : ${historique}">
+        <div class="timeline-item__dot"></div>
+        <div class="timeline-item__body">
+          <span class="timeline-item__date"
+                th:text="${#temporals.format(h.dateChangement, 'dd/MM/yyyy HH:mm')}"></span>
+          <span th:text="${h.statut.libelle}"></span>
+          <small th:if="${h.motif != null}" th:text="'— ' + ${h.motif}"></small>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <a th:href="@{/mes-candidatures}" class="back-link">Retour à mes candidatures</a>
 

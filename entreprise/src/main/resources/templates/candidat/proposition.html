@@ -1,12 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
-    <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title th:text="|Pivot — ${titre}|">Pivot</title>
-  <link rel="stylesheet" th:href="@{/assets/css/style.css}">
-</head>
-
 <body>
 
 <th:block th:fragment="contenu">
@@ -20,60 +13,78 @@
     </p>
   </header>
 
-  <form th:action="@{'/mes-candidatures/' + ${proposition.candidat.id} + '/proposition'}"
-        method="post" class="req-form">
+  <form id="propositionForm"
+        th:action="@{'/mes-candidatures/' + ${proposition.candidat.id} + '/proposition'}"
+        method="post"
+        class="req-form">
 
-    <div th:each="q, iter : ${questions}" class="qcm-block">
-  <p class="qcm-block__title">
-    <span class="qcm-block__num" th:text="${iter.count}"></span>
-    <span th:text="${q.question}"></span>
-  </p>
+    <input type="hidden" name="action" id="actionField" value="">
 
-  <!-- Ordre de l'input caché : un par question, tous nommés "questionIds" -->
-  <input type="hidden" name="questionIds" th:value="${q.id}">
-
-  <label class="qcm-option">
-    <input type="radio" name="reponses" value="OUI" required>
-    <span class="qcm-option__letter">OUI</span>
-    <span class="qcm-option__text">J'accepte</span>
-  </label>
-  <label class="qcm-option">
-    <input type="radio" name="reponses" value="NON">
-    <span class="qcm-option__letter">NON</span>
-    <span class="qcm-option__text">Je refuse</span>
-  </label>
-  <label class="qcm-option">
-    <input type="radio" name="reponses" value="AUTRE">
-    <span class="qcm-option__letter">?</span>
-    <span class="qcm-option__text">Autre (précisez en remarque)</span>
-  </label>
-
-  <div class="field" style="margin-top:8px;">
-    <div class="field__control">
-      <textarea name="remarques" rows="2"
-                placeholder="Remarque (si NON ou AUTRE)"></textarea>
-    </div>
-  </div>
-</div>
-
-    <div class="qcm-block">
+    <!-- =========================================================
+         Questions (4 par défaut)
+         ========================================================= -->
+    <div th:each="q, iter : ${questions}" class="qcm-block question-block">
       <p class="qcm-block__title">
-        <span class="qcm-block__num">7</span>
+        <span class="qcm-block__num" th:text="${iter.count}"></span>
+        <span th:text="${q.question}"></span>
+      </p>
+
+      <input type="hidden" name="questionIds" th:value="${q.id}">
+
+      <label class="qcm-option">
+        <input type="radio" th:name="|reponse_${q.id}|" value="OUI">
+        <span class="qcm-option__letter">OUI</span>
+        <span class="qcm-option__text">J'accepte</span>
+      </label>
+
+      <label class="qcm-option">
+        <input type="radio" th:name="|reponse_${q.id}|" value="NON">
+        <span class="qcm-option__letter">NON</span>
+        <span class="qcm-option__text">Je refuse</span>
+      </label>
+
+      <label class="qcm-option">
+        <input type="radio" th:name="|reponse_${q.id}|" value="AUTRE">
+        <span class="qcm-option__letter">?</span>
+        <span class="qcm-option__text">Autre (précisez en remarque)</span>
+      </label>
+
+      <div class="qcm-remarque">
+        <label class="qcm-remarque__label">
+          Remarque <small>(obligatoire si NON ou AUTRE)</small>
+        </label>
+        <textarea rows="2"
+                  placeholder="Expliquez votre refus ou votre demande…"
+                  disabled></textarea>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         Choix du type de contrat
+         ========================================================= -->
+    <div class="qcm-block contract-block">
+      <p class="qcm-block__title">
+        <span class="qcm-block__num">5</span>
         <span>Type de contrat</span>
       </p>
+
       <p class="req-form__hint" style="margin-bottom:12px;">
-        Par défaut : <strong>CE (Contrat d'Essai)</strong>. Si vous choisissez un autre type, la RH devra valider.
+        Par défaut : <strong>CE (Contrat d'Essai)</strong>.
+        Si vous choisissez CDD/CDI, la RH devra valider.
       </p>
+
       <label class="qcm-option">
-        <input type="radio" name="contratChoisi" value="CE" checked required>
+        <input type="radio" name="contratChoisi" value="CE" checked>
         <span class="qcm-option__letter">CE</span>
         <span class="qcm-option__text">Contrat d'Essai (6 mois, renouvelable 1 fois) — défaut</span>
       </label>
+
       <label class="qcm-option">
         <input type="radio" name="contratChoisi" value="CDD">
         <span class="qcm-option__letter">CDD</span>
         <span class="qcm-option__text">Contrat à Durée Déterminée (24 mois max)</span>
       </label>
+
       <label class="qcm-option">
         <input type="radio" name="contratChoisi" value="CDI">
         <span class="qcm-option__letter">CDI</span>
@@ -81,20 +92,299 @@
       </label>
     </div>
 
-    <div class="req-form__foot">
-      <p class="req-form__hint">
-        Vous avez <strong>un seul round de négociation</strong>.
-      </p>
-      <button type="submit" class="submit">
-        <span class="submit__label">Envoyer ma réponse</span>
-      </button>
+    <!-- =========================================================
+         Boutons d'action
+         ========================================================= -->
+    <div class="req-form__foot"
+         style="display:flex; justify-content:flex-end; align-items:center; gap:12px; flex-wrap:wrap;">
+
+      <div class="action-bar"
+           style="display:flex; justify-content:flex-end; align-items:center; gap:12px; margin:0;">
+
+        <button type="button"
+                id="btnAccepter"
+                class="btn btn--accept"
+                disabled
+                title="Répondez OUI à toutes les questions pour activer ce bouton.">
+          ✓ Accepter l'offre
+        </button>
+
+        <button type="button" id="btnNegocier" class="btn btn--warning">
+          Attendre (négocier)
+        </button>
+
+        <button type="button" id="btnRefuser" class="btn btn--danger">
+          ✗ Refuser
+        </button>
+
+      </div>
     </div>
   </form>
 
-  <form th:action="@{'/mes-candidatures/' + ${proposition.candidat.id} + '/proposition/abandonner'}"
-        method="post" style="margin-top:24px;">
-    <button type="submit" class="btn btn--ghost">Abandonner la proposition</button>
-  </form>
+  <!-- =========================================================
+       Modal — utilisé uniquement pour REFUSER
+       ========================================================= -->
+  <div class="modal-overlay" id="modalAction" style="display:none;">
+    <div class="modal">
+      <h3 class="modal__title" id="modalTitle">Confirmer</h3>
+      <p id="modalIntro"></p>
+
+      <div class="field">
+        <div class="field__top">
+          <label for="motifModal" id="modalLabel">Motif</label>
+          <span class="field__error" id="motifError" aria-live="polite"></span>
+        </div>
+
+        <div class="field__control">
+          <textarea id="motifModal"
+                    rows="3"
+                    placeholder="Saisissez votre motif..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal__actions">
+        <button type="button" class="btn btn--ghost" id="modalCancel">
+          Annuler
+        </button>
+        <button type="button" class="btn btn--danger" id="modalConfirm">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       Script
+       ========================================================= -->
+  <script>
+  (function () {
+    'use strict';
+
+    function initPropositionForm() {
+      var form        = document.getElementById('propositionForm');
+      var actionField = document.getElementById('actionField');
+      var btnAccepter = document.getElementById('btnAccepter');
+      var btnNegocier = document.getElementById('btnNegocier');
+      var btnRefuser  = document.getElementById('btnRefuser');
+      var modal       = document.getElementById('modalAction');
+      var modalTitle  = document.getElementById('modalTitle');
+      var modalIntro  = document.getElementById('modalIntro');
+      var modalLabel  = document.getElementById('modalLabel');
+      var motifField  = document.getElementById('motifModal');
+      var motifError  = document.getElementById('motifError');
+      var modalConfirm= document.getElementById('modalConfirm');
+      var modalCancel = document.getElementById('modalCancel');
+
+      if (!form || !actionField || !btnAccepter || !btnNegocier ||
+          !btnRefuser || !modal || !motifField) {
+        console.error('Formulaire de proposition : éléments HTML introuvables.');
+        return;
+      }
+
+      /* =========================================================
+         Helpers
+         ========================================================= */
+      function getBlocks() {
+        return form.querySelectorAll('.question-block');
+      }
+
+      function getRadio(block) {
+        return block.querySelector('input[type="radio"][name^="reponse_"]:checked');
+      }
+
+      function getTextarea(block) {
+        return block.querySelector('.qcm-remarque textarea');
+      }
+
+      function updateAcceptButton() {
+        var blocks = getBlocks();
+        var allOui = blocks.length > 0;
+
+        for (var i = 0; i < blocks.length; i++) {
+          var checked = getRadio(blocks[i]);
+          if (checked) {
+            if (checked.value !== 'OUI') allOui = false;
+          } else {
+            allOui = false;
+          }
+        }
+
+        btnAccepter.disabled = !allOui;
+        btnAccepter.title = allOui
+          ? ''
+          : 'Répondez OUI à toutes les questions pour activer ce bouton.';
+      }
+
+      function prepareSubmission() {
+        form.querySelectorAll('input[data-generated]').forEach(function (el) {
+          el.remove();
+        });
+
+        var blocks = getBlocks();
+
+        for (var i = 0; i < blocks.length; i++) {
+          var block = blocks[i];
+          var checked = getRadio(block);
+          var textarea = getTextarea(block);
+
+          var hRep = document.createElement('input');
+          hRep.type = 'hidden';
+          hRep.name = 'reponses';
+          hRep.value = checked ? checked.value : '';
+          hRep.setAttribute('data-generated', 'true');
+          form.appendChild(hRep);
+
+          var hRem = document.createElement('input');
+          hRem.type = 'hidden';
+          hRem.name = 'remarques';
+          hRem.value = textarea ? textarea.value : '';
+          hRem.setAttribute('data-generated', 'true');
+          form.appendChild(hRem);
+        }
+      }
+
+      /* =========================================================
+         Changement de réponse → activer/désactiver le textarea
+         ========================================================= */
+      form.addEventListener('change', function (e) {
+        if (e.target.type !== 'radio') return;
+        if (!e.target.name || e.target.name.indexOf('reponse_') !== 0) return;
+
+        var block = e.target.closest('.question-block');
+        if (!block) return;
+
+        var textarea = getTextarea(block);
+        if (!textarea) return;
+
+        if (e.target.value === 'NON' || e.target.value === 'AUTRE') {
+          textarea.disabled = false;
+          textarea.required = true;
+        } else {
+          textarea.disabled = true;
+          textarea.required = false;
+          textarea.value = '';
+        }
+
+        updateAcceptButton();
+      });
+
+      /* =========================================================
+         ACCEPTER — direct, sans modal
+         ========================================================= */
+      btnAccepter.addEventListener('click', function () {
+        if (btnAccepter.disabled) return;
+
+        var blocks = getBlocks();
+        for (var i = 0; i < blocks.length; i++) {
+          var checked = getRadio(blocks[i]);
+          if (!checked || checked.value !== 'OUI') {
+            alert('Vous devez accepter toutes les conditions pour accepter l’offre.');
+            updateAcceptButton();
+            return;
+          }
+        }
+
+        prepareSubmission();
+        actionField.value = 'ACCEPTER';
+        form.submit();
+      });
+
+      /* =========================================================
+         ATTENDRE (NÉGOCIER) — direct, sans modal
+         Le motif = les remarques déjà saisies
+         ========================================================= */
+      btnNegocier.addEventListener('click', function () {
+        var blocks = getBlocks();
+
+        // Guard : au moins une remarque renseignée
+        var hasRemarque = false;
+        for (var i = 0; i < blocks.length; i++) {
+          var ta = getTextarea(blocks[i]);
+          if (ta && ta.value.trim().length > 0) {
+            hasRemarque = true;
+            break;
+          }
+        }
+
+        if (!hasRemarque) {
+          alert('Pour demander une négociation, veuillez renseigner au moins une remarque dans les questions concernées.');
+          return;
+        }
+
+        prepareSubmission();
+        actionField.value = 'NEGOCIER';
+        form.submit();
+      });
+
+      /* =========================================================
+         REFUSER — modal avec motif obligatoire
+         ========================================================= */
+      btnRefuser.addEventListener('click', function () {
+        modalTitle.textContent = 'Refuser la proposition';
+        modalIntro.textContent = 'Cette action est définitive.';
+        modalLabel.textContent = 'Motif du refus';
+        modalConfirm.className = 'btn btn--danger';
+        motifField.value = '';
+        motifField.classList.remove('is-invalid');
+        motifError.textContent = '';
+        modal.style.display = 'flex';
+        setTimeout(function () { motifField.focus(); }, 50);
+      });
+
+      function closeModal() {
+        modal.style.display = 'none';
+      }
+
+      modalCancel.addEventListener('click', closeModal);
+
+      modalConfirm.addEventListener('click', function () {
+        var motif = motifField.value.trim();
+        if (!motif) {
+          motifField.classList.add('is-invalid');
+          motifError.textContent = 'Ce champ est obligatoire';
+          motifField.focus();
+          return;
+        }
+
+        prepareSubmission();
+
+        var hMotif = document.createElement('input');
+        hMotif.type = 'hidden';
+        hMotif.name = 'motifAction';
+        hMotif.value = motif;
+        hMotif.setAttribute('data-generated', 'true');
+        form.appendChild(hMotif);
+
+        actionField.value = 'REFUSER';
+        form.submit();
+      });
+
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
+      });
+
+      motifField.addEventListener('input', function () {
+        if (motifField.value.trim()) {
+          motifField.classList.remove('is-invalid');
+          motifError.textContent = '';
+        }
+      });
+
+      /* État initial */
+      updateAcceptButton();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPropositionForm);
+    } else {
+      initPropositionForm();
+    }
+  })();
+  </script>
 
 </th:block>
 

@@ -7,11 +7,14 @@
   <link rel="stylesheet" th:href="@{/assets/css/style.css}">
 </head>
 <body class="dashboard-page">
+
 <div th:replace="~{fragments/navbar :: navbar}"></div>
+
 <main class="dashboard">
+
   <a th:href="@{/rh/propositions}" class="back-link">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <path d="M19 12H5M11 6l-6 6 6 6"/>
     </svg>
     Retour aux propositions
@@ -19,65 +22,185 @@
 
   <header class="dashboard__head">
     <p class="eyebrow"
-       th:text="|Proposition — ${proposition.candidat.prenom + ' ' + proposition.candidat.nom}|"></p>
+       th:text="${'Proposition — ' + proposition.candidat.prenom + ' ' + proposition.candidat.nom}">
+      Proposition
+    </p>
     <h1>Détail de la proposition</h1>
     <p class="dashboard__count">
       <span class="badge"
-            th:classappend="${proposition.statut.libelle == 'ACCEPTEE' ? ' badge--accepted' :
-                            proposition.statut.libelle == 'REFUSEE' || proposition.statut.libelle == 'EXPIREE' ? ' badge--refused' :
-                            ' badge--pending'}"
-            th:text="${proposition.statut.libelle}"></span>
+            th:classappend="${proposition.statut.libelle == 'ACCEPTEE' ? ' badge--accepted' : (proposition.statut.libelle == 'REFUSEE' or proposition.statut.libelle == 'EXPIREE' ? ' badge--refused' : (proposition.statut.libelle == 'EN_NEGOCIATION' or proposition.statut.libelle == 'EN_VALIDATION_RH' or proposition.statut.libelle == 'EN_ATTENTE_FINAL' ? ' badge--review' : ' badge--pending'))}"
+            th:text="${proposition.statut.libelle}">Statut</span>
     </p>
   </header>
 
-  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}"><span th:text="${erreur}"></span></p>
-  <p class="form__success is-visible" role="status" th:if="${succes}"><span th:text="${succes}"></span></p>
+  <p class="form__success is-visible is-error" role="alert" th:if="${erreur}">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    <span th:text="${erreur}"></span>
+  </p>
+  <p class="form__success is-visible" role="status" th:if="${succes}">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20 6L9 17l-5-5"/>
+    </svg>
+    <span th:text="${succes}"></span>
+  </p>
 
   <section class="detail-section">
-    <h2 class="detail-section__title">Conditions</h2>
-    <div class="detail-meta">
-      <span><strong>Salaire :</strong> <span th:text="${#numbers.formatDecimal(proposition.salaire, 0, 'COMMA', 0, 'POINT')} + ' Ar'"></span></span>
-      <span><strong>Type de contrat :</strong> <span th:text="${proposition.contratType.libelle}"></span></span>
-      <span><strong>Date de début :</strong> <span th:text="${#temporals.format(proposition.dateDebut, 'dd MMMM yyyy')}"></span></span>
-      <span><strong>Lieu :</strong> <span th:text="${proposition.lieuTravail}"></span></span>
-      <span><strong>Horaires :</strong> <span th:text="${proposition.horaires}"></span></span>
-      <span><strong>Période d'essai :</strong> <span th:text="${proposition.dureeEssaiMois} + ' mois'"></span></span>
+    <h2 class="detail-section__title">Conditions proposées</h2>
+
+    <div class="prop-list">
+      <div class="prop-list__row">
+        <span class="prop-list__label">Salaire</span>
+        <span class="prop-list__value">
+          <span th:text="${#numbers.formatDecimal(proposition.salaire, 0, 'COMMA', 0, 'POINT') + ' Ar'}">0 Ar</span>
+          <span class="prop-list__meta">brut / mois</span>
+        </span>
+      </div>
+
+      <div class="prop-list__row">
+        <span class="prop-list__label">Type de contrat</span>
+        <span class="prop-list__value">
+          <span th:text="${proposition.contratType.libelle}">CE</span>
+          <span class="prop-list__meta"
+                th:if="${proposition.contratType.dureeMaxMois != null}"
+                th:text="${proposition.contratType.dureeMaxMois} + ' mois max'"></span>
+        </span>
+      </div>
+
+      <div class="prop-list__row">
+        <span class="prop-list__label">Date de début</span>
+        <span class="prop-list__value"
+              th:text="${#temporals.format(proposition.dateDebut, 'dd MMMM yyyy')}">
+          01 décembre 2026
+        </span>
+      </div>
+
+      <div class="prop-list__row">
+        <span class="prop-list__label">Lieu de travail</span>
+        <span class="prop-list__value" th:text="${proposition.lieuTravail}">Antananarivo</span>
+      </div>
+
+      <div class="prop-list__row">
+        <span class="prop-list__label">Horaires</span>
+        <span class="prop-list__value" th:text="${proposition.horaires}">Lun-Ven, 8h-17h</span>
+      </div>
+
+      <div class="prop-list__row">
+        <span class="prop-list__label">Période d'essai</span>
+        <span class="prop-list__value">
+          <span th:text="${proposition.dureeEssaiMois} + ' mois'">6 mois</span>
+          <span class="prop-list__meta">renouvelable 1 fois</span>
+        </span>
+      </div>
     </div>
   </section>
 
   <section class="detail-section">
     <h2 class="detail-section__title">Réponses du candidat</h2>
-    <div th:each="q : ${questions}" class="detail-card" style="margin-bottom:8px;">
-      <p><strong th:text="${q.question}"></strong></p>
-      <p th:if="${q.reponse != null}">
-        Réponse : <strong th:text="${q.reponse.libelle}"></strong>
-      </p>
-      <p th:if="${q.remarque != null}" th:text="'Remarque : ' + ${q.remarque}"></p>
+
+    <div class="prop-answers">
+      <div th:each="q, iter : ${questions}" class="prop-answer">
+        <div class="prop-answer__head">
+          <span class="prop-answer__num" th:text="${iter.count}"></span>
+          <span class="prop-answer__question" th:text="${q.question}"></span>
+        </div>
+
+        <div class="prop-answer__body">
+
+  <span th:if="${q.reponse != null and q.reponse.libelle == 'OUI'}"
+        class="prop-answer__badge prop-answer__badge--ok"
+        th:text="${q.reponse.libelle}">OUI</span>
+
+  <span th:if="${q.reponse != null and q.reponse.libelle == 'NON'}"
+        class="prop-answer__badge prop-answer__badge--no"
+        th:text="${q.reponse.libelle}">NON</span>
+
+  <span th:if="${q.reponse != null and q.reponse.libelle != 'OUI' and q.reponse.libelle != 'NON'}"
+        class="prop-answer__badge prop-answer__badge--warn"
+        th:text="${q.reponse.libelle}">AUTRE</span>
+
+  <span th:if="${q.reponse == null}"
+        class="prop-answer__badge prop-answer__badge--empty">
+    Non répondu
+  </span>
+
+  <p th:if="${q.remarque != null and !q.remarque.isEmpty()}"
+     class="prop-answer__remarque">
+    <strong>Remarque :</strong> <span th:text="${q.remarque}"></span>
+  </p>
+
+</div>
+      </div>
     </div>
   </section>
 
-  <section class="detail-section" th:if="${proposition.statut.libelle == 'EN_NEGOCIATION' or proposition.statut.libelle == 'EN_VALIDATION_RH'}">
+  <section class="detail-section"
+           th:if="${proposition.statut.libelle == 'EN_NEGOCIATION' or proposition.statut.libelle == 'EN_VALIDATION_RH'}">
+
     <h2 class="detail-section__title">Décision RH</h2>
-    <form th:action="@{'/rh/propositions/' + ${proposition.id} + '/valider'}" method="post" class="req-form">
-      <div class="field">
-        <div class="field__control">
-          <textarea name="reponseRh" rows="3"
-                    placeholder="Réponse / motif de validation ou refus"></textarea>
+
+    <form th:action="@{'/rh/propositions/' + ${proposition.id} + '/valider'}"
+          method="post" class="rh-decision" id="rhDecisionForm">
+
+      <div class="rh-decision__field">
+        <label for="reponseRh" class="rh-decision__label">
+          Message au candidat
+          <span class="rh-decision__optional">(facultatif en cas de validation)</span>
+        </label>
+        <div class="rh-decision__textarea-wrap">
+          <textarea id="reponseRh" name="reponseRh" rows="4"
+                    class="rh-decision__textarea"
+                    placeholder="Expliquez votre décision au candidat…"></textarea>
         </div>
       </div>
-      <div class="action-bar">
-        <button type="submit" name="accepte" value="true" class="btn btn--accept">✓ Valider</button>
-        <button type="submit" name="accepte" value="false" class="btn btn--danger">✗ Refuser</button>
+
+      <div class="rh-decision__actions">
+
+        <button type="submit" name="accepte" value="false"
+                class="rh-decision__card rh-decision__card--no">
+          <span class="rh-decision__card-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </span>
+          <span class="rh-decision__card-text">
+            <span class="rh-decision__card-title">Refuser la négociation</span>
+            <span class="rh-decision__card-desc">Le candidat sera notifié et la proposition clôturée.</span>
+          </span>
+        </button>
+
+        <button type="submit" name="accepte" value="true"
+                class="rh-decision__card rh-decision__card--yes">
+          <span class="rh-decision__card-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.4"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+          </span>
+          <span class="rh-decision__card-text">
+            <span class="rh-decision__card-title">Valider la négociation</span>
+            <span class="rh-decision__card-desc">Le candidat sera invité à confirmer sa décision finale.</span>
+          </span>
+        </button>
+
       </div>
     </form>
   </section>
 
   <section class="detail-section" th:if="${proposition.statut.libelle == 'ACCEPTEE'}">
     <h2 class="detail-section__title">Contrat</h2>
-    <a th:href="@{'/rh/propositions/' + ${proposition.id} + '/contrat.pdf'}"
-       class="btn btn--accept" style="text-decoration:none;">
-      📄 Télécharger le contrat PDF
-    </a>
+    <div class="action-bar">
+      <a th:href="@{'/rh/propositions/' + ${proposition.id} + '/contrat.pdf'}"
+         class="btn btn--accept" style="text-decoration:none;">
+        📄 Télécharger le contrat PDF
+      </a>
+    </div>
   </section>
 
   <section class="detail-section">
@@ -89,21 +212,40 @@
           <span class="timeline-item__date"
                 th:text="${#temporals.format(h.dateChangement, 'dd/MM/yyyy HH:mm')}"></span>
           <span th:text="${h.statut.libelle}"></span>
-          <small th:if="${h.motif != null}" th:text="'— ' + ${h.motif}"></small>
+          <small th:if="${h.motif != null}" th:text="${'— ' + h.motif}"></small>
         </div>
       </div>
     </div>
   </section>
+
 </main>
+
 <script>
 (function () {
+  'use strict';
+
   var nav = document.getElementById('appNav');
   var toggle = document.getElementById('appNavToggle');
-  if (toggle) toggle.addEventListener('click', function() {
-    var open = nav.classList.toggle('is-open');
-    toggle.setAttribute('aria-expanded', open);
-  });
+  if (toggle) {
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+  }
+
+  var form = document.getElementById('rhDecisionForm');
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      var submitter = e.submitter;
+      if (submitter && submitter.value === 'false') {
+        if (!confirm('Confirmer le refus de la négociation ? Le candidat sera notifié.')) {
+          e.preventDefault();
+        }
+      }
+    });
+  }
 })();
 </script>
+
 </body>
 </html>
